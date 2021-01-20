@@ -5,7 +5,7 @@ import os
 import re
 import logging
 import time
-
+from colorlog import ColoredFormatter
 from pydriller import RepositoryMining
 from pydriller import Commit
 from scripts import Common
@@ -13,15 +13,23 @@ from scripts import Common
 git_path = ""
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+s_formatter = ColoredFormatter('%(log_color)s%(asctime)s - %(levelname)s - %(message)s%(reset)s')
+f_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 file_handler = logging.FileHandler('test.log')
-file_handler.setFormatter(formatter)
+file_handler.setFormatter(f_formatter)
 
 stream_handler = logging.StreamHandler()
-
+stream_handler.setFormatter(s_formatter)
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
+
+
+def logger_legend():
+    logger.debug("A quirky message only developers care about")
+    logger.info("Curious users might want to know this")
+    logger.warn("Something is wrong and any user should be informed")
+    logger.error("Serious stuff, this is red for a reason")
+    logger.critical("OH NO everything is on fire")
 
 
 def parse_args():
@@ -162,7 +170,7 @@ def show_objects_changed_by_features(objects_changed_by_features: dict):
     :return:
     """
     title = "show_feature_functions"
-    logger.info(f"\n{title}")
+    logger.info(f"{title}")
     logger.info('='*len(title))
     for key in objects_changed_by_features:
         logger.info(f"Feature '{key}':")
@@ -189,8 +197,8 @@ def main():
     if not os.path.isdir(git_path):
         logger.critical(f'Path {args.path} is not a directory')
         exit(1)
-    # git_repo = RepositoryMining(git_path, from_tag='vmlnx-ofed-5.2-0.6.3')
-    git_repo = RepositoryMining(git_path)
+    git_repo = RepositoryMining(git_path, from_tag='vmlnx-ofed-5.2-0.6.3')
+    # git_repo = RepositoryMining(git_path)
     metadata_commit_info, objects_changed_by_features = get_metadata_patches_info(git_repo)
     end_time = time.time()
 
