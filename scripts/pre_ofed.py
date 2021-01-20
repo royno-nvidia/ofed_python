@@ -10,7 +10,19 @@ from pydriller import RepositoryMining
 from pydriller import Commit
 from scripts import Common
 
-git_path=""
+git_path = ""
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_handler = logging.FileHandler('test.log')
+file_handler.setFormatter(formatter)
+
+stream_handler = logging.StreamHandler()
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="OFED pre-rebase")
@@ -43,9 +55,12 @@ def get_metadata_patches_info(git_repo: RepositoryMining) -> dict:
     patches_info_dict = {}
     for commit in git_repo.traverse_commits():
         info = get_patch_info(commit)
+        if info is None:
+            logger.error(f"Fail to process commit {commit.hash}")
+            continue
         patches_info_dict[commit.hash] = info
         curr_feature = info['feature']
-        # print_data(commit, patches_info_dict)
+        print_data(commit, patches_info_dict)
         for mod in commit.modifications:
             if len(mod.changed_methods) > 0:
                 for method in mod.changed_methods:
@@ -60,21 +75,18 @@ def get_metadata_patches_info(git_repo: RepositoryMining) -> dict:
 
 
 def print_data(commit, patches_info_dict):
-    print(patches_info_dict[commit.hash]['feature'])
-    print()
-    print('Hash {}, author {}'.format(commit.hash, commit.author.name))
+    logger.debug("")
+    logger.debug('Hash {}, author {}, feature {}'.format(commit.hash, commit.author.name, patches_info_dict[commit.hash]['feature']))
     for mod in commit.modifications:
         if len(mod.changed_methods) == 0:
             continue
         print_filename(mod)
-        [print(meth.name) for meth in mod.changed_methods]
+        [logger.debug(f"\t{meth.name}") for meth in mod.changed_methods]
 
 
 def print_filename(mod):
     filename = f'in file: {mod.filename}'
-    print('-' * len(filename))
-    print(filename)
-    print('-' * len(filename))
+    logger.debug(filename)
 
 
 def get_patch_changeID(commit: Commit):
@@ -88,7 +100,7 @@ def get_patch_changeID(commit: Commit):
         list_data = re.findall(r"\s*Change-Id:\s+(\w+)", msg, re.M)
         return list_data[0]
     except Exception as e:
-        print(f"Fail get_patch_changeID in {commit.hash}: {e}")
+        logger.exception(f"Fail get_patch_changeID in {commit.hash}: {e}")
         return None
 
 
@@ -119,7 +131,7 @@ def get_line_from_csv(author_file, change_id):
             list_lines = re.findall(rf".*{change_id}.*", csv, re.M)
             return list_lines[0]
         except Exception as e:
-            print(f"Fail get_line_from_csv for file {author_file}, changeID {change_id}: {e}")
+            logger.exception(f"Fail get_line_from_csv for file {author_file}, changeID {change_id}: {e}")
             return None
 
 
@@ -131,10 +143,14 @@ def get_patch_info(commit: Commit) -> dict:
     """
     global git_path
     change_id = get_patch_changeID(commit)
+    if change_id is None:
+        return None
     author_file = f"{git_path}/metadata/{generate_author_file(commit.author.name)}"
     if not os.path.isfile(author_file):
-        print(f"File {author_file} not exist, please check commit {commit.hash} manually")
+        logger.error(f"File {author_file} not exist, please check commit {commit.hash} manually")
     line_for_changeID = get_line_from_csv(author_file, change_id)
+    if line_for_changeID is None:
+        return None
     patch_info_dict = Common.parse_patch_info(line_for_changeID)[1]
     return patch_info_dict
 
@@ -146,13 +162,19 @@ def show_objects_changed_by_features(objects_changed_by_features: dict):
     :return:
     """
     title = "show_feature_functions"
-    print(title)
-    print('='*len(title))
+    logger.info(f"\n{title}")
+    logger.info('='*len(title))
     for key in objects_changed_by_features:
-        print()
-        print()
-        print(f"Feature '{key}':")
-        [print(x) for x in objects_changed_by_features[key]]
+        logger.info(f"Feature '{key}':")
+        [logger.info(f"\t'{x}'") for x in objects_changed_by_features[key]]
+
+
+def show_runtime(end_time, start_time):
+    runtime = end_time - start_time
+    msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime//1))}"
+    logger.debug('-' * len(msg))
+    logger.debug(msg)
+    logger.debug('-' * len(msg))
 
 
 def main():
@@ -160,29 +182,20 @@ def main():
 
     start_time = time.time()
     args = parse_args()
-    # print(args)
+    logger.debug(args)
     git_path = args.path
     if git_path.endswith('/'):
         git_path = git_path[:-1]  # remove last '/' if exist
     if not os.path.isdir(git_path):
-        print(f'Path {args.path} is not a directory')
+        logger.critical(f'Path {args.path} is not a directory')
         exit(1)
-    curr_path = '/swgwork/royno/OFED_WORK_AREA/mlnx_ofed_5_2/mlnx-ofa_kernel-4.0'
-    # git_repo = RepositoryMining(curr_path, from_tag='vmlnx-ofed-5.2-0.6.3')
+    # git_repo = RepositoryMining(git_path, from_tag='vmlnx-ofed-5.2-0.6.3')
     git_repo = RepositoryMining(git_path)
     metadata_commit_info, objects_changed_by_features = get_metadata_patches_info(git_repo)
     end_time = time.time()
 
     show_objects_changed_by_features(objects_changed_by_features)
     show_runtime(end_time, start_time)
-
-
-def show_runtime(end_time, start_time):
-    runtime = end_time - start_time
-    msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime//1))}"
-    print('-' * len(msg))
-    print(msg)
-    print('-' * len(msg))
 
 
 if __name__ == '__main__':
