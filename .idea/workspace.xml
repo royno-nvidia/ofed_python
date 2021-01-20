@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3d4ad855-7f94-4963-9d83-e566622cc23e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/pre_ofed.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/pre_ofed.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/venv/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -14,32 +13,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/scripts/pre_ofed.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="14" column="29" selection-start-line="14" selection-start-column="29" selection-end-line="14" selection-end-column="29" />
-              <folding>
-                <element signature="e#148#163#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scripts/test.log">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="206">
-              <caret line="61" column="22" selection-start-line="61" selection-end-line="61" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/git_repository.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="172">
-              <caret line="102" column="67" selection-start-line="102" selection-start-column="67" selection-end-line="102" selection-end-column="67" />
+            <state relative-caret-position="112">
+              <caret line="99" column="43" lean-forward="true" selection-start-line="99" selection-start-column="43" selection-end-line="99" selection-end-column="43" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="181">
+              <caret line="199" column="62" lean-forward="true" selection-start-line="199" selection-start-column="62" selection-end-line="199" selection-end-column="62" />
             </state>
           </provider>
         </entry>
@@ -182,7 +169,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.pre_ofed">
+  <component name="RunManager" selected="Python.pre_rebasae_analyzer">
     <configuration name="Common" type="PythonConfigurationType" factoryName="Python">
       <module name="OfedProject" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -225,6 +212,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="pre_rebasae_analyzer" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="OfedProject" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" />
+      <option name="PARAMETERS" value="-path $PROJECT_DIR$/../../../OFED_WORK_AREA/mlnx_ofed_5_2/mlnx-ofa_kernel-4.0" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="repository_mining" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="OfedProject" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -250,9 +258,11 @@
       <item itemvalue="Python.Common" />
       <item itemvalue="Python.pre_ofed" />
       <item itemvalue="Python.repository_mining" />
+      <item itemvalue="Python.pre_rebasae_analyzer" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.pre_rebasae_analyzer" />
         <item itemvalue="Python.pre_ofed" />
         <item itemvalue="Python.repository_mining" />
       </list>
@@ -305,18 +315,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/scripts/pre_ofed.py</url>
-          <line>81</line>
-          <option name="timeStamp" value="19" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/scripts/pre_ofed.py</url>
-          <line>194</line>
-          <option name="timeStamp" value="20" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -348,13 +346,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="212">
           <caret line="310" selection-start-line="310" selection-end-line="310" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/git_repository.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="172">
-          <caret line="102" column="67" selection-start-line="102" selection-start-column="67" selection-end-line="102" selection-end-column="67" />
         </state>
       </provider>
     </entry>
@@ -426,13 +417,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/test.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="61" column="22" selection-start-line="61" selection-end-line="61" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/pre_ofed.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="280">
@@ -440,6 +424,27 @@
           <folding>
             <element signature="e#148#163#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/test.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="326">
+          <caret line="61" column="22" selection-start-line="61" selection-end-line="61" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/git_repository.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="99" column="43" lean-forward="true" selection-start-line="99" selection-start-column="43" selection-end-line="99" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="199" column="62" lean-forward="true" selection-start-line="199" selection-start-column="62" selection-end-line="199" selection-end-column="62" />
         </state>
       </provider>
     </entry>
