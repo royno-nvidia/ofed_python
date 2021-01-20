@@ -1,8 +1,11 @@
 # pytest /swgwork/royno/Full/Python_work_place/pydriller/tests/test_commit.py   -s --disable-warnings -v --capture=no  --no-print-logs -k test_equa
 import argparse
+import datetime
 import os
 import re
 import logging
+import time
+
 from pydriller import RepositoryMining
 from pydriller import Commit
 from scripts import Common
@@ -36,11 +39,24 @@ def get_metadata_patches_info(git_repo: RepositoryMining) -> dict:
     :param git_repo:
     :return:
     """
+    feature_method_changed_dict = {}
     patches_info_dict = {}
     for commit in git_repo.traverse_commits():
-        patches_info_dict[commit.hash] = get_patch_info(commit)
-        print_data(commit, patches_info_dict)
-    return patches_info_dict
+        info = get_patch_info(commit)
+        patches_info_dict[commit.hash] = info
+        curr_feature = info['feature']
+        # print_data(commit, patches_info_dict)
+        for mod in commit.modifications:
+            if len(mod.changed_methods) > 0:
+                for method in mod.changed_methods:
+                    if curr_feature in feature_method_changed_dict.keys():
+                        feature_method_changed_dict[curr_feature].append(method.name)
+                    else:
+                        feature_method_changed_dict[curr_feature] = []
+                        feature_method_changed_dict[curr_feature].append(method.name)
+        # feature_method_changed_dict[info['feature']] =
+        # list(dict.fromkeys(feature_method_changed_dict[info['feature']])) #remove duplicates
+    return patches_info_dict, feature_method_changed_dict
 
 
 def print_data(commit, patches_info_dict):
@@ -85,7 +101,7 @@ def generate_author_file(author: str) -> str:
     splited = author.split(' ')
     string_builder = ""
     for name in splited:
-        string_builder += f"_{name.capitalize()}"
+        string_builder += f"_{name}"
     filename = f"{string_builder}.csv"
     return filename[1:]
 
@@ -123,19 +139,50 @@ def get_patch_info(commit: Commit) -> dict:
     return patch_info_dict
 
 
+def show_objects_changed_by_features(objects_changed_by_features: dict):
+    """
+    print all information script analyzed about which functions each OFED feature changing
+    :param objects_changed_by_features:
+    :return:
+    """
+    title = "show_feature_functions"
+    print(title)
+    print('='*len(title))
+    for key in objects_changed_by_features:
+        print()
+        print()
+        print(f"Feature '{key}':")
+        [print(x) for x in objects_changed_by_features[key]]
+
+
 def main():
     global git_path
-    metadata_commit_info = {}
+
+    start_time = time.time()
     args = parse_args()
     # print(args)
     git_path = args.path
+    if git_path.endswith('/'):
+        git_path = git_path[:-1]  # remove last '/' if exist
     if not os.path.isdir(git_path):
         print(f'Path {args.path} is not a directory')
         exit(1)
     curr_path = '/swgwork/royno/OFED_WORK_AREA/mlnx_ofed_5_2/mlnx-ofa_kernel-4.0'
-    git_repo = RepositoryMining(curr_path, from_tag='vmlnx-ofed-5.2-0.6.3')
-    metadata_commit_info = get_metadata_patches_info(git_repo)
-    get_method_changed_per_feature(metadata_commit_info)
+    # git_repo = RepositoryMining(curr_path, from_tag='vmlnx-ofed-5.2-0.6.3')
+    git_repo = RepositoryMining(git_path)
+    metadata_commit_info, objects_changed_by_features = get_metadata_patches_info(git_repo)
+    end_time = time.time()
+
+    show_objects_changed_by_features(objects_changed_by_features)
+    show_runtime(end_time, start_time)
+
+
+def show_runtime(end_time, start_time):
+    runtime = end_time - start_time
+    msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime//1))}"
+    print('-' * len(msg))
+    print(msg)
+    print('-' * len(msg))
 
 
 if __name__ == '__main__':
