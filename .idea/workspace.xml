@@ -2,8 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3d4ad855-7f94-4963-9d83-e566622cc23e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/scripts/utils/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/utils/Common.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/pre_rebasae_analyzer.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/venv/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -15,13 +18,39 @@
   <component name="FileEditorManager">
     <leaf>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py">
+        <entry file="file://$PROJECT_DIR$/pre_rebasae_analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1888">
-              <caret line="193" column="4" selection-start-line="193" selection-start-column="4" selection-end-line="193" selection-end-column="4" />
+            <state relative-caret-position="380">
+              <caret line="21" column="44" selection-start-line="21" selection-start-column="44" selection-end-line="21" selection-end-column="44" />
               <folding>
                 <element signature="e#148#163#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pyLogger/logger.py">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/utils/Common.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="424">
+              <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
+              <folding>
+                <element signature="e#1287#1296#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/repository_mining.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="125">
+              <caret line="196" column="8" selection-start-line="196" selection-start-column="8" selection-end-line="196" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -45,24 +74,6 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/utils/conf.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="199" selection-start-line="199" selection-end-line="199" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/repository_mining.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="216" selection-start-line="216" selection-end-line="216" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/feature_objects_changed.txt">
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
@@ -70,16 +81,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/metadata_commits.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3503" />
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file:///usr/lib64/python3.6/json/decoder.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="457">
-              <caret line="356" selection-start-line="356" selection-end-line="356" />
-            </state>
+            <state relative-caret-position="-563" />
           </provider>
         </entry>
       </file>
@@ -128,7 +130,9 @@
         <option value="$PROJECT_DIR$/pyLogger/logger.py" />
         <option value="$PROJECT_DIR$/scripts/pre_ofed.py" />
         <option value="$PROJECT_DIR$/scripts/test.log" />
+        <option value="$PROJECT_DIR$/scripts/__init__.py" />
         <option value="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" />
+        <option value="$PROJECT_DIR$/pre_rebasae_analyzer.py" />
       </list>
     </option>
   </component>
@@ -154,34 +158,13 @@
             <path>
               <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
               <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
-              <item name="pyLogger" type="462c0819:PsiDirectoryNode" />
+              <item name="scripts" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
               <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
               <item name="scripts" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-            </path>
-            <path>
-              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="&lt; Python 3.6 (OfedProject) &gt;" type="70bed36:NamedLibraryElementNode" />
-            </path>
-            <path>
-              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="&lt; Python 3.6 (OfedProject) &gt;" type="70bed36:NamedLibraryElementNode" />
-              <item name="site-packages" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="&lt; Python 3.6 (OfedProject) &gt;" type="70bed36:NamedLibraryElementNode" />
-              <item name="site-packages" type="462c0819:PsiDirectoryNode" />
-              <item name="pydriller" type="462c0819:PsiDirectoryNode" />
+              <item name="utils" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -193,6 +176,12 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/scripts/utils" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -219,7 +208,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/Common.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/utils/Common.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -261,8 +250,8 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" />
-      <option name="PARAMETERS" value="-path $PROJECT_DIR$/../../../OFED_WORK_AREA/linux_linus -start_tag v5.10 -end_tag v5.11-rc4" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pre_rebasae_analyzer.py" />
+      <option name="PARAMETERS" value="-path $PROJECT_DIR$/../../../OFED_WORK_AREA/mlnx_ofed_5_2/mlnx-ofa_kernel-4.0/ -ofed_repo" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -332,7 +321,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24973601" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.119324185" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Python Console" weight="0.32969433" />
@@ -340,7 +329,7 @@
       <window_info anchor="bottom" id="Event Log" sideWeight="0.500528" side_tool="true" weight="0.34716156" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32969433" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49947202" visible="true" weight="0.3569869" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49947202" weight="0.3569869" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3995633" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -400,9 +389,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pyLogger/logger.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file:///tmp/.PyCharmCE/system/python_stubs/-1080729191/_symtable.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -417,16 +403,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1168">
           <caret line="1139" column="50" selection-start-line="1139" selection-start-column="37" selection-end-line="1139" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/Common.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="179">
-          <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
-          <folding>
-            <element signature="e#1287#1296#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -471,18 +447,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/feature_objects_changed.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/metadata_commits.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3503" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/git/util.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="890" selection-start-line="890" selection-end-line="890" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/utils/conf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1370">
+          <caret line="199" selection-start-line="199" selection-end-line="199" />
         </state>
       </provider>
     </entry>
@@ -493,24 +468,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/utils/conf.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="199" selection-start-line="199" selection-end-line="199" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pydriller/repository_mining.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="216" selection-start-line="216" selection-end-line="216" />
+        <state relative-caret-position="125">
+          <caret line="196" column="8" selection-start-line="196" selection-start-column="8" selection-end-line="196" selection-end-column="8" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py">
+    <entry file="file://$PROJECT_DIR$/scripts/metadata_commits.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1888">
-          <caret line="193" column="4" selection-start-line="193" selection-start-column="4" selection-end-line="193" selection-end-column="4" />
+        <state relative-caret-position="-563" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/feature_objects_changed.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyLogger/logger.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/utils/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/utils/Common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="424">
+          <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
+          <folding>
+            <element signature="e#1287#1296#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="20">
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pre_rebasae_analyzer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="380">
+          <caret line="21" column="44" selection-start-line="21" selection-start-column="44" selection-end-line="21" selection-end-column="44" />
           <folding>
             <element signature="e#148#163#0" expanded="true" />
           </folding>

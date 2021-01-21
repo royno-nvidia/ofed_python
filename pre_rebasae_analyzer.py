@@ -11,15 +11,15 @@ import git
 from colorlog import ColoredFormatter
 from pydriller import RepositoryMining
 from pydriller import Commit
-from scripts import Common
+from scripts.utils import Common
 
 git_path = ""
 is_ofed = False
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-s_formatter = ColoredFormatter('%(log_color)s%(asctime)s - %(levelname)s - %(message)s%(reset)s')
-f_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('test.log')
+s_formatter = ColoredFormatter('%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
+f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
+file_handler = logging.FileHandler('analyzer.log')
 file_handler.setFormatter(f_formatter)
 
 stream_handler = logging.StreamHandler()
@@ -70,6 +70,11 @@ def is_git_repo(path: str) -> bool:
 
 
 def process_kernel_repo(git_repo: RepositoryMining) -> list:
+    """
+
+    :param git_repo:
+    :return:
+    """
     # info_dict = {}
     changed_methods = []
     overall_commits = 0
@@ -257,12 +262,17 @@ def show_changed_list(kernel_commits_info: list, from_version: str, to_version: 
 
 
 def parse_input_args(args):
+    """
+    עretrieve args from parser
+    :return:
+    """
     return args.path, args.ofed_repo, args.start_tag, args.end_tag
 
 
 def main():
     global git_path
     global is_ofed
+    logger_legend()
     start_time = time.time()
     args = parse_args()
     logger.debug(args)
@@ -299,7 +309,7 @@ def main():
         show_objects_changed_by_features(objects_changed_by_features)
         save_dict_to_json(metadata_commit_info, objects_changed_by_features)
     else:
-        show_changed_list(kernel_commits_info, 'v5.1', '5.2')
+        show_changed_list(kernel_commits_info, from_version, to_version)
     show_runtime(end_time, start_time)
 
 
