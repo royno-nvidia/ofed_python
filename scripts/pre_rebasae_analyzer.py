@@ -14,6 +14,7 @@ from pydriller import Commit
 from scripts import Common
 
 git_path = ""
+is_ofed = False
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 s_formatter = ColoredFormatter('%(log_color)s%(asctime)s - %(levelname)s - %(message)s%(reset)s')
@@ -38,13 +39,13 @@ def logger_legend():
 def parse_args():
     parser = argparse.ArgumentParser(description="OFED pre-rebase")
     # parser.add_argument("-hosts", nargs='+', type=str, required=True, help="the host to map GPU/HCA")
-    parser.add_argument("-path", type=str, default="", required=True, help="path git")
-    # parser.add_argument("-json_file_name", type=str, default="topo_file.json",
-    #                     help="json file name to save (default='topo_file.json')")
-    # parser.add_argument("-xml_file_name", type=str, default="nccl_system.xml",
-    #                     help="xml file name to save (default='nccl_system.xml')")
-    # parser.add_argument("-ofed_repo", action='store_true',
-    #                     help="Script will analyze git repo as OFED repo")
+    parser.add_argument("-path", type=str, default="", required=True, help="Git path")
+    parser.add_argument("-start_tag", type=str, default="",
+                        help="Script will process only commits from tag and above [must be valid tag in -path repo]")
+    parser.add_argument("-end_tag", type=str, default="",
+                        help="Script will process only commits up to tag [must be valid tag in -path repo]")
+    parser.add_argument("-ofed_repo", action='store_true',
+                        help="Script will analyze git repo as OFED repo")
     # parser.add_argument("-hca", nargs='+', type=int, required=True,
     #                     help="Hca numbers example \"-hca 0 1 2 3 4 5 6 7\" ")
     # parser.add_argument("-server_hca", default=1, type=int,
@@ -68,7 +69,21 @@ def is_git_repo(path: str) -> bool:
         return False
 
 
-def get_metadata_patches_info(git_repo: RepositoryMining) -> dict:
+def process_kernel_repo(git_repo: RepositoryMining) -> list:
+    # info_dict = {}
+    changed_methods = []
+    overall_commits = 0
+    for commit in git_repo.traverse_commits():
+        overall_commits += 1
+        for mod in commit.modifications:
+            if len(mod.changed_methods) > 0:
+                for method in mod.changed_methods:
+                    changed_methods.append(method.name)
+    logger.info(f"over all commits parsed: {overall_commits}")
+    return list(dict.fromkeys(changed_methods))
+
+
+def process_ofed_repo(git_repo: RepositoryMining) -> dict:
     """
     iterate over all commits in given OFED RepositoryMining,
     parsing each commit and fill data about it from metadata
@@ -193,9 +208,9 @@ def show_objects_changed_by_features(objects_changed_by_features: dict):
 def show_runtime(end_time, start_time):
     runtime = end_time - start_time
     msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime//1))}"
-    logger.debug('-' * len(msg))
-    logger.debug(msg)
-    logger.debug('-' * len(msg))
+    logger.info('-' * len(msg))
+    logger.info(msg)
+    logger.info('-' * len(msg))
 
 
 def create_dict_from_json(file_path: str) -> dict:
@@ -210,7 +225,6 @@ def create_dict_from_json(file_path: str) -> dict:
         return ret
     except Exception as e:
         logger.exception(f"Could not read from json file '{file_path}':\n{e}")
-
 
 
 def save_dict_to_json(metadata: dict, features: dict):
@@ -231,13 +245,28 @@ def save_dict_to_json(metadata: dict, features: dict):
         logger.exception(f"Could not save dict into {filename}:\n{e}")
 
 
+def verify_ofed_dir(git_path):
+    if not os.path.isdir(f"{git_path}/metadata"):
+        return False
+    return True
+
+
+def show_changed_list(kernel_commits_info: list, from_version: str, to_version: str):
+    print(f"Methods changed between kernel {from_version} to kernel {to_version}:")
+    [print(meth) for meth in sorted(kernel_commits_info)]
+
+
+def parse_input_args(args):
+    return args.path, args.ofed_repo, args.start_tag, args.end_tag
+
+
 def main():
     global git_path
-
+    global is_ofed
     start_time = time.time()
     args = parse_args()
     logger.debug(args)
-    git_path = args.path
+    git_path, is_ofed, from_version, to_version = parse_input_args(args)
     if git_path.endswith('/'):
         git_path = git_path[:-1]  # remove last '/' if exist
     if not os.path.isdir(git_path):
@@ -246,16 +275,32 @@ def main():
     if not is_git_repo(git_path):
         logger.critical(f'Path {git_path} is not a git repo')
         exit(1)
-    git_repo = RepositoryMining(git_path, from_tag='vmlnx-ofed-5.2-0.6.3')
-    # git_repo = RepositoryMining(git_path)
-    metadata_commit_info, objects_changed_by_features = get_metadata_patches_info(git_repo)
+    if is_ofed:
+        if not verify_ofed_dir(git_path):
+            logger.critical(f'Path {git_path} is not an OFED repo [-ofed_repo used in command]')
+            exit(1)
+    if is_ofed:
+        git_repo = RepositoryMining(git_path, from_tag='vmlnx-ofed-5.2-0.6.3')
+        # git_repo = RepositoryMining(git_path)
+    else:
+        if from_version == '' or to_version == '':
+            logger.critical('For kernel analyze script must get both -start_tag, -end_tag')
+            exit(1)
+        git_repo = RepositoryMining(git_path, from_tag=from_version, to_tag=to_version)
+    if is_ofed:
+        metadata_commit_info, objects_changed_by_features = process_ofed_repo(git_repo)
+    else:
+        try:
+            kernel_commits_info = process_kernel_repo(git_repo)
+        except Exception as e:
+            logger.critical(f"Could not create RepositoryMining,\n{e}")
     end_time = time.time()
-
-    show_objects_changed_by_features(objects_changed_by_features)
+    if is_ofed:
+        show_objects_changed_by_features(objects_changed_by_features)
+        save_dict_to_json(metadata_commit_info, objects_changed_by_features)
+    else:
+        show_changed_list(kernel_commits_info, 'v5.1', '5.2')
     show_runtime(end_time, start_time)
-    save_dict_to_json(metadata_commit_info, objects_changed_by_features)
-
-
 
 
 if __name__ == '__main__':
