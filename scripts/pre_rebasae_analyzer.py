@@ -5,6 +5,9 @@ import os
 import re
 import logging
 import time
+
+import json
+import git
 from colorlog import ColoredFormatter
 from pydriller import RepositoryMining
 from pydriller import Commit
@@ -40,8 +43,8 @@ def parse_args():
     #                     help="json file name to save (default='topo_file.json')")
     # parser.add_argument("-xml_file_name", type=str, default="nccl_system.xml",
     #                     help="xml file name to save (default='nccl_system.xml')")
-    # parser.add_argument("-gpu", nargs='+', type=int, required=True,
-    #                     help="Gpu numbers example \"-gpu 0 1 2 3 4 5 6 7\" ")
+    # parser.add_argument("-ofed_repo", action='store_true',
+    #                     help="Script will analyze git repo as OFED repo")
     # parser.add_argument("-hca", nargs='+', type=int, required=True,
     #                     help="Hca numbers example \"-hca 0 1 2 3 4 5 6 7\" ")
     # parser.add_argument("-server_hca", default=1, type=int,
@@ -50,6 +53,19 @@ def parse_args():
     # parser.add_argument("-xml", action='store_true', help="create a xml file (must be 8 gpu and 8 hca)")
     options = parser.parse_args()
     return options
+
+
+def is_git_repo(path: str) -> bool:
+    """
+    determine whether path is git repo root
+    :param path:
+    :return: bool
+    """
+    try:
+        _ = git.Repo(path).git_dir
+        return True
+    except git.exc.InvalidGitRepositoryError:
+        return False
 
 
 def get_metadata_patches_info(git_repo: RepositoryMining) -> dict:
@@ -61,7 +77,9 @@ def get_metadata_patches_info(git_repo: RepositoryMining) -> dict:
     """
     feature_method_changed_dict = {}
     patches_info_dict = {}
+    overall_commits = 0
     for commit in git_repo.traverse_commits():
+        overall_commits += 1
         info = get_patch_info(commit)
         if info is None:
             logger.error(f"Fail to process commit {commit.hash}")
@@ -77,8 +95,7 @@ def get_metadata_patches_info(git_repo: RepositoryMining) -> dict:
                     else:
                         feature_method_changed_dict[curr_feature] = []
                         feature_method_changed_dict[curr_feature].append(method.name)
-        # feature_method_changed_dict[info['feature']] =
-        # list(dict.fromkeys(feature_method_changed_dict[info['feature']])) #remove duplicates
+    logger.info(f"over all commits parsed: {overall_commits}")
     return patches_info_dict, feature_method_changed_dict
 
 
@@ -114,16 +131,11 @@ def get_patch_changeID(commit: Commit):
 
 def generate_author_file(author: str) -> str:
     """
-    get comit author name and return the author metadata file
+    get commit author name and return the author metadata file
     :param author: str
     :return: filename: str
     """
-    splited = author.split(' ')
-    string_builder = ""
-    for name in splited:
-        string_builder += f"_{name}"
-    filename = f"{string_builder}.csv"
-    return filename[1:]
+    return f"{author.replace(' ', '_')}.csv"
 
 
 def get_line_from_csv(author_file, change_id):
@@ -133,14 +145,14 @@ def get_line_from_csv(author_file, change_id):
     :param change_id: str
     :return: line: str
     """
-    with open(author_file, "r") as handle:
-        csv = handle.read()
-        try:
+    try:
+        with open(author_file, "r") as handle:
+            csv = handle.read()
             list_lines = re.findall(rf".*{change_id}.*", csv, re.M)
             return list_lines[0]
-        except Exception as e:
-            logger.exception(f"Fail get_line_from_csv for file {author_file}, changeID {change_id}: {e}")
-            return None
+    except Exception as e:
+        logger.exception(f"Fail get_line_from_csv for file {author_file}, changeID {change_id}: {e}")
+        return None
 
 
 def get_patch_info(commit: Commit) -> dict:
@@ -156,6 +168,7 @@ def get_patch_info(commit: Commit) -> dict:
     author_file = f"{git_path}/metadata/{generate_author_file(commit.author.name)}"
     if not os.path.isfile(author_file):
         logger.error(f"File {author_file} not exist, please check commit {commit.hash} manually")
+        return None
     line_for_changeID = get_line_from_csv(author_file, change_id)
     if line_for_changeID is None:
         return None
@@ -185,6 +198,39 @@ def show_runtime(end_time, start_time):
     logger.debug('-' * len(msg))
 
 
+def create_dict_from_json(file_path: str) -> dict:
+    """
+    build dict from Json file path
+    :param file_path: str
+    :return: dict
+    """
+    try:
+        with open(file_path) as json_file:
+            ret = json.load(json_file)
+        return ret
+    except Exception as e:
+        logger.exception(f"Could not read from json file '{file_path}':\n{e}")
+
+
+
+def save_dict_to_json(metadata: dict, features: dict):
+    """
+    extract script data dicts into json files
+    :param metadata:
+    :param features:
+    :return:
+    """
+    try:
+        filename = "feature_objects_changed.txt"
+        with open(filename, 'w') as handle:
+            json.dump(features, handle, indent=4)
+        filename = "metadata_commits.txt"
+        with open(filename, "w") as handle:
+            json.dump(metadata, handle, indent=4)
+    except Exception as e:
+        logger.exception(f"Could not save dict into {filename}:\n{e}")
+
+
 def main():
     global git_path
 
@@ -195,7 +241,10 @@ def main():
     if git_path.endswith('/'):
         git_path = git_path[:-1]  # remove last '/' if exist
     if not os.path.isdir(git_path):
-        logger.critical(f'Path {args.path} is not a directory')
+        logger.critical(f'Path {git_path} is not a directory')
+        exit(1)
+    if not is_git_repo(git_path):
+        logger.critical(f'Path {git_path} is not a git repo')
         exit(1)
     git_repo = RepositoryMining(git_path, from_tag='vmlnx-ofed-5.2-0.6.3')
     # git_repo = RepositoryMining(git_path)
@@ -204,6 +253,9 @@ def main():
 
     show_objects_changed_by_features(objects_changed_by_features)
     show_runtime(end_time, start_time)
+    save_dict_to_json(metadata_commit_info, objects_changed_by_features)
+
+
 
 
 if __name__ == '__main__':
