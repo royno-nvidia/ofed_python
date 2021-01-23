@@ -1,0 +1,66 @@
+import json
+import logging
+import re
+from typing import Generator
+
+from colorlog import ColoredFormatter
+from pydriller import RepositoryMining, Commit
+from ofed_classes.Metadata import Metadata
+from ofed_classes.OfedCommit import OfedCommit
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+s_formatter = ColoredFormatter(
+    '%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
+f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
+file_handler = logging.FileHandler('analyzer.log')
+file_handler.setFormatter(f_formatter)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(s_formatter)
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+
+
+class OfedRepository(object):
+    def __init__(self, path: str):
+        """
+        Init OfedRepository, create instance of OfedRepository
+        :param path: absolute path for rep
+        """
+        absolute_path = path if not path.endswith('/') else path[:-1]
+        self._repository = RepositoryMining(absolute_path)
+        self._metadata = Metadata(absolute_path)
+        logger.debug(json.dumps(self._metadata.info))
+
+    def traverse_commits(self):
+        """
+        Create ofed commit generator, return OfedCommit in each iteration
+        :return: OfedCommits generator
+        """
+        for commit in self._repository.traverse_commits():
+            change_id = self.get_change_id(commit)
+            info = self._metadata.get_info_for_change_id(commit.author.name, change_id)
+            yield OfedCommit(commit, change_id, info)
+
+    def get_change_id(self, commit: Commit):
+        """
+         Parse OFED commit unique change-id
+         :param commit: Commit
+         :return: change-id: str
+         """
+        msg = commit.msg
+        try:
+            list_data = re.findall(r"\s*Change-Id:\s+(\w+)", msg, re.M)
+            return list_data[0]
+        except Exception as e:
+            logger.exception(f"Fail get_patch_changeID in {commit.hash}: {e}")
+            return None
+
+    @property
+    def metadata(self):
+        """
+        OfedRepository.metadata getter
+        :return:
+        """
+        return self._metadata
