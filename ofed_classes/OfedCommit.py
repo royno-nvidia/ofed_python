@@ -2,7 +2,7 @@ import logging
 from colorlog import ColoredFormatter
 from pydriller import Commit
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('OfedCommit')
 logger.setLevel(logging.DEBUG)
 s_formatter = ColoredFormatter(
     '%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')

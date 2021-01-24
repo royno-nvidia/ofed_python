@@ -39,6 +39,15 @@ class Processor(object):
         self._overall_commits = 0
         self.process()
         self.save_to_json()
+        self._last_result_path = ""
+
+    @property
+    def last_result_path(self):
+        """
+        Processor.last_result_path getter
+        :return: str
+        """
+        return self._last_result_path
 
     @property
     def repo_path(self):
@@ -173,5 +182,7 @@ class Processor(object):
         filename = f"{time_stamp}_results.txt"
         with open(filename, 'w') as handle:
             json.dump(self._results, handle, indent=4)
+        self._last_result_path = os.path.abspath(filename)
         logger.info(f"Results saved in '{os.path.abspath(filename)}'")
+
 

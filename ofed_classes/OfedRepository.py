@@ -8,7 +8,7 @@ from pydriller import RepositoryMining, Commit
 from ofed_classes.Metadata import Metadata
 from ofed_classes.OfedCommit import OfedCommit
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('OfedRepository')
 logger.setLevel(logging.DEBUG)
 s_formatter = ColoredFormatter(
     '%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
