@@ -23,13 +23,19 @@ logger.addHandler(stream_handler)
 
 
 class OfedRepository(object):
-    def __init__(self, path: str):
+    def __init__(self,
+                 path: str,
+                 from_commit: str = None,
+                 to_commit: str = None,
+                 from_tag: str = None,
+                 to_tag: str = None):
         """
         Init OfedRepository, create instance of OfedRepository
         :param path: absolute path for rep
         """
         absolute_path = path if not path.endswith('/') else path[:-1]
-        self._repository = RepositoryMining(absolute_path)
+        self._repository = RepositoryMining(absolute_path, from_commit=from_commit,
+                                            to_commit=to_commit, from_tag=from_tag, to_tag=to_tag)
         self._metadata = Metadata(absolute_path)
         logger.debug(json.dumps(self._metadata.info))
 

@@ -7,16 +7,23 @@ import logging
 import time
 
 import json
+from pprint import pprint
+
 import git
 from colorlog import ColoredFormatter
 from pydriller import RepositoryMining
 from pydriller import Commit
+
+from ofed_classes.OfedRepository import OfedRepository
+from ofed_classes.Metadata import Metadata
+from repo_processor.Processor import Processor
 from scripts.utils import Common
+from verifier.verifer_arg import Verifier
 
 git_path = ""
 is_ofed = False
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 s_formatter = ColoredFormatter('%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
 f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
 file_handler = logging.FileHandler('analyzer.log')
@@ -76,15 +83,23 @@ def process_kernel_repo(git_repo: RepositoryMining) -> list:
     :return:
     """
     # info_dict = {}
-    changed_methods = []
+    changed_methods = {}
     overall_commits = 0
     for commit in git_repo.traverse_commits():
         overall_commits += 1
+        if overall_commits % 100 == 0:
+            logger.info(f"commits processed: {overall_commits}")
         for mod in commit.modifications:
             if len(mod.changed_methods) > 0:
                 for method in mod.changed_methods:
+                    key = method.name
                     changed_methods.append(method.name)
-    logger.info(f"over all commits parsed: {overall_commits}")
+                    if key in changed_methods.keys():
+                        continue
+                    else:
+                        changed_methods[key] = {'add': 0,
+                                                'remove': 0}
+    logger.info(f"over all commits processed: {overall_commits}")
     return list(dict.fromkeys(changed_methods))
 
 
@@ -100,6 +115,8 @@ def process_ofed_repo(git_repo: RepositoryMining) -> dict:
     overall_commits = 0
     for commit in git_repo.traverse_commits():
         overall_commits += 1
+        if overall_commits % 100 == 0:
+            logger.info(f"commits processed: {overall_commits}")
         info = get_patch_info(commit)
         if info is None:
             logger.error(f"Fail to process commit {commit.hash}")
@@ -115,7 +132,7 @@ def process_ofed_repo(git_repo: RepositoryMining) -> dict:
                     else:
                         feature_method_changed_dict[curr_feature] = []
                         feature_method_changed_dict[curr_feature].append(method.name)
-    logger.info(f"over all commits parsed: {overall_commits}")
+    logger.info(f"over all commits processed: {overall_commits}")
     return patches_info_dict, feature_method_changed_dict
 
 
@@ -205,12 +222,16 @@ def show_objects_changed_by_features(objects_changed_by_features: dict):
     title = "show_feature_functions"
     logger.info(f"{title}")
     logger.info('='*len(title))
-    for key in objects_changed_by_features:
-        logger.info(f"Feature '{key}':")
-        [logger.info(f"\t'{x}'") for x in objects_changed_by_features[key]]
+    logger.info(json.dumps(objects_changed_by_features, indent=4))
 
 
 def show_runtime(end_time, start_time):
+    """
+    display script runtime in logger
+    :param end_time:
+    :param start_time:
+    :return:
+    """
     runtime = end_time - start_time
     msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime//1))}"
     logger.info('-' * len(msg))
@@ -243,14 +264,21 @@ def save_dict_to_json(metadata: dict, features: dict):
         filename = "feature_objects_changed.txt"
         with open(filename, 'w') as handle:
             json.dump(features, handle, indent=4)
+        logger.info(f"Created Json file {filename}")
         filename = "metadata_commits.txt"
         with open(filename, "w") as handle:
             json.dump(metadata, handle, indent=4)
+        logger.info(f"Created Json file {filename}")
     except Exception as e:
         logger.exception(f"Could not save dict into {filename}:\n{e}")
 
 
 def verify_ofed_dir(git_path):
+    """
+    search for metadata/ existence inside given path
+    :param git_path:
+    :return:
+    """
     if not os.path.isdir(f"{git_path}/metadata"):
         return False
     return True
@@ -269,13 +297,13 @@ def parse_input_args(args):
     return args.path, args.ofed_repo, args.start_tag, args.end_tag
 
 
-def main():
-    global git_path
-    global is_ofed
-    logger_legend()
-    start_time = time.time()
-    args = parse_args()
-    logger.debug(args)
+def verify_input_args(args):
+    """
+    Verify user inputs
+    :param args:
+    :return:
+    """
+    global git_path, is_ofed
     git_path, is_ofed, from_version, to_version = parse_input_args(args)
     if git_path.endswith('/'):
         git_path = git_path[:-1]  # remove last '/' if exist
@@ -289,28 +317,53 @@ def main():
         if not verify_ofed_dir(git_path):
             logger.critical(f'Path {git_path} is not an OFED repo [-ofed_repo used in command]')
             exit(1)
-    if is_ofed:
-        git_repo = RepositoryMining(git_path, from_tag='vmlnx-ofed-5.2-0.6.3')
-        # git_repo = RepositoryMining(git_path)
     else:
         if from_version == '' or to_version == '':
             logger.critical('For kernel analyze script must get both -start_tag, -end_tag')
             exit(1)
-        git_repo = RepositoryMining(git_path, from_tag=from_version, to_tag=to_version)
-    if is_ofed:
+
+
+def ofed_processor(args):
+    """
+    process git repo as OFED repo
+    :param args:
+    :return:
+    """
+    # git_repo = RepositoryMining(git_path, from_tag='vmlnx-ofed-5.2-0.6.3')
+    git_repo = RepositoryMining(git_path)
+    try:
         metadata_commit_info, objects_changed_by_features = process_ofed_repo(git_repo)
-    else:
-        try:
-            kernel_commits_info = process_kernel_repo(git_repo)
-        except Exception as e:
-            logger.critical(f"Could not create RepositoryMining,\n{e}")
+    except Exception as e:
+        logger.critical(f"Could not create RepositoryMining,\n{e}")
+    show_objects_changed_by_features(objects_changed_by_features)
+    save_dict_to_json(metadata_commit_info, objects_changed_by_features)
+
+
+def kernel_processor(args):
+    """
+    process git repo as OFED repo
+    :param args:
+    :return:
+    """
+    from_version = args.start_tag
+    to_version = args.end_tag
+
+    git_repo = RepositoryMining(git_path, from_tag=from_version, to_tag=to_version)
+    try:
+        kernel_commits_info = process_kernel_repo(git_repo)
+    except Exception as e:
+        logger.critical(f"Could not create RepositoryMining,\n{e}")
+    show_changed_list(kernel_commits_info, from_version, to_version)
+
+
+def main():
+    logger_legend()
+    start_time = time.time()
+    args = parse_args()
+    op = Processor(args)
     end_time = time.time()
-    if is_ofed:
-        show_objects_changed_by_features(objects_changed_by_features)
-        save_dict_to_json(metadata_commit_info, objects_changed_by_features)
-    else:
-        show_changed_list(kernel_commits_info, from_version, to_version)
     show_runtime(end_time, start_time)
+
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import logging
 import os
 
 from colorlog import ColoredFormatter
-from pydriller import Commit
+from pydriller import Commit, RepositoryMining
 
 from ofed_classes.OfedRepository import OfedRepository
 
@@ -23,13 +23,16 @@ logger.addHandler(stream_handler)
 
 
 class Processor(object):
-    def __init__(self, path: str):
+    def __init__(self, args = None, repo = None):
         """
         Init Processor instance,
         processor class get path for repo to process.
-        :param path: str
+        :param args: argparse.parse_args()
+        :param repo: RepositoryMining/OfedRepository
         """
-        self._repo_for_process = path if not path.endswith('/') else path[:-1]
+        self._args = args
+        self._repo_path = args.path if not args.path.endswith('/') else args.path[:-1]
+        self._repo = repo
         self._is_ofed = self.is_ofed_repo()
         self._results = {}
         self._commits_processed = 0
@@ -38,12 +41,12 @@ class Processor(object):
         self.save_to_json()
 
     @property
-    def repo(self):
+    def repo_path(self):
         """
-        Processor.repo getter
+        Processor.repo_path getter
         :return: str
         """
-        return self._repo_for_process
+        return self._repo_path
 
     @property
     def overall_commits(self):
@@ -85,7 +88,7 @@ class Processor(object):
         Check for metadata directory in given repo path and decide if OfedRepository accordingly
         :return: bool
         """
-        if not os.path.isdir(f"{self._repo_for_process}/metadata"):
+        if not os.path.isdir(f"{self._repo_path}/metadata"):
             return False
         return True
 
@@ -111,6 +114,31 @@ class Processor(object):
         else:
             self.kernel_repo_processor()
 
+    def kernel_repo_processor(self):
+        """
+        Process self._repo_for_process in case of Kernel repo
+        when iterate all commits in repo and create dict {'method changed name': 0}
+        :return:
+        """
+        try:
+            self._repo = RepositoryMining(self._repo_path,
+                                        from_tag=self._args.start_tag, to_tag=self._args.end_tag)
+            overall_commits = 0
+            for commit in self._repo.traverse_commits():
+                overall_commits += 1
+                if overall_commits % 100 == 0:
+                    logger.info(f"commits processed: {overall_commits}")
+                for mod in commit.modifications:
+                    if len(mod.changed_methods) > 0:
+                        for method in mod.changed_methods:
+                            key = method.name
+                            if key in self._results.keys():
+                                continue
+                            else:
+                                self._results[key] = 0  # for now 0 maybe will be changed
+            logger.info(f"over all commits processed: {overall_commits}")
+        except Exception as e:
+            logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
 
     def ofed_repo_processor(self):
         """
@@ -119,9 +147,9 @@ class Processor(object):
         :return:
         """
         try:
-            ofed_rep = OfedRepository(self._repo_for_process)
-            self.set_overall_commits(ofed_rep)
-            for ofed_commit in ofed_rep.traverse_commits():
+            self._repo = OfedRepository(self._repo_path)
+            self.set_overall_commits(self._repo)
+            for ofed_commit in self._repo.traverse_commits():
                 self.up()
                 for mod in ofed_commit.commit.modifications:
                     if len(mod.changed_methods) > 0:
@@ -134,7 +162,7 @@ class Processor(object):
                                 self._results[feature].append(method.name)
             logger.info(f"over all commits processed: {self._commits_processed}")
         except Exception as e:
-            logger.critical(f"Fail to process OfedRepository: '{self._repo_for_process}',\n{e}")
+            logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
 
     def save_to_json(self):
         """
