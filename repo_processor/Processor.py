@@ -37,8 +37,6 @@ class Processor(object):
         self._results = {}
         self._commits_processed = 0
         self._overall_commits = 0
-        self.process()
-        self.save_to_json()
         self._last_result_path = ""
 
     @property
@@ -75,6 +73,7 @@ class Processor(object):
         for _ in repo.traverse_commits():
             cnt += 1
         self._overall_commits = cnt
+        logger.info(f'Repository contains {self._overall_commits}..')
 
     @property
     def results(self):
@@ -109,7 +108,8 @@ class Processor(object):
         self._commits_processed += 1
         if self._commits_processed % 100 == 0:
             if self._overall_commits > 0:
-                logger.info(f"commits processed: {self._commits_processed} [{int((self._commits_processed/self._overall_commits)* 100)}%]")
+                logger.info(f"commits processed: {self._commits_processed} "
+                            f"[{int((self._commits_processed/self._overall_commits)* 100)}%]")
             else:
                 logger.info(f"commits processed: {self._commits_processed}")
 
@@ -132,22 +132,27 @@ class Processor(object):
         try:
             self._repo = RepositoryMining(self._repo_path,
                                         from_tag=self._args.start_tag, to_tag=self._args.end_tag)
-            overall_commits = 0
+            self.set_overall_commits(self._repo)
+            self._results['modified'] = {}
+            self._results['deleted'] = {}
             for commit in self._repo.traverse_commits():
-                overall_commits += 1
-                if overall_commits % 100 == 0:
-                    logger.info(f"commits processed: {overall_commits}")
+                self.up()
                 for mod in commit.modifications:
+                    before_methods = set(mod.methods_before)
+                    after_methods = set(mod.methods)
+                    delete_methods = list(before_methods - after_methods)
+                    for delete in delete_methods:
+                        del_func = delete.name
+                        if del_func not in self._results['deleted'].keys():
+                            self._results['deleted'][del_func] = 0  # for now 0 maybe will be changed
                     if len(mod.changed_methods) > 0:
                         for method in mod.changed_methods:
                             key = method.name
-                            if key in self._results.keys():
-                                continue
-                            else:
-                                self._results[key] = 0  # for now 0 maybe will be changed
-            logger.info(f"over all commits processed: {overall_commits}")
+                            if key not in self._results['modified'].keys():
+                                self._results['modified'][key] = 0  # for now 0 maybe will be changed
+            logger.info(f"over all commits processed: {self._commits_processed}")
         except Exception as e:
-            logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
+            logger.critical(f"Fail to process kernel: '{self._repo_path}',\n{e}")
 
     def ofed_repo_processor(self):
         """
@@ -160,6 +165,8 @@ class Processor(object):
             self.set_overall_commits(self._repo)
             for ofed_commit in self._repo.traverse_commits():
                 self.up()
+                if ofed_commit.info['upstream_status'] == 'accepted':
+                    continue
                 for mod in ofed_commit.commit.modifications:
                     if len(mod.changed_methods) > 0:
                         feature = ofed_commit.info['feature']
@@ -173,13 +180,19 @@ class Processor(object):
         except Exception as e:
             logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
 
-    def save_to_json(self):
+    def save_to_json(self, name=None):
         """
         Output process results into timestamp json file for future analyze
         :return:
         """
-        time_stamp = datetime.timestamp(datetime.now())
-        filename = f"{time_stamp}_results.txt"
+        if name is None:
+            time_stamp = datetime.timestamp(datetime.now())
+            if self._is_ofed:
+                filename = f"ofed_{time_stamp}.json"
+            else:
+                filename = f"kernel_{self._args.start_tag}_{self._args.end_tag}.json"
+        else:
+            filename = name
         with open(filename, 'w') as handle:
             json.dump(self._results, handle, indent=4)
         self._last_result_path = os.path.abspath(filename)

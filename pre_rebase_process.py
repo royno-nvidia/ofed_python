@@ -4,7 +4,6 @@ import datetime
 import logging
 import time
 from colorlog import ColoredFormatter
-from analyzer.Analyzer import Analyzer
 from repo_processor.Processor import Processor
 from verifier.verifer_arg import Verifier
 
@@ -12,21 +11,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 s_formatter = ColoredFormatter('%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
 f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('analyzer.log')
+file_handler = logging.FileHandler('processor.log')
 file_handler.setFormatter(f_formatter)
 
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(s_formatter)
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
-
-
-def logger_legend():
-    logger.debug("A quirky message only developers care about")
-    logger.info("Curious users might want to know this")
-    logger.warn("Something is wrong and any user should be informed")
-    logger.error("Serious stuff, this is red for a reason")
-    logger.critical("OH NO everything is on fire")
 
 
 def parse_args():
@@ -65,17 +56,12 @@ def show_runtime(end_time, start_time):
 
 
 def main():
-    # logger_legend()
     start_time = time.time()
     args = parse_args()
     Verifier(args)
-    # pr = Processor(args)
-    # pr.process()
-    # pr.save_to_json()
-
-    res = Analyzer.analyze_changed_method('/swgwork/royno/Full/Python_work_place/OfedProject/kernel_v5.11-rc3_v5.11-rc4.json', '/swgwork/royno/Full/Python_work_place/OfedProject/scripts/ofed_1611758568.915418.json')
-    Analyzer.create_changed_functions_excel(res, 'Feature_methods_changed', 'v5.11-rc3', 'v5.11-rc4', '5.2')
-
+    pr = Processor(args)
+    pr.process()
+    pr.save_to_json()
     end_time = time.time()
     show_runtime(end_time, start_time)
 
