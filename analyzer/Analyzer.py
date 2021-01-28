@@ -29,6 +29,12 @@ class Analyzer(object):
 
     @staticmethod
     def analyze_changed_method(kernel_json: str, ofed_json: str) -> Tuple[dict, dict, dict]:
+        """
+        Take processor Json's output and analyze result, build data for Excel display
+        :param kernel_json:
+        :param ofed_json:
+        :return:
+        """
         main_res = {}
         feature_to_modified = {}
         feature_to_deleted = {}
@@ -55,7 +61,7 @@ class Analyzer(object):
             ofed_only_methods_num = len(ofed_dict[feature]['ofed_only'])
             kernel_methods_num = len(ofed_dict[feature]['kernel'])
             main_res[feature] = {"Feature name": feature,
-                                 "Only OFED methods": ofed_only_methods_num,
+                                 "OFED only methods": ofed_only_methods_num,
                                  "Kernel methods": kernel_methods_num,
                                  # "Overall methods feature depend":
                                  #     ofed_only_methods_num + kernel_methods_num,
@@ -77,6 +83,17 @@ class Analyzer(object):
     @staticmethod
     def create_changed_functions_excel(results: dict, modify: dict, delete: dict, filename: str, src: str, dst: str,
                                        ofed: str):
+        """
+        Build excel file from analyzed results
+        :param results: dict contain result for main page
+        :param modify:  dict contain which features methods was modified in kernel
+        :param delete: dict contain which features methods was deleted in kernel
+        :param filename: name for output excel file
+        :param src: kernel source version tag
+        :param dst: kernel destination version tag
+        :param ofed: Ofed specific tag
+        :return:
+        """
         filename += '.xlsx'
         title = f"Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
         df_main = pd.DataFrame([results[feature] for feature in results.keys()])
@@ -94,6 +111,7 @@ class Analyzer(object):
             'fg_color': '#00E4BC',
             'border': 1})
         worksheet.merge_range(f'A1:{chr(ord("A") + len(df_main.columns) - 1)}1', title, title_format)
+
         # header
         header_format = workbook.add_format({
             'bold': True,
@@ -147,7 +165,7 @@ class Analyzer(object):
                                       'maximum': 15,
                                       'format': yellow_format})
 
-        # Modified work sheet
+        # Modified worksheet
         dicts_list_from_modify = [modify[feature][index] for
                                   feature in modify.keys() for index in range(len(modify[feature]))]
         df_mod = pd.DataFrame(dicts_list_from_modify)
@@ -157,8 +175,7 @@ class Analyzer(object):
         for col_num, value in enumerate(df_mod.columns.values):
             worksheet_mod.write(0, col_num, value, header_format)
 
-
-        # Modified work sheet
+        # deleted worksheet
         dicts_list_from_deleted = [delete[feature][index] for
                                   feature in delete.keys() for index in range(len(delete[feature]))]
         df_del = pd.DataFrame(dicts_list_from_deleted)

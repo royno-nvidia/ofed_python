@@ -62,7 +62,7 @@ def main():
         args.kernel_json_path, args.ofed_json_path)
     Analyzer.create_changed_functions_excel(main_res, modify, delete,
                                             'Feature_methods_changed' if
-                                            args.output_file_name is None else args.output_filename,
+                                            args.output_filename is None else args.output_filename,
                                             args.kernel_start_tag, args.kernel_end_tag, args.ofed_tag)
     end_time = time.time()
     show_runtime(end_time, start_time)
