@@ -73,8 +73,10 @@ def main():
     # pr.process()
     # pr.save_to_json()
 
-    res = Analyzer.analyze_changed_method('/swgwork/royno/Full/Python_work_place/OfedProject/kernel_v5.11-rc3_v5.11-rc4.json', '/swgwork/royno/Full/Python_work_place/OfedProject/scripts/ofed_1611758568.915418.json')
-    Analyzer.create_changed_functions_excel(res, 'Feature_methods_changed', 'v5.11-rc3', 'v5.11-rc4', '5.2')
+    main_res, modify, delete = Analyzer.analyze_changed_method(
+        '/swgwork/royno/Full/Python_work_place/OfedProject/kernel_v5.9-rc2_v5.11-rc5.json',
+        '/swgwork/royno/Full/Python_work_place/OfedProject/ofed_1611837094.671246.json')
+    Analyzer.create_changed_functions_excel(main_res, modify, delete, 'Feature_methods_changed', 'v5.9-rc2', 'v5.11-rc4', '5.2')
 
     end_time = time.time()
     show_runtime(end_time, start_time)

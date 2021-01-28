@@ -23,7 +23,7 @@ logger.addHandler(stream_handler)
 
 
 class Processor(object):
-    def __init__(self, args = None, repo = None):
+    def __init__(self, args=None, repo=None):
         """
         Init Processor instance,
         processor class get path for repo to process.
@@ -109,7 +109,7 @@ class Processor(object):
         if self._commits_processed % 100 == 0:
             if self._overall_commits > 0:
                 logger.info(f"commits processed: {self._commits_processed} "
-                            f"[{int((self._commits_processed/self._overall_commits)* 100)}%]")
+                            f"[{int((self._commits_processed / self._overall_commits) * 100)}%]")
             else:
                 logger.info(f"commits processed: {self._commits_processed}")
 
@@ -131,20 +131,19 @@ class Processor(object):
         """
         try:
             self._repo = RepositoryMining(self._repo_path,
-                                        from_tag=self._args.start_tag, to_tag=self._args.end_tag)
+                                          from_tag=self._args.start_tag, to_tag=self._args.end_tag)
             self.set_overall_commits(self._repo)
             self._results['modified'] = {}
             self._results['deleted'] = {}
             for commit in self._repo.traverse_commits():
                 self.up()
                 for mod in commit.modifications:
-                    before_methods = set(mod.methods_before)
-                    after_methods = set(mod.methods)
+                    before_methods = set([meth.name for meth in mod.methods_before])
+                    after_methods = set([meth.name for meth in mod.methods])
                     delete_methods = list(before_methods - after_methods)
                     for delete in delete_methods:
-                        del_func = delete.name
-                        if del_func not in self._results['deleted'].keys():
-                            self._results['deleted'][del_func] = 0  # for now 0 maybe will be changed
+                        if delete not in self._results['deleted'].keys():
+                            self._results['deleted'][delete] = 0  # for now 0 maybe will be changed
                     if len(mod.changed_methods) > 0:
                         for method in mod.changed_methods:
                             key = method.name
@@ -161,6 +160,7 @@ class Processor(object):
         :return:
         """
         try:
+            # self._repo = OfedRepository(self._repo_path, self._args.start_tag, self._args.end_tag)
             self._repo = OfedRepository(self._repo_path)
             self.set_overall_commits(self._repo)
             for ofed_commit in self._repo.traverse_commits():
@@ -170,12 +170,29 @@ class Processor(object):
                 for mod in ofed_commit.commit.modifications:
                     if len(mod.changed_methods) > 0:
                         feature = ofed_commit.info['feature']
+                        #  OFED ONLY methods (added by ofed commit)
+                        if self._commits_processed < 3:
+                            added_methods = []
+                        else:
+                            methods_before = [meth.name for meth in mod.methods_before]
+                            methods_after = [meth.name for meth in mod.methods]
+                            added_methods = list(set(methods_after) - set(methods_before))
                         for method in mod.changed_methods:
                             if feature in self._results.keys():
-                                self._results[feature].append(method.name)
+                                self._results[feature]['kernel'].append(method.name)
                             else:
-                                self._results[feature] = []
-                                self._results[feature].append(method.name)
+                                self._results[feature] = {'kernel': [],
+                                                          'ofed_only': []}
+                                self._results[feature]['kernel'].append(method.name)
+                            for method in added_methods:
+                                    self._results[feature]['ofed_only'].append(method)
+            # remove duplicate from kernel and ofed_only
+            for feature in self._results.keys():
+                if len(self._results[feature]['ofed_only']):
+                    duplicate = set(self._results[feature]['ofed_only'])
+                    kernel = set(self._results[feature]['kernel'])
+                    self._results[feature]['kernel'] = list(kernel - duplicate)
+                    self._results[feature]['ofed_only'] = list(duplicate)
             logger.info(f"over all commits processed: {self._commits_processed}")
         except Exception as e:
             logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
@@ -197,5 +214,3 @@ class Processor(object):
             json.dump(self._results, handle, indent=4)
         self._last_result_path = os.path.abspath(filename)
         logger.info(f"Results saved in '{os.path.abspath(filename)}'")
-
-
