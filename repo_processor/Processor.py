@@ -160,12 +160,16 @@ class Processor(object):
         :return:
         """
         try:
-            # self._repo = OfedRepository(self._repo_path, self._args.start_tag, self._args.end_tag)
-            self._repo = OfedRepository(self._repo_path)
+            self._repo = OfedRepository(self._repo_path,
+                                        None if not self._args.start_tag else self._args.start_tag,
+                                        None if not self._args.start_tag else self._args.end_tag)
+            # self._repo = OfedRepository(self._repo_path)
             self.set_overall_commits(self._repo)
             for ofed_commit in self._repo.traverse_commits():
+                logger.debug(f"process {ofed_commit.commit.hash}")
                 self.up()
                 if ofed_commit.info['upstream_status'] == 'accepted':
+                    logger.debug(f"skipped due to accepted status")
                     continue
                 for mod in ofed_commit.commit.modifications:
                     if len(mod.changed_methods) > 0:
@@ -177,14 +181,18 @@ class Processor(object):
                             methods_before = [meth.name for meth in mod.methods_before]
                             methods_after = [meth.name for meth in mod.methods]
                             added_methods = list(set(methods_after) - set(methods_before))
+                        logger.debug('methods changed:')
                         for method in mod.changed_methods:
+                            logger.debug(f'{method.name} in file {method.filename}')
                             if feature in self._results.keys():
                                 self._results[feature]['kernel'].append(method.name)
                             else:
                                 self._results[feature] = {'kernel': [],
                                                           'ofed_only': []}
                                 self._results[feature]['kernel'].append(method.name)
+                            logger.debug('Methods added by OFED:')
                             for method in added_methods:
+                                    logger.debug(f'{method}')
                                     self._results[feature]['ofed_only'].append(method)
             # remove duplicate from kernel and ofed_only
             for feature in self._results.keys():

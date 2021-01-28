@@ -78,7 +78,7 @@ class Analyzer(object):
     def create_changed_functions_excel(results: dict, modify: dict, delete: dict, filename: str, src: str, dst: str,
                                        ofed: str):
         filename += '.xlsx'
-        title = f"OFED {ofed} analyze for Kernel src {src} to kernel dst {dst}"
+        title = f"Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
         df_main = pd.DataFrame([results[feature] for feature in results.keys()])
         df_main.set_index('Feature name')
         writer = pd.ExcelWriter(filename, engine='xlsxwriter')
