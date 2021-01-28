@@ -1,8 +1,7 @@
-import json
 import os
 import logging
 from colorlog import ColoredFormatter
-from scripts.utils import Common
+from utils import Common
 
 logger = logging.getLogger('Metadata')
 logger.setLevel(logging.DEBUG)

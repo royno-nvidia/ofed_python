@@ -108,6 +108,7 @@ class Processor(object):
         self._commits_processed += 1
         if self._commits_processed % 100 == 0:
             if self._overall_commits > 0:
+                # show progress to user
                 logger.info(f"commits processed: {self._commits_processed} "
                             f"[{int((self._commits_processed / self._overall_commits) * 100)}%]")
             else:
@@ -133,25 +134,37 @@ class Processor(object):
             self._repo = RepositoryMining(self._repo_path,
                                           from_tag=self._args.start_tag, to_tag=self._args.end_tag)
             self.set_overall_commits(self._repo)
-            self._results['modified'] = {}
-            self._results['deleted'] = {}
+            self._results = {'modified': {},
+                             'deleted': {}}
+        except Exception as e:
+            logger.critical(f"Fail to process kernel: '{self._repo_path}',\n{e}")
+        try:
             for commit in self._repo.traverse_commits():
+                logger.debug(f'Processing commit {commit.hash}:')
+                # iterate all commit in repo
                 self.up()
                 for mod in commit.modifications:
                     before_methods = set([meth.name for meth in mod.methods_before])
                     after_methods = set([meth.name for meth in mod.methods])
                     delete_methods = list(before_methods - after_methods)
+                    # if method name was in file before commit and missing after means function
+                    # deleted/moved/renamed any way handled as deleted
+                    logger.debug('removed methods in commit:')
                     for delete in delete_methods:
+                        logger.debug(f'{delete}')
                         if delete not in self._results['deleted'].keys():
                             self._results['deleted'][delete] = 0  # for now 0 maybe will be changed
                     if len(mod.changed_methods) > 0:
+                        logger.debug('changed methods in commit:')
                         for method in mod.changed_methods:
+                            # iterate all changed methods
+                            logger.debug(f'{method.name}')
                             key = method.name
                             if key not in self._results['modified'].keys():
                                 self._results['modified'][key] = 0  # for now 0 maybe will be changed
-            logger.info(f"over all commits processed: {self._commits_processed}")
         except Exception as e:
-            logger.critical(f"Fail to process kernel: '{self._repo_path}',\n{e}")
+            logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
+        logger.info(f"over all commits processed: {self._commits_processed}")
 
     def ofed_repo_processor(self):
         """
@@ -163,47 +176,64 @@ class Processor(object):
             self._repo = OfedRepository(self._repo_path,
                                         None if not self._args.start_tag else self._args.start_tag,
                                         None if not self._args.start_tag else self._args.end_tag)
-            # self._repo = OfedRepository(self._repo_path)
             self.set_overall_commits(self._repo)
+        except Exception as e:
+            logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
+        try:
             for ofed_commit in self._repo.traverse_commits():
+                # iterate all repo commits
                 logger.debug(f"process {ofed_commit.commit.hash}")
                 self.up()
                 if ofed_commit.info['upstream_status'] == 'accepted':
+                    # skip accepted
                     logger.debug(f"skipped due to accepted status")
                     continue
                 for mod in ofed_commit.commit.modifications:
+                    # iterate all modifications in commit
                     if len(mod.changed_methods) > 0:
+                        # if no methods changed continue
                         feature = ofed_commit.info['feature']
-                        #  OFED ONLY methods (added by ofed commit)
                         if self._commits_processed < 3:
+                            # in ofed repo commits 1&2 are setting the base code so methods added
+                            # in those commits not ofed only but kernel methods!
                             added_methods = []
                         else:
                             methods_before = [meth.name for meth in mod.methods_before]
                             methods_after = [meth.name for meth in mod.methods]
                             added_methods = list(set(methods_after) - set(methods_before))
+                            # sets algebra, methods after\methods before = method added by commit
                         logger.debug('methods changed:')
                         for method in mod.changed_methods:
                             logger.debug(f'{method.name} in file {method.filename}')
                             if feature in self._results.keys():
+                                # if feature exist append method name (don't care about name duplications
+                                # removed latter)
                                 self._results[feature]['kernel'].append(method.name)
                             else:
-                                self._results[feature] = {'kernel': [],
+                                # first feature appearance, create key in dict and append
+                                self._results[feature] = {'kernel': [].append(method.name),
                                                           'ofed_only': []}
-                                self._results[feature]['kernel'].append(method.name)
                             logger.debug('Methods added by OFED:')
-                            for method in added_methods:
-                                    logger.debug(f'{method}')
-                                    self._results[feature]['ofed_only'].append(method)
-            # remove duplicate from kernel and ofed_only
+                            for ofed_method in added_methods:
+                                # iterate new methods added by ofed
+                                    logger.debug(f'{ofed_method}')
+                                    self._results[feature]['ofed_only'].append(ofed_method)
+                    else:
+                        logger.debug(f'No method changed in file {mod.filename}')
+            # remove duplications
             for feature in self._results.keys():
+                # itarate all featurs in dict
                 if len(self._results[feature]['ofed_only']):
+                    # do it only if feature added only_ofed methods
                     duplicate = set(self._results[feature]['ofed_only'])
                     kernel = set(self._results[feature]['kernel'])
                     self._results[feature]['kernel'] = list(kernel - duplicate)
+                    # kernel methods contain all methods, removing ofed_only methods from it
                     self._results[feature]['ofed_only'] = list(duplicate)
-            logger.info(f"over all commits processed: {self._commits_processed}")
+                    # remove duplicates also from ofed_only methods [shouldn't be but just in case]
         except Exception as e:
-            logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
+            logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
+        logger.info(f"over all commits processed: {self._commits_processed}")
 
     def save_to_json(self, name=None):
         """
@@ -217,7 +247,7 @@ class Processor(object):
             else:
                 filename = f"kernel_{self._args.start_tag}_{self._args.end_tag}.json"
         else:
-            filename = name
+            filename = f"{name}.json"
         with open(filename, 'w') as handle:
             json.dump(self._results, handle, indent=4)
         self._last_result_path = os.path.abspath(filename)

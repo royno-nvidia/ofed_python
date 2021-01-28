@@ -27,6 +27,8 @@ def parse_args():
                         help="Script will process only commits from tag and above [must be valid tag in -path repo]")
     parser.add_argument("-end_tag", type=str, default="",
                         help="Script will process only commits up to tag [must be valid tag in -path repo]")
+    parser.add_argument("-output_filename", type=str, default=None,
+                        help="Name for Json result file")
     options = parser.parse_args()
     return options
 
@@ -53,7 +55,7 @@ def main():
         exit(1)
     pr = Processor(args)
     pr.process()
-    pr.save_to_json()
+    pr.save_to_json(args.output_filename)
     end_time = time.time()
     show_runtime(end_time, start_time)
 
