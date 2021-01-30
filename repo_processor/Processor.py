@@ -7,19 +7,9 @@ from colorlog import ColoredFormatter
 from pydriller import Commit, RepositoryMining
 
 from ofed_classes.OfedRepository import OfedRepository
+from utils.setting_utils import get_logger, JSON_LOC
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-s_formatter = ColoredFormatter(
-    '%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
-f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('analyzer.log')
-file_handler.setFormatter(f_formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(s_formatter)
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+logger = get_logger('Processor', 'Processor.log')
 
 
 class Processor(object):
@@ -181,8 +171,9 @@ class Processor(object):
             logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
         try:
             for ofed_commit in self._repo.traverse_commits():
+                feature = ofed_commit.info['feature']
                 # iterate all repo commits
-                logger.debug(f"process {ofed_commit.commit.hash}")
+                logger.debug(f"process hash: {ofed_commit.commit.hash[:12]}, feature: {feature}")
                 self.up()
                 if ofed_commit.info['upstream_status'] == 'accepted':
                     # skip accepted
@@ -191,8 +182,6 @@ class Processor(object):
                 for mod in ofed_commit.commit.modifications:
                     # iterate all modifications in commit
                     if len(mod.changed_methods) > 0:
-                        # if no methods changed continue
-                        feature = ofed_commit.info['feature']
                         if self._commits_processed < 3:
                             # in ofed repo commits 1&2 are setting the base code so methods added
                             # in those commits not ofed only but kernel methods!
@@ -211,8 +200,9 @@ class Processor(object):
                                 self._results[feature]['kernel'].append(method.name)
                             else:
                                 # first feature appearance, create key in dict and append
-                                self._results[feature] = {'kernel': [].append(method.name),
+                                self._results[feature] = {'kernel': [],
                                                           'ofed_only': []}
+                                self._results[feature]['kernel'].append(method.name)
                             logger.debug('Methods added by OFED:')
                             for ofed_method in added_methods:
                                 # iterate new methods added by ofed
@@ -248,7 +238,7 @@ class Processor(object):
                 filename = f"kernel_{self._args.start_tag}_{self._args.end_tag}.json"
         else:
             filename = f"{name}.json"
-        with open(filename, 'w') as handle:
+        with open(JSON_LOC+filename, 'w') as handle:
             json.dump(self._results, handle, indent=4)
         self._last_result_path = os.path.abspath(filename)
         logger.info(f"Results saved in '{os.path.abspath(filename)}'")

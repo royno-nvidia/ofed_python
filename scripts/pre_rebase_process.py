@@ -5,19 +5,10 @@ import logging
 import time
 from colorlog import ColoredFormatter
 from repo_processor.Processor import Processor
+from utils.setting_utils import get_logger
 from verifier.verifer_arg import Verifier
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-s_formatter = ColoredFormatter('%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
-f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('processor.log')
-file_handler.setFormatter(f_formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(s_formatter)
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+logger = get_logger('Processor', 'Processor.log')
 
 
 def parse_args():

@@ -7,19 +7,9 @@ from colorlog import ColoredFormatter
 from pydriller import RepositoryMining, Commit
 from ofed_classes.Metadata import Metadata
 from ofed_classes.OfedCommit import OfedCommit
+from utils.setting_utils import get_logger
 
-logger = logging.getLogger('OfedRepository')
-logger.setLevel(logging.DEBUG)
-s_formatter = ColoredFormatter(
-    '%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
-f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('analyzer.log')
-file_handler.setFormatter(f_formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(s_formatter)
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+logger = get_logger('OfedRepoisitory', 'OfedRepoisitory.log')
 
 
 class OfedRepository(object):
@@ -37,7 +27,7 @@ class OfedRepository(object):
         self._repository = RepositoryMining(absolute_path, from_commit=from_commit,
                                             to_commit=to_commit, from_tag=from_tag, to_tag=to_tag)
         self._metadata = Metadata(absolute_path)
-        logger.debug(json.dumps(self._metadata.info))
+        logger.debug(json.dumps(self._metadata.info, indent=4))
 
     def traverse_commits(self):
         """

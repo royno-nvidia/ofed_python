@@ -1,8 +1,11 @@
 import logging
 import os
 import git
+from colorlog import ColoredFormatter
 
-logger = logging.getLogger("Verifier")
+from utils.setting_utils import LOGGER_LOC, get_logger
+
+logger = get_logger('Verifier', 'Verifier.log')
 
 
 class Verifier(object):

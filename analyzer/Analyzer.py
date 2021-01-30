@@ -1,24 +1,13 @@
 import json
 import logging
 from typing import Tuple
-
 from colorlog import ColoredFormatter
 import pandas as pd
 import xlsxwriter
 import os
+from utils.setting_utils import get_logger, EXCEL_LOC
 
-logger = logging.getLogger('Analyzer')
-logger.setLevel(logging.DEBUG)
-s_formatter = ColoredFormatter(
-    '%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
-f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('analyzer.log')
-file_handler.setFormatter(f_formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(s_formatter)
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+logger = get_logger('Analyzer', 'Analyzer.log')
 
 
 class Analyzer(object):
@@ -94,11 +83,10 @@ class Analyzer(object):
         :param ofed: Ofed specific tag
         :return:
         """
-        filename += '.xlsx'
         title = f"Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
         df_main = pd.DataFrame([results[feature] for feature in results.keys()])
         df_main.set_index('Feature name')
-        writer = pd.ExcelWriter(filename, engine='xlsxwriter')
+        writer = pd.ExcelWriter(EXCEL_LOC + filename + '.xlsx', engine='xlsxwriter')
         df_main.to_excel(writer, sheet_name='Analyzed_result', startrow=2, header=False, index=False)
 
         workbook = writer.book
@@ -167,7 +155,8 @@ class Analyzer(object):
 
         # Modified worksheet
         dicts_list_from_modify = [modify[feature][index] for
-                                  feature in modify.keys() for index in range(len(modify[feature]))]
+                                  feature in modify.keys() for
+                                  index in range(len(modify[feature]))]
         df_mod = pd.DataFrame(dicts_list_from_modify)
         df_mod.set_index('Feature name')
         df_mod.to_excel(writer, sheet_name='Modified', startrow=1, header=False, index=False)
@@ -177,7 +166,7 @@ class Analyzer(object):
 
         # deleted worksheet
         dicts_list_from_deleted = [delete[feature][index] for
-                                  feature in delete.keys() for index in range(len(delete[feature]))]
+                                   feature in delete.keys() for index in range(len(delete[feature]))]
         df_del = pd.DataFrame(dicts_list_from_deleted)
         df_del.set_index('Feature name')
         df_del.to_excel(writer, sheet_name='Deleted', startrow=1, header=False, index=False)

@@ -2,19 +2,9 @@ import os
 import logging
 from colorlog import ColoredFormatter
 from utils import Common
+from utils.setting_utils import get_logger
 
-logger = logging.getLogger('Metadata')
-logger.setLevel(logging.DEBUG)
-s_formatter = ColoredFormatter(
-    '%(log_color)s%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s%(reset)s')
-f_formatter = logging.Formatter('%(asctime)s[%(filename)s +%(lineno)s] - %(levelname)s - %(message)s')
-file_handler = logging.FileHandler('analyzer.log')
-file_handler.setFormatter(f_formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(s_formatter)
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+logger = get_logger('Metadata', 'Metadata.log')
 
 
 class Metadata(object):
