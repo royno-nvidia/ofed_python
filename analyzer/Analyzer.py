@@ -70,6 +70,42 @@ class Analyzer(object):
         return main_res, feature_to_modified, feature_to_deleted
 
     @staticmethod
+    def __colored_condition_column(workbook, worksheet, col: chr, col_len: int, red_zone: int, green_zone: int):
+        """
+        create 3 color condition in wanted col over worksheet
+        :param workbook: xlsxwriter workbook
+        :param worksheet: xlsxwriter worksheet
+        :param col: Excel col char (e.g 'A','B'..)
+        :param col_len: number of rows in col
+        :param red_zone: number which above it row will be colored in red
+        :param green_zone: number which below it row will be colored in green
+        :return:
+        """
+        # formatting
+        red_format = workbook.add_format({'bg_color': '#FFC7CE',
+                                          'font_color': '#9C0006'})
+        yellow_format = workbook.add_format({'bg_color': '#FFEB9C',
+                                             'font_color': '#9C6500'})
+        green_format = workbook.add_format({'bg_color': '#C6EFCE',
+                                            'font_color': '#006100'})
+        worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+                                     {'type': 'cell',
+                                      'criteria': '>=',
+                                      'value': red_zone,
+                                      'format': red_format})
+        worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+                                     {'type': 'cell',
+                                      'criteria': '<=',
+                                      'value': green_zone,
+                                      'format': green_format})
+        worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+                                     {'type': 'cell',
+                                      'criteria': 'between',
+                                      'minimum': green_zone,
+                                      'maximum': red_zone,
+                                      'format': yellow_format})
+
+    @staticmethod
     def create_changed_functions_excel(results: dict, modify: dict, delete: dict, filename: str, src: str, dst: str,
                                        ofed: str):
         """
@@ -110,48 +146,10 @@ class Analyzer(object):
         for col_num, value in enumerate(df_main.columns.values):
             worksheet.write(1, col_num, value, header_format)
 
-        # formatting
-        red_format = workbook.add_format({'bg_color': '#FFC7CE',
-                                          'font_color': '#9C0006'})
-        yellow_format = workbook.add_format({'bg_color': '#FFEB9C',
-                                             'font_color': '#9C6500'})
-        green_format = workbook.add_format({'bg_color': '#C6EFCE',
-                                            'font_color': '#006100'})
         # apply conditions for modification
-        worksheet.conditional_format(f'E3:E{len(df_main.index) + 2}',
-                                     {'type': 'cell',
-                                      'criteria': '>=',
-                                      'value': 30,
-                                      'format': red_format})
-        worksheet.conditional_format(f'E3:E{len(df_main.index) + 2}',
-                                     {'type': 'cell',
-                                      'criteria': '<=',
-                                      'value': 10,
-                                      'format': green_format})
-        worksheet.conditional_format(f'E3:E{len(df_main.index) + 2}',
-                                     {'type': 'cell',
-                                      'criteria': 'between',
-                                      'minimum': 10,
-                                      'maximum': 30,
-                                      'format': yellow_format})
-
+        Analyzer.colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
         # apply conditions for deletions
-        worksheet.conditional_format(f'G3:G{len(df_main.index) + 2}',
-                                     {'type': 'cell',
-                                      'criteria': '>=',
-                                      'value': 15,
-                                      'format': red_format})
-        worksheet.conditional_format(f'G3:G{len(df_main.index) + 2}',
-                                     {'type': 'cell',
-                                      'criteria': '<=',
-                                      'value': 0,
-                                      'format': green_format})
-        worksheet.conditional_format(f'G3:G{len(df_main.index) + 2}',
-                                     {'type': 'cell',
-                                      'criteria': 'between',
-                                      'minimum': 0,
-                                      'maximum': 15,
-                                      'format': yellow_format})
+        Analyzer.colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
 
         # Modified worksheet
         dicts_list_from_modify = [modify[feature][index] for
@@ -176,3 +174,6 @@ class Analyzer(object):
 
         writer.save()
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
+
+
+

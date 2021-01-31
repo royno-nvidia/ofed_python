@@ -241,4 +241,4 @@ class Processor(object):
         with open(JSON_LOC+filename, 'w') as handle:
             json.dump(self._results, handle, indent=4)
         self._last_result_path = os.path.abspath(filename)
-        logger.info(f"Results saved in '{os.path.abspath(filename)}'")
+        logger.info(f"Results saved in '{JSON_LOC + filename}'")
