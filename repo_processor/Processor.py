@@ -169,10 +169,14 @@ class Processor(object):
             self.set_overall_commits(self._repo)
         except Exception as e:
             logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
+        block_ofed_only = True
         try:
             for ofed_commit in self._repo.traverse_commits():
+                if ofed_commit.info is None:
+                    logger.warn(f"Could not get metadata info - hash: {ofed_commit.commit.hash[:12]}")
+                    continue
                 feature = ofed_commit.info['feature']
-                # iterate all repo commits
+                # iterate all repo commit
                 logger.debug(f"process hash: {ofed_commit.commit.hash[:12]}, feature: {feature}")
                 self.up()
                 if ofed_commit.info['upstream_status'] == 'accepted':
@@ -182,8 +186,8 @@ class Processor(object):
                 for mod in ofed_commit.commit.modifications:
                     # iterate all modifications in commit
                     if len(mod.changed_methods) > 0:
-                        if self._commits_processed < 3:
-                            # in ofed repo commits 1&2 are setting the base code so methods added
+                        if block_ofed_only:
+                            # ofed repo commits are setting the base code so methods added
                             # in those commits not ofed only but kernel methods!
                             added_methods = []
                         else:
@@ -210,17 +214,20 @@ class Processor(object):
                                     self._results[feature]['ofed_only'].append(ofed_method)
                     else:
                         logger.debug(f'No method changed in file {mod.filename}')
+                if "Set base code to" in ofed_commit.commit.msg:
+                    block_ofed_only = False
+
             # remove duplications
             for feature in self._results.keys():
                 # itarate all featurs in dict
-                if len(self._results[feature]['ofed_only']):
-                    # do it only if feature added only_ofed methods
-                    duplicate = set(self._results[feature]['ofed_only'])
-                    kernel = set(self._results[feature]['kernel'])
-                    self._results[feature]['kernel'] = list(kernel - duplicate)
-                    # kernel methods contain all methods, removing ofed_only methods from it
-                    self._results[feature]['ofed_only'] = list(duplicate)
-                    # remove duplicates also from ofed_only methods [shouldn't be but just in case]
+                # do it only if feature added only_ofed methods
+                ofed_set = set(self._results[feature]['ofed_only'])
+                kernel_set = set(self._results[feature]['kernel'])
+                self._results[feature]['kernel'] = list(kernel_set - ofed_set)
+                # kernel methods contain all methods, removing ofed_only methods from it
+                self._results[feature]['ofed_only'] = list(ofed_set)
+                # remove duplicates also from ofed_only methods [shouldn't be but just in case]
+
         except Exception as e:
             logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")

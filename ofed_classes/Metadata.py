@@ -44,7 +44,7 @@ class Metadata(object):
             else:
                 logger.error(f"{author_name} don't have commit with changeID: '{change_id}'")
         else:
-            logger.error(f"Author name {author_name} not in dictionary")
+            logger.error(f"Author name '{author_name}' not in Metadata")
 
     def build_metadata_dicts(self):
         """

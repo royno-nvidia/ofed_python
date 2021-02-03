@@ -17,7 +17,7 @@ class Analyzer(object):
         """
 
     @staticmethod
-    def analyze_changed_method(kernel_json: str, ofed_json: str) -> Tuple[dict, dict, dict]:
+    def pre_analyze_changed_method(kernel_json: str, ofed_json: str) -> Tuple[dict, dict, dict]:
         """
         Take processor Json's output and analyze result, build data for Excel display
         :param kernel_json:
@@ -63,11 +63,83 @@ class Analyzer(object):
                                      int((len(removed_list) / kernel_methods_num) * 100)
                                      if kernel_methods_num != 0 else 0}
             feature_to_modified[feature] = [{"Feature name": feature,
-                                            "Methods changed": method} for method in changed_list]
+                                             "Methods changed": method} for method in changed_list]
             feature_to_deleted[feature] = [{"Feature name": feature,
-                                           "Methods deleted": method} for method in removed_list]
+                                            "Methods deleted": method} for method in removed_list]
 
         return main_res, feature_to_modified, feature_to_deleted
+
+    @staticmethod
+    def post_analyze_changed_method(kernel_json: str, new_ofed_json: str, old_ofed_json: str):
+
+        main_res = {}
+        kernel_modified = {}
+
+        only_new_methods = {}
+        only_old_methods = {}
+        modified_in_kernel = {}
+        kernel_dict = {}
+        new_ofed_dict = {}
+        old_ofed_dict = {}
+        try:
+            with open(kernel_json) as k_file:
+                kernel_dict = json.load(k_file)
+            with open(old_ofed_json) as o_file:
+                old_ofed_dict = json.load(o_file)
+            with open(new_ofed_json) as n_file:
+                new_ofed_dict = json.load(n_file)
+        except IOError as e:
+            logger.critical(f"failed to read json:\n{e}")
+        # newly added features
+        new_features = list(set(new_ofed_dict.keys()) - set(old_ofed_dict.keys()))
+        # accepted/abandon features
+        old_features = list(set(old_ofed_dict.keys()) - set(new_ofed_dict.keys()))
+        combine_features = list(set(old_ofed_dict.keys()).intersection(set(new_ofed_dict.keys())))
+        for feature in combine_features:
+            changed_list = []
+            removed_list = []
+            function_modified_in_new = [method for method in new_ofed_dict[feature]['kernel']]
+            function_modified_in_old = [method for method in old_ofed_dict[feature]['kernel']]
+            has_changes = False
+            for method in function_modified_in_old:
+                if method in kernel_dict['deleted'].keys():
+                    if method not in removed_list:
+                        removed_list.append(method)
+                        has_changes = True
+                if method in kernel_dict['modified'].keys():
+                    if method not in changed_list:
+                        changed_list.append(method)
+                        has_changes = True
+            only_new_methods = list(set(function_modified_in_new) - set(function_modified_in_old))
+            only_old_methods = list(set(function_modified_in_old) - set(function_modified_in_new))
+            overlapping_methods = list(set(function_modified_in_new).intersection(set(function_modified_in_old)))
+            main_res[feature] = {"Feature name": feature,
+                                 "Old OFED version methods dependencies": len(only_old_methods) + len(overlapping_methods),
+                                 "New OFED version methods dependencies": len(only_new_methods) + len(overlapping_methods),
+                                 "Overlapping methods dependencies": len(overlapping_methods),
+                                 "Added methods dependencies": len(only_new_methods),
+                                 "Missing methods dependencies": len(only_old_methods),
+                                 "Modified methods in kernel": len(changed_list),
+                                 "Removed methods from kernel": len(removed_list)}
+
+            # kernel_modified[feature] = [{"Feature name": feature,
+            #                                  "Methods changed": method} for method in changed_list]
+            # feature_to_deleted[feature] = [{"Feature name": feature,
+            #                                 "Methods deleted": method} for method in removed_list]
+            has_changes = False
+        return main_res
+
+    @staticmethod
+    def __colored_condition_row(workbook, worksheet, col: chr, col_len: int):
+        red_format = workbook.add_format({'bg_color': '#FFC7CE',
+                                          'font_color': '#9C0006'})
+        yellow_format = workbook.add_format({'bg_color': '#FFEB9C',
+                                             'font_color': '#9C6500'})
+        worksheet.conditional_format(f'A3:{col}{col_len+2}',
+                                     {'type':     'formula',
+                                      'criteria': '=AND($G3+H3=0,$E3+FC3>0)',
+                                      'format':   red_format})
+
 
     @staticmethod
     def __colored_condition_column(workbook, worksheet, col: chr, col_len: int, red_zone: int, green_zone: int):
@@ -106,8 +178,8 @@ class Analyzer(object):
                                       'format': yellow_format})
 
     @staticmethod
-    def create_changed_functions_excel(results: dict, modify: dict, delete: dict, filename: str, src: str, dst: str,
-                                       ofed: str):
+    def pre_create_changed_functions_excel(results: dict, modify: dict, delete: dict, filename: str, src: str, dst: str,
+                                           ofed: str):
         """
         Build excel file from analyzed results
         :param results: dict contain result for main page
@@ -119,7 +191,7 @@ class Analyzer(object):
         :param ofed: Ofed specific tag
         :return:
         """
-        title = f"Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
+        title = f"MSR Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
         df_main = pd.DataFrame([results[feature] for feature in results.keys()])
         df_main.set_index('Feature name')
         writer = pd.ExcelWriter(EXCEL_LOC + filename + '.xlsx', engine='xlsxwriter')
@@ -147,9 +219,9 @@ class Analyzer(object):
             worksheet.write(1, col_num, value, header_format)
 
         # apply conditions for modification
-        Analyzer.colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
+        Analyzer.__colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
         # apply conditions for deletions
-        Analyzer.colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
+        Analyzer.__colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
 
         # Modified worksheet
         dicts_list_from_modify = [modify[feature][index] for
@@ -175,5 +247,76 @@ class Analyzer(object):
         writer.save()
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
 
+    @staticmethod
+    def post_create_changed_functions_excel(results: dict, modify: dict, delete: dict,
+                                            filename: str, src: str, dst: str, ofed: str):
+        """
+        Build excel file from analyzed results
+        :param results: dict contain result for main page
+        :param modify:  dict contain which features methods was modified in kernel
+        :param delete: dict contain which features methods was deleted in kernel
+        :param filename: name for output excel file
+        :param src: kernel source version tag
+        :param dst: kernel destination version tag
+        :param ofed: Ofed specific tag
+        :return:
+        """
 
+        title = f"MSR Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
 
+        df_main = pd.DataFrame([results[feature] for feature in results.keys()])
+        df_main.set_index('Feature name')
+        writer = pd.ExcelWriter(EXCEL_LOC + filename + '.xlsx', engine='xlsxwriter')
+        df_main.to_excel(writer, sheet_name='Analyzed_result', startrow=2, header=False, index=False)
+
+        workbook = writer.book
+        worksheet = writer.sheets['Analyzed_result']
+
+        title_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#00E4BC',
+            'border': 1})
+        red_format = workbook.add_format({'bg_color': '#FFC7CE',
+                                          'font_color': '#9C0006'})
+        worksheet.merge_range(f'A1:{chr(ord("A") + len(df_main.columns) - 1)}1', title, title_format)
+        Analyzer.__colored_condition_row(workbook, worksheet, 'H', len(df_main.index))
+        # header
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        for col_num, value in enumerate(df_main.columns.values):
+            worksheet.write(1, col_num, value, header_format)
+
+        # apply conditions for modification
+        # Analyzer.__colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
+        # apply conditions for deletions
+        # Analyzer.__colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
+
+        # Modified worksheet
+        # dicts_list_from_modify = [modify[feature][index] for
+        #                           feature in modify.keys() for
+        #                           index in range(len(modify[feature]))]
+        # df_mod = pd.DataFrame(dicts_list_from_modify)
+        # df_mod.set_index('Feature name')
+        # df_mod.to_excel(writer, sheet_name='Modified', startrow=1, header=False, index=False)
+        # worksheet_mod = writer.sheets['Modified']
+        # for col_num, value in enumerate(df_mod.columns.values):
+        #     worksheet_mod.write(0, col_num, value, header_format)
+        #
+        # # deleted worksheet
+        # dicts_list_from_deleted = [delete[feature][index] for
+        #                            feature in delete.keys() for index in range(len(delete[feature]))]
+        # df_del = pd.DataFrame(dicts_list_from_deleted)
+        # df_del.set_index('Feature name')
+        # df_del.to_excel(writer, sheet_name='Deleted', startrow=1, header=False, index=False)
+        # worksheet_del = writer.sheets['Deleted']
+        # for col_num, value in enumerate(df_del.columns.values):
+        #     worksheet_del.write(0, col_num, value, header_format)
+
+        writer.save()
+        logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")

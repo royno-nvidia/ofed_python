@@ -39,16 +39,14 @@ class Verifier(object):
             return False
 
     @staticmethod
-    def checks_for_Analyzer(args):
+    def checks_for_Analyzer(loc_list: list):
         """
         Verify user arguments for 'pre_rebase_analyzer.py' script
         :param args:
         :return:
         """
-        if not os.path.isfile(args.ofed_json_path):
-            logger.critical(f'Path {args.ofed_json_path} is not a File')
-            return False
-        if not os.path.isfile(args.kernel_json_path):
-            logger.critical(f'Path {args.ofed_json_path} is not a File')
-            return False
+        for path in loc_list:
+            if not os.path.isfile(path):
+                logger.critical(f'Path {path} is not a File')
+                return False
         return True
