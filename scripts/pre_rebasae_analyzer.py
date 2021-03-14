@@ -50,7 +50,7 @@ def main():
     if not Verifier.checks_for_Analyzer([args.kernel_json_path, args.ofed_json_path]):
         logger.critical('Argument verify failed, exiting')
         exit(1)
-    main_res, modify, delete = Analyzer.analyze_changed_method(
+    main_res, modify, delete = Analyzer.pre_analyze_changed_method(
         args.kernel_json_path, args.ofed_json_path)
     Analyzer.pre_create_changed_functions_excel(main_res, modify, delete,
                                             'Feature_methods_changed' if

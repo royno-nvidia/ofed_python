@@ -145,7 +145,7 @@ class Analyzer(object):
     def __colored_condition_column(workbook, worksheet, col: chr, col_len: int, red_zone: int, green_zone: int):
         """
         create 3 color condition in wanted col over worksheet
-        :param workbook: xlsxwriter workbook
+        :param workbook: xlsxlwriter workbook
         :param worksheet: xlsxwriter worksheet
         :param col: Excel col char (e.g 'A','B'..)
         :param col_len: number of rows in col
