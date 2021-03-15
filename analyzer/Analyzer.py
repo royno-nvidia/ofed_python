@@ -1,5 +1,6 @@
 import json
 import logging
+import pprint
 from typing import Tuple
 from colorlog import ColoredFormatter
 import pandas as pd
@@ -27,6 +28,7 @@ class Analyzer(object):
         main_res = {}
         feature_to_modified = {}
         feature_to_deleted = {}
+        feature_to_function = {}
         kernel_dict = {}
         ofed_dict = {}
         try:
@@ -37,16 +39,15 @@ class Analyzer(object):
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
         for feature in ofed_dict.keys():
-            changed_list = []
-            removed_list = []
+            changed_set = set()
+            removed_set = set()
             # overall_methods = len(ofed_dict[feature][''])
             for method in ofed_dict[feature]['kernel']:
                 if method in kernel_dict['deleted'].keys():
-                    if method not in removed_list:
-                        removed_list.append(method)
+                    removed_set.add(method)
                 if method in kernel_dict['modified'].keys():
-                    if method not in changed_list:
-                        changed_list.append(method)
+                    changed_set.add(method)
+            changed_set -= removed_set
             ofed_only_methods_num = len(ofed_dict[feature]['ofed_only'])
             kernel_methods_num = len(ofed_dict[feature]['kernel'])
             main_res[feature] = {"Feature name": feature,
@@ -54,27 +55,63 @@ class Analyzer(object):
                                  "Kernel methods": kernel_methods_num,
                                  # "Overall methods feature depend":
                                  #     ofed_only_methods_num + kernel_methods_num,
-                                 "Changed in kernel": len(changed_list),
+                                 "Changed in kernel": len(changed_set),
                                  "Changed % [comparison to kernel methods]":
-                                     int((len(changed_list) / kernel_methods_num) * 100)
+                                     int((len(changed_set) / kernel_methods_num) * 100)
                                      if kernel_methods_num != 0 else 0,
-                                 "Deleted from kernel": len(removed_list),
+                                 "Deleted from kernel": len(removed_set),
                                  "Deleted % [comparison to kernel methods]":
-                                     int((len(removed_list) / kernel_methods_num) * 100)
+                                     int((len(removed_set) / kernel_methods_num) * 100)
                                      if kernel_methods_num != 0 else 0}
-            feature_to_modified[feature] = [{"Feature name": feature,
-                                             "Methods changed": method} for method in changed_list]
-            feature_to_deleted[feature] = [{"Feature name": feature,
-                                            "Methods deleted": method} for method in removed_list]
+            if len(removed_set) or len(changed_set):
+                feature_to_function[feature] = []
+                for rem in list(removed_set):
+                    feature_to_function[feature].append({
+                                                "Feature name": feature,
+                                                "Method": rem,
+                                                "Status": "removed"})
+                for mod in list(changed_set):
+                    feature_to_function[feature].append({
+                                                "Feature name": feature,
+                                                "Method": mod,
+                                                "Status": "modified"})
+                for oo in ofed_dict[feature]['ofed_only']:
+                    feature_to_function[feature].append({
+                        "Feature name": feature,
+                        "Method": oo,
+                        "Status": "ofed only"})
+                unchhanged_set = set(ofed_dict[feature]['kernel'])
+                unchhanged_set = unchhanged_set.difference(changed_set, removed_set)
+                for unchanged in list(unchhanged_set):
+                    feature_to_function[feature].append({
+                        "Feature name": feature,
+                        "Method": unchanged,
+                        "Status": "unchanged"})
+                print(feature_to_function[feature])
+            # modified_list = [{"Feature name": feature,
+            #                                  "Method": method, "Status": "modified"} for method in list(changed_set)]
+            # removed_list = [{"Feature name": feature,
+            #                                  "Method": method, "Status": "removed"} for method in list(removed_set)]
 
-        return main_res, feature_to_modified, feature_to_deleted
+            # feature_to_function[feature] = modified_list.extend(removed_list)
+            # print(feature_to_function[feature])
+            # feature_to_function[feature] = [{"Feature name": feature,
+            #                                  "Method": method, "Status": "modified"} for method in changed_set]
+            # feature_to_function[feature].append([{"Feature name": feature,
+            #                                  "Methods": method, "Status": "modified"} for method in changed_set])
+            # feature_to_modified[feature] = [{"Feature name": feature,
+            #                                  "Methods changed": method, "Status": "modified"} for method in changed_set]
+            # feature_to_deleted[feature] = [{"Feature name": feature,
+            #                                 "Methods deleted": method} for method in removed_set]
+
+        # return main_res, feature_to_modified, feature_to_deleted
+        return main_res, feature_to_function
 
     @staticmethod
     def post_analyze_changed_method(kernel_json: str, new_ofed_json: str, old_ofed_json: str):
 
         main_res = {}
         kernel_modified = {}
-
         only_new_methods = {}
         only_old_methods = {}
         modified_in_kernel = {}
@@ -178,7 +215,7 @@ class Analyzer(object):
                                       'format': yellow_format})
 
     @staticmethod
-    def pre_create_changed_functions_excel(results: dict, modify: dict, delete: dict, filename: str, src: str, dst: str,
+    def pre_create_changed_functions_excel(results: dict, feature_to_functiom: dict, filename: str, src: str, dst: str,
                                            ofed: str):
         """
         Build excel file from analyzed results
@@ -222,27 +259,29 @@ class Analyzer(object):
         Analyzer.__colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
         # apply conditions for deletions
         Analyzer.__colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
-
+        print("check")
+        print(feature_to_functiom)
         # Modified worksheet
-        dicts_list_from_modify = [modify[feature][index] for
-                                  feature in modify.keys() for
-                                  index in range(len(modify[feature]))]
+        dicts_list_from_modify = [feature_to_functiom[feature][index] for
+                                  feature in feature_to_functiom.keys() for
+                                  index in range(len(feature_to_functiom[feature]))]
+
         df_mod = pd.DataFrame(dicts_list_from_modify)
         df_mod.set_index('Feature name')
-        df_mod.to_excel(writer, sheet_name='Modified', startrow=1, header=False, index=False)
-        worksheet_mod = writer.sheets['Modified']
+        df_mod.to_excel(writer, sheet_name='Feature function status', startrow=1, header=False, index=False)
+        worksheet_mod = writer.sheets['Feature function status']
         for col_num, value in enumerate(df_mod.columns.values):
             worksheet_mod.write(0, col_num, value, header_format)
 
-        # deleted worksheet
-        dicts_list_from_deleted = [delete[feature][index] for
-                                   feature in delete.keys() for index in range(len(delete[feature]))]
-        df_del = pd.DataFrame(dicts_list_from_deleted)
-        df_del.set_index('Feature name')
-        df_del.to_excel(writer, sheet_name='Deleted', startrow=1, header=False, index=False)
-        worksheet_del = writer.sheets['Deleted']
-        for col_num, value in enumerate(df_del.columns.values):
-            worksheet_del.write(0, col_num, value, header_format)
+        # # deleted worksheet
+        # dicts_list_from_deleted = [delete[feature][index] for
+        #                            feature in delete.keys() for index in range(len(delete[feature]))]
+        # df_del = pd.DataFrame(dicts_list_from_deleted)
+        # df_del.set_index('Feature name')
+        # df_del.to_excel(writer, sheet_name='Deleted', startrow=1, header=False, index=False)
+        # worksheet_del = writer.sheets['Deleted']
+        # for col_num, value in enumerate(df_del.columns.values):
+        #     worksheet_del.write(0, col_num, value, header_format)
 
         writer.save()
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
