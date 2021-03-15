@@ -129,6 +129,8 @@ class Processor(object):
         except Exception as e:
             logger.critical(f"Fail to process kernel: '{self._repo_path}',\n{e}")
         try:
+            all_deleted_methods_set = set()
+            all_modified_methods_set = set()
             for commit in self._repo.traverse_commits():
                 logger.debug(f'Processing commit {commit.hash}:')
                 # iterate all commit in repo
@@ -136,22 +138,28 @@ class Processor(object):
                 for mod in commit.modifications:
                     before_methods = set([meth.name for meth in mod.methods_before])
                     after_methods = set([meth.name for meth in mod.methods])
-                    delete_methods = list(before_methods - after_methods)
+                    delete_methods_in_file = before_methods - after_methods
                     # if method name was in file before commit and missing after means function
                     # deleted/moved/renamed any way handled as deleted
                     logger.debug('removed methods in commit:')
-                    for delete in delete_methods:
-                        logger.debug(f'{delete}')
-                        if delete not in self._results['deleted'].keys():
-                            self._results['deleted'][delete] = 0  # for now 0 maybe will be changed
+                    # for delete in delete_methods:
+                    logger.debug(f'{delete_methods_in_file}')
+                    all_deleted_methods_set |= delete_methods_in_file
+                        # if delete not in self._results['deleted'].keys():
+                        #     self._results['deleted'][delete] = 0  # for now 0 maybe will be changed
                     if len(mod.changed_methods) > 0:
                         logger.debug('changed methods in commit:')
                         for method in mod.changed_methods:
                             # iterate all changed methods
                             logger.debug(f'{method.name}')
-                            key = method.name
-                            if key not in self._results['modified'].keys():
-                                self._results['modified'][key] = 0  # for now 0 maybe will be changed
+                            all_modified_methods_set.add(method.name)
+                            # key = method.name
+                            # if key not in self._results['modified'].keys():
+                            #     self._results['modified'][key] = 0  # for now 0 maybe will be changed
+        #     create _results dict, make sure deleted method don't appear also in modified
+            all_modified_methods_set -= all_deleted_methods_set
+            self._results['modified'] = dict.fromkeys(all_modified_methods_set, 0)
+            self._results['deleted'] = dict.fromkeys(all_deleted_methods_set, 0)
         except Exception as e:
             logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
@@ -178,7 +186,7 @@ class Processor(object):
                     continue
                 feature = ofed_commit.info['feature']
                 # iterate all repo commit
-                logger.warn(f"process hash: {ofed_commit.commit.hash[:12]}, feature: {feature}")
+                logger.debug(f"process hash: {ofed_commit.commit.hash[:12]}, feature: {feature}")
                 self.up()
                 if ofed_commit.info['upstream_status'] == 'accepted':
                     # skip accepted
@@ -198,7 +206,7 @@ class Processor(object):
                             # sets algebra, methods after\methods before = method added by commit
                         logger.debug('methods changed:')
                         for method in mod.changed_methods:
-                            logger.warn(f'{method.name} in file {method.filename}')
+                            logger.debug(f'{method.name} in file {method.filename}')
                             if feature in self._results.keys():
                                 # if feature exist append method name (don't care about name duplications
                                 # removed latter)
@@ -208,12 +216,12 @@ class Processor(object):
                                 self._results[feature] = {'kernel': [],
                                                           'ofed_only': []}
                                 self._results[feature]['kernel'].append(method.name)
-                            logger.warn('Methods added by OFED:')
+                            logger.debug('Methods added by OFED:')
                             for ofed_method in added_methods:
                                 ofed_only_set.add(ofed_method)
                                 # iterate new methods added by ofed
-                                logger.warn(f'{ofed_method}')
-                                #self._results[feature]['ofed_only'].append(ofed_method)
+                                logger.debug(f'{ofed_method}')
+                                # self._results[feature]['ofed_only'].append(ofed_method)
                     else:
                         logger.debug(f'No method changed in file {mod.filename}')
                 if "Set base code to" in ofed_commit.commit.msg:

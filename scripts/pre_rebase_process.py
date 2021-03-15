@@ -13,9 +13,9 @@ logger = get_logger('Processor', 'Processor.log')
 def parse_args():
     parser = argparse.ArgumentParser(description="OFED pre-rebase process")
     parser.add_argument("-path", type=str, default="", required=True, help="Git path")
-    parser.add_argument("-start_tag", type=str, default="",
+    parser.add_argument("-start_tag", type=str, default=None,
                         help="Script will process only commits from tag and above [must be valid tag in -path repo]")
-    parser.add_argument("-end_tag", type=str, default="",
+    parser.add_argument("-end_tag", type=str, default=None,
                         help="Script will process only commits up to tag [must be valid tag in -path repo]")
     parser.add_argument("-output_filename", type=str, default=None,
                         help="Name for Json result file")
