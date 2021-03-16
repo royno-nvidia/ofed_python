@@ -46,11 +46,9 @@ def main():
     if not Verifier.checks_for_Analyzer([args.kernel_json, args.new_ofed_json, args.old_ofed_json]):
         logger.critical('Argument verify failed, exiting')
         exit(1)
-    main_res = Analyzer.post_analyze_changed_method(
+    main_res, function_status = Analyzer.post_analyze_changed_method(
         args.kernel_json, args.new_ofed_json, args.old_ofed_json)
-    modify = []
-    delete = []
-    Analyzer.post_create_changed_functions_excel(main_res, modify, delete,
+    Analyzer.post_create_changed_functions_excel(main_res, function_status,
                                                  'Feature_methods_changed' if
                                                  args.output_filename is None else args.output_filename,
                                                  '', '', '')

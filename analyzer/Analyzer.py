@@ -113,23 +113,8 @@ class Analyzer(object):
                         "Method": unchanged,
                         "Status": "unchanged"})
                 print(feature_to_function[feature])
-            # modified_list = [{"Feature name": feature,
-            #                                  "Method": method, "Status": "modified"} for method in list(changed_set)]
-            # removed_list = [{"Feature name": feature,
-            #                                  "Method": method, "Status": "removed"} for method in list(removed_set)]
 
-            # feature_to_function[feature] = modified_list.extend(removed_list)
-            # print(feature_to_function[feature])
-            # feature_to_function[feature] = [{"Feature name": feature,
-            #                                  "Method": method, "Status": "modified"} for method in changed_set]
-            # feature_to_function[feature].append([{"Feature name": feature,
-            #                                  "Methods": method, "Status": "modified"} for method in changed_set])
-            # feature_to_modified[feature] = [{"Feature name": feature,
-            #                                  "Methods changed": method, "Status": "modified"} for method in changed_set]
-            # feature_to_deleted[feature] = [{"Feature name": feature,
-            #                                 "Methods deleted": method} for method in removed_set]
 
-        # return main_res, feature_to_modified, feature_to_deleted
         return main_res, feature_to_function
 
     @staticmethod
@@ -143,12 +128,14 @@ class Analyzer(object):
         kernel_dict = {}
         new_ofed_dict = {}
         old_ofed_dict = {}
+        feature_function_status = {}
+        kernel_filename = []
+        kernel_filename.append(kernel_json)
+        kernel_dict = Analyzer.combine_kernel_dicts(kernel_filename)
         try:
-            with open(kernel_json) as k_file:
-                kernel_dict = json.load(k_file)
-            with open(old_ofed_json) as o_file:
+            with open(JSON_LOC+old_ofed_json) as o_file:
                 old_ofed_dict = json.load(o_file)
-            with open(new_ofed_json) as n_file:
+            with open(JSON_LOC+new_ofed_json) as n_file:
                 new_ofed_dict = json.load(n_file)
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
@@ -162,16 +149,13 @@ class Analyzer(object):
             removed_list = []
             function_modified_in_new = [method for method in new_ofed_dict[feature]['kernel']]
             function_modified_in_old = [method for method in old_ofed_dict[feature]['kernel']]
-            has_changes = False
             for method in function_modified_in_old:
                 if method in kernel_dict['deleted'].keys():
                     if method not in removed_list:
                         removed_list.append(method)
-                        has_changes = True
                 if method in kernel_dict['modified'].keys():
                     if method not in changed_list:
                         changed_list.append(method)
-                        has_changes = True
             only_new_methods = list(set(function_modified_in_new) - set(function_modified_in_old))
             only_old_methods = list(set(function_modified_in_old) - set(function_modified_in_new))
             overlapping_methods = list(set(function_modified_in_new).intersection(set(function_modified_in_old)))
@@ -183,13 +167,34 @@ class Analyzer(object):
                                  "Missing methods dependencies": len(only_old_methods),
                                  "Modified methods in kernel": len(changed_list),
                                  "Removed methods from kernel": len(removed_list)}
-
-            # kernel_modified[feature] = [{"Feature name": feature,
-            #                                  "Methods changed": method} for method in changed_list]
-            # feature_to_deleted[feature] = [{"Feature name": feature,
-            #                                 "Methods deleted": method} for method in removed_list]
-            has_changes = False
-        return main_res
+            if only_old_methods or only_new_methods or overlapping_methods or changed_list or removed_list:
+                feature_function_status[feature] = []
+                for added in only_new_methods:
+                    feature_function_status[feature].append({
+                                                "Feature name": feature,
+                                                "Method": added,
+                                                "Status": "add"})
+                for aband in only_old_methods:
+                    feature_function_status[feature].append({
+                                                "Feature name": feature,
+                                                "Method": aband,
+                                                "Status": "abandon"})
+                for ol in overlapping_methods:
+                    feature_function_status[feature].append({
+                                                "Feature name": feature,
+                                                "Method": ol,
+                                                "Status": "overlap"})
+                for cl in changed_list:
+                    feature_function_status[feature].append({
+                                                "Feature name": feature,
+                                                "Method": cl,
+                                                "Status": "kernel modified"})
+                for rem in removed_list:
+                    feature_function_status[feature].append({
+                                                "Feature name": feature,
+                                                "Method": rem,
+                                                "Status": "kernel removed"})
+        return main_res, feature_function_status
 
     @staticmethod
     def __colored_condition_row(workbook, worksheet, col: chr, col_len: int):
@@ -246,8 +251,7 @@ class Analyzer(object):
         """
         Build excel file from analyzed results
         :param results: dict contain result for main page
-        :param modify:  dict contain which features methods was modified in kernel
-        :param delete: dict contain which features methods was deleted in kernel
+
         :param filename: name for output excel file
         :param src: kernel source version tag
         :param dst: kernel destination version tag
@@ -285,8 +289,6 @@ class Analyzer(object):
         Analyzer.__colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
         # apply conditions for deletions
         Analyzer.__colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
-        print("check")
-        print(feature_to_functiom)
         # Modified worksheet
         dicts_list_from_modify = [feature_to_functiom[feature][index] for
                                   feature in feature_to_functiom.keys() for
@@ -313,13 +315,12 @@ class Analyzer(object):
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
 
     @staticmethod
-    def post_create_changed_functions_excel(results: dict, modify: dict, delete: dict,
+    def post_create_changed_functions_excel(results: dict, function_status: dict,
                                             filename: str, src: str, dst: str, ofed: str):
         """
         Build excel file from analyzed results
         :param results: dict contain result for main page
-        :param modify:  dict contain which features methods was modified in kernel
-        :param delete: dict contain which features methods was deleted in kernel
+        :param function_status: dict contain features functions status between kernels
         :param filename: name for output excel file
         :param src: kernel source version tag
         :param dst: kernel destination version tag
@@ -357,6 +358,16 @@ class Analyzer(object):
         for col_num, value in enumerate(df_main.columns.values):
             worksheet.write(1, col_num, value, header_format)
 
+        dicts_list_from_modify = [function_status[feature][index] for
+                                  feature in function_status.keys() for
+                                  index in range(len(function_status[feature]))]
+
+        df_mod = pd.DataFrame(dicts_list_from_modify)
+        df_mod.set_index('Feature name')
+        df_mod.to_excel(writer, sheet_name='Feature function status', startrow=1, header=False, index=False)
+        worksheet_mod = writer.sheets['Feature function status']
+        for col_num, value in enumerate(df_mod.columns.values):
+            worksheet_mod.write(0, col_num, value, header_format)
         # apply conditions for modification
         # Analyzer.__colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
         # apply conditions for deletions

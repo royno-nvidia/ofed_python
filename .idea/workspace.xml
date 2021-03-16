@@ -7,6 +7,7 @@
     <list default="true" id="3d4ad855-7f94-4963-9d83-e566622cc23e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analyzer/Analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/analyzer/Analyzer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/post_rebase_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/post_rebase_analyzer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/verifier/verifer_arg.py" beforeDir="false" afterPath="$PROJECT_DIR$/verifier/verifer_arg.py" afterDir="false" />
     </list>
@@ -37,8 +38,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="269">
-              <caret line="57" column="35" selection-start-line="57" selection-start-column="35" selection-end-line="57" selection-end-column="35" />
+            <state relative-caret-position="235">
+              <caret line="57" column="77" selection-start-line="57" selection-start-column="58" selection-end-line="57" selection-end-column="77" />
               <folding>
                 <element signature="e#1#16#0" expanded="true" />
               </folding>
@@ -73,8 +74,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="145">
-              <caret line="24" column="36" selection-start-line="24" selection-start-column="36" selection-end-line="24" selection-end-column="36" />
+            <state relative-caret-position="105">
+              <caret line="187" column="20" selection-start-line="187" selection-start-column="20" selection-end-line="187" selection-end-column="20" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -83,9 +84,18 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/jsons/kernel_v5.6-rc2_v5.9-rc2.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1783080">
+              <caret line="89154" column="32" selection-start-line="89154" selection-start-column="10" selection-end-line="89154" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
+            <state relative-caret-position="4755">
               <caret line="260" column="54" selection-start-line="259" selection-start-column="8" selection-end-line="260" selection-end-column="54" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
@@ -97,8 +107,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/post_rebase_analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="24" column="4" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="33" />
+            <state relative-caret-position="195">
+              <caret line="48" column="58" selection-start-line="48" selection-start-column="58" selection-end-line="48" selection-end-column="58" />
               <folding>
                 <element signature="e#1#16#0" expanded="true" />
               </folding>
@@ -117,10 +127,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>mlx5_vport_get_other_func_cap</find>
-      <find>mlx5_query_vf_vport_num</find>
-      <find>mlx5e_tc_tun_update_header_ipv6</find>
-      <find>mlx5_eswitch_free_vhca_id_mapping</find>
       <find>mlx5_eswitch_disable_vport</find>
       <find>ofed_</find>
       <find>ofed_only</find>
@@ -146,7 +152,11 @@
       <find>has_smi_sysfs</find>
       <find>warn</find>
       <find>sysfs</find>
+      <find>post</find>
+      <find>__esw_offloads_load_rep</find>
       <find>deleted</find>
+      <find>_esw_offloads_load_rep</find>
+      <find>File</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -183,7 +193,6 @@
         <option value="$PROJECT_DIR$/ofed_classes/OfedRepository.py" />
         <option value="$PROJECT_DIR$/jsons/ofed5_2_2_for_demo.json" />
         <option value="$PROJECT_DIR$/../../stable-deps.py" />
-        <option value="$PROJECT_DIR$/scripts/post_rebase_analyzer.py" />
         <option value="$PROJECT_DIR$/ofed_classes/Metadata.py" />
         <option value="$PROJECT_DIR$/deps_dup_remover.py" />
         <option value="$PROJECT_DIR$/dup_remover.py" />
@@ -197,6 +206,7 @@
         <option value="$PROJECT_DIR$/repo_processor/Processor.py" />
         <option value="$PROJECT_DIR$/verifier/verifer_arg.py" />
         <option value="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" />
+        <option value="$PROJECT_DIR$/scripts/post_rebase_analyzer.py" />
         <option value="$PROJECT_DIR$/analyzer/Analyzer.py" />
       </list>
     </option>
@@ -282,7 +292,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.pre_rebasae_analyzer">
+  <component name="RunManager" selected="Python.post_rebase_analyzer">
     <configuration name="Common" type="PythonConfigurationType" factoryName="Python">
       <module name="OfedProject" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -359,7 +369,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/post_rebase_analyzer.py" />
-      <option name="PARAMETERS" value="-kernel_json $PROJECT_DIR$/jsons/kernel_v5.6-rc2_v5.9-rc2.json  -new_ofed_json $PROJECT_DIR$/jsons/ofed_5_2_2_json.json  -old_ofed_json $PROJECT_DIR$/jsons/ofed_5_1_2_json.json -output_filename post_checks" />
+      <option name="PARAMETERS" value="-kernel_json kernel_v5.6-rc2_v5.9-rc2.json  -new_ofed_json ofed_5_2_2_json.json  -old_ofed_json ofed_5_1_2_json.json -output_filename post_checks22" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -496,12 +506,12 @@
     <frame x="0" y="-3" width="1920" height="1060" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.25131717" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.25131717" />
       <window_info id="Structure" order="1" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info id="Favorites" order="2" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32969433" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49894625" visible="true" weight="0.35080215" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49894625" visible="true" weight="0.35080215" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3989305" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -604,9 +614,6 @@
           </folding>
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/jsons/kernel_v5.6-rc2_v5.9-rc2.json">
-      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/ofed_classes/Metadata.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -741,16 +748,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/post_rebase_analyzer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="24" column="4" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="33" />
-          <folding>
-            <element signature="e#1#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="95">
@@ -767,16 +764,6 @@
           <caret line="47" column="14" selection-start-line="47" selection-start-column="14" selection-end-line="47" selection-end-column="14" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="260" column="54" selection-start-line="259" selection-start-column="8" selection-end-line="260" selection-end-column="54" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -814,6 +801,33 @@
         <state relative-caret-position="-1215745" />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4755">
+          <caret line="260" column="54" selection-start-line="259" selection-start-column="8" selection-end-line="260" selection-end-column="54" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jsons/kernel_v5.6-rc2_v5.9-rc2.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1783080">
+          <caret line="89154" column="32" selection-start-line="89154" selection-start-column="10" selection-end-line="89154" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="235">
+          <caret line="57" column="77" selection-start-line="57" selection-start-column="58" selection-end-line="57" selection-end-column="77" />
+          <folding>
+            <element signature="e#1#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/verifier/verifer_arg.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="355">
@@ -824,10 +838,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py">
+    <entry file="file://$PROJECT_DIR$/scripts/post_rebase_analyzer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="269">
-          <caret line="57" column="35" selection-start-line="57" selection-start-column="35" selection-end-line="57" selection-end-column="35" />
+        <state relative-caret-position="195">
+          <caret line="48" column="58" selection-start-line="48" selection-start-column="58" selection-end-line="48" selection-end-column="58" />
           <folding>
             <element signature="e#1#16#0" expanded="true" />
           </folding>
@@ -836,8 +850,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="145">
-          <caret line="24" column="36" selection-start-line="24" selection-start-column="36" selection-end-line="24" selection-end-column="36" />
+        <state relative-caret-position="105">
+          <caret line="187" column="20" selection-start-line="187" selection-start-column="20" selection-end-line="187" selection-end-column="20" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
