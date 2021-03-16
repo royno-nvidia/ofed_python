@@ -6,7 +6,7 @@ from colorlog import ColoredFormatter
 import pandas as pd
 import xlsxwriter
 import os
-from utils.setting_utils import get_logger, EXCEL_LOC
+from utils.setting_utils import get_logger, EXCEL_LOC, JSON_LOC
 
 logger = get_logger('Analyzer', 'Analyzer.log')
 
@@ -18,7 +18,34 @@ class Analyzer(object):
         """
 
     @staticmethod
-    def pre_analyze_changed_method(kernel_json: str, ofed_json: str) -> Tuple[dict, dict, dict]:
+    def combine_kernel_dicts(kernel_jsons) -> dict:
+        """
+        Create one combined dictionary for all kernels json list files
+        :param kernel_jsons: list of kernel jsons
+        :return: combined dictionary
+        """
+        res_dict = {"modified": {}, "deleted": {}}
+        modified_set = set()
+        deleted_set = set()
+
+        try:
+            for j_file in kernel_jsons:
+                with open(JSON_LOC+j_file) as k_file:
+                    kernel_dict = json.load(k_file)
+                    modified_set |= set(kernel_dict['modified'].keys())
+                    deleted_set |= set(kernel_dict['deleted'].keys())
+                    modified_set -= deleted_set # remove duplications
+        except IOError as e:
+            logger.critical(f"failed to read json:\n{e}")
+        res_dict['modified'] = dict.fromkeys(modified_set, 0)
+        res_dict['deleted'] = dict.fromkeys(deleted_set, 0)
+        # with open(JSON_LOC+'check_combiner2.json', 'w') as handle:
+        #     json.dump(res_dict, handle, indent=4)
+        return res_dict
+
+
+    @staticmethod
+    def pre_analyze_changed_method(kernel_json, ofed_json: str) -> Tuple[dict, dict, dict]:
         """
         Take processor Json's output and analyze result, build data for Excel display
         :param kernel_json:
@@ -29,12 +56,10 @@ class Analyzer(object):
         feature_to_modified = {}
         feature_to_deleted = {}
         feature_to_function = {}
-        kernel_dict = {}
+        kernel_dict = Analyzer.combine_kernel_dicts(kernel_json)
         ofed_dict = {}
         try:
-            with open(kernel_json) as k_file:
-                kernel_dict = json.load(k_file)
-            with open(ofed_json) as o_file:
+            with open(JSON_LOC+ofed_json) as o_file:
                 ofed_dict = json.load(o_file)
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
@@ -213,6 +238,7 @@ class Analyzer(object):
                                       'minimum': green_zone,
                                       'maximum': red_zone,
                                       'format': yellow_format})
+
 
     @staticmethod
     def pre_create_changed_functions_excel(results: dict, feature_to_functiom: dict, filename: str, src: str, dst: str,

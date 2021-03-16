@@ -1,9 +1,12 @@
 import logging
 import os
+from os.path import dirname
+
 import git
+import sys
 from colorlog import ColoredFormatter
 
-from utils.setting_utils import LOGGER_LOC, get_logger
+from utils.setting_utils import LOGGER_LOC, get_logger, JSON_LOC
 
 logger = get_logger('Verifier', 'Verifier.log')
 
@@ -45,8 +48,10 @@ class Verifier(object):
         :param args:
         :return:
         """
+
         for path in loc_list:
-            if not os.path.isfile(path):
-                logger.critical(f'Path {path} is not a File')
+            print(f'File: {JSON_LOC}/{path}')
+            if not os.path.isfile(f'{JSON_LOC}/{path}'):
+                logger.critical(f'Path {JSON_LOC}/{path} is not a File')
                 return False
         return True
