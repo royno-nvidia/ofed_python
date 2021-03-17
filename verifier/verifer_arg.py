@@ -50,7 +50,6 @@ class Verifier(object):
         """
 
         for path in loc_list:
-            print(f'File: {JSON_LOC}/{path}')
             if not os.path.isfile(f'{JSON_LOC}/{path}'):
                 logger.critical(f'Path {JSON_LOC}/{path} is not a File')
                 return False

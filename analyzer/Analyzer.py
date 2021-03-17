@@ -112,7 +112,6 @@ class Analyzer(object):
                         "Feature name": feature,
                         "Method": unchanged,
                         "Status": "unchanged"})
-                print(feature_to_function[feature])
 
 
         return main_res, feature_to_function
@@ -170,30 +169,26 @@ class Analyzer(object):
             if only_old_methods or only_new_methods or overlapping_methods or changed_list or removed_list:
                 feature_function_status[feature] = []
                 for added in only_new_methods:
+                    kernel_status = "removed" if added in removed_list else "modified" if added in changed_list else "unchanged"
                     feature_function_status[feature].append({
                                                 "Feature name": feature,
                                                 "Method": added,
-                                                "Status": "add"})
+                                                "Status": "add",
+                                                "Kernel Status": kernel_status})
                 for aband in only_old_methods:
+                    kernel_status = "removed" if aband in removed_list else "modified" if aband in changed_list else "unchanged"
                     feature_function_status[feature].append({
                                                 "Feature name": feature,
                                                 "Method": aband,
-                                                "Status": "abandon"})
+                                                "Status": "abandon",
+                                                "Kernel Status": kernel_status})
                 for ol in overlapping_methods:
+                    kernel_status = "removed" if ol in removed_list else "modified" if ol in changed_list else "unchanged"
                     feature_function_status[feature].append({
                                                 "Feature name": feature,
                                                 "Method": ol,
-                                                "Status": "overlap"})
-                for cl in changed_list:
-                    feature_function_status[feature].append({
-                                                "Feature name": feature,
-                                                "Method": cl,
-                                                "Status": "kernel modified"})
-                for rem in removed_list:
-                    feature_function_status[feature].append({
-                                                "Feature name": feature,
-                                                "Method": rem,
-                                                "Status": "kernel removed"})
+                                                "Status": "overlap",
+                                                "Kernel Status": kernel_status})
         return main_res, feature_function_status
 
     @staticmethod
@@ -300,16 +295,6 @@ class Analyzer(object):
         worksheet_mod = writer.sheets['Feature function status']
         for col_num, value in enumerate(df_mod.columns.values):
             worksheet_mod.write(0, col_num, value, header_format)
-
-        # # deleted worksheet
-        # dicts_list_from_deleted = [delete[feature][index] for
-        #                            feature in delete.keys() for index in range(len(delete[feature]))]
-        # df_del = pd.DataFrame(dicts_list_from_deleted)
-        # df_del.set_index('Feature name')
-        # df_del.to_excel(writer, sheet_name='Deleted', startrow=1, header=False, index=False)
-        # worksheet_del = writer.sheets['Deleted']
-        # for col_num, value in enumerate(df_del.columns.values):
-        #     worksheet_del.write(0, col_num, value, header_format)
 
         writer.save()
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
