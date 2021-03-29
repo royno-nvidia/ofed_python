@@ -1,11 +1,15 @@
 import json
 import logging
-import pprint
+from pprint import pprint
+from difflib import Differ
 from typing import Tuple
 from colorlog import ColoredFormatter
 import pandas as pd
 import xlsxwriter
 import os
+import difflib
+
+from repo_processor.Processor import Processor
 from utils.setting_utils import get_logger, EXCEL_LOC, JSON_LOC
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -16,6 +20,9 @@ class Analyzer(object):
         """
         Init Analyzer, create instance of Analyzer can be used for static method calls
         """
+
+
+
 
     @staticmethod
     def combine_kernel_dicts(kernel_jsons) -> dict:
@@ -43,9 +50,36 @@ class Analyzer(object):
         #     json.dump(res_dict, handle, indent=4)
         return res_dict
 
+    @staticmethod
+    def function_modified_by_feature(ofed_json: str) -> dict:
+        res_dict = {}
+        ofed_dict = {}
+        try:
+            with open(JSON_LOC+ofed_json) as o_file:
+                ofed_dict = json.load(o_file)
+        except IOError as e:
+            logger.critical(f"failed to read json:\n{e}")
+        for feature in ofed_dict.keys():
+            logger.debug(f'feature: {feature}')
+            if feature == 'rebase':
+                continue
+            for method in ofed_dict[feature]['kernel']:
+                if method not in res_dict.keys():
+                    res_dict[method] = {'feature_list': [], 'counter': 1}
+                    res_dict[method]['feature_list'].append(feature)
+                    # res_dict[method]['count'] = 1
+                else:
+                    res_dict[method]['feature_list'].append(feature)
+                    res_dict[method]['counter'] = res_dict[method]['counter'] + 1
+        filename = 'function_to_feature'
+        with open(JSON_LOC + filename, 'w') as handle:
+            json.dump(res_dict, handle, indent=4)
+
+
+
 
     @staticmethod
-    def pre_analyze_changed_method(kernel_json, ofed_json: str) -> Tuple[dict, dict, dict]:
+    def pre_analyze_changed_method(kernel_json: str, ofed_json: str) -> Tuple[dict, dict, dict]:
         """
         Take processor Json's output and analyze result, build data for Excel display
         :param kernel_json:
@@ -353,31 +387,6 @@ class Analyzer(object):
         worksheet_mod = writer.sheets['Feature function status']
         for col_num, value in enumerate(df_mod.columns.values):
             worksheet_mod.write(0, col_num, value, header_format)
-        # apply conditions for modification
-        # Analyzer.__colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
-        # apply conditions for deletions
-        # Analyzer.__colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
-
-        # Modified worksheet
-        # dicts_list_from_modify = [modify[feature][index] for
-        #                           feature in modify.keys() for
-        #                           index in range(len(modify[feature]))]
-        # df_mod = pd.DataFrame(dicts_list_from_modify)
-        # df_mod.set_index('Feature name')
-        # df_mod.to_excel(writer, sheet_name='Modified', startrow=1, header=False, index=False)
-        # worksheet_mod = writer.sheets['Modified']
-        # for col_num, value in enumerate(df_mod.columns.values):
-        #     worksheet_mod.write(0, col_num, value, header_format)
-        #
-        # # deleted worksheet
-        # dicts_list_from_deleted = [delete[feature][index] for
-        #                            feature in delete.keys() for index in range(len(delete[feature]))]
-        # df_del = pd.DataFrame(dicts_list_from_deleted)
-        # df_del.set_index('Feature name')
-        # df_del.to_excel(writer, sheet_name='Deleted', startrow=1, header=False, index=False)
-        # worksheet_del = writer.sheets['Deleted']
-        # for col_num, value in enumerate(df_del.columns.values):
-        #     worksheet_del.write(0, col_num, value, header_format)
 
         writer.save()
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")

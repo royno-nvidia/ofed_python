@@ -4,6 +4,8 @@ import datetime
 import logging
 import time
 from colorlog import ColoredFormatter
+
+from Comperator.Comperator import Comperator
 from analyzer.Analyzer import Analyzer
 from utils.setting_utils import LOGGER_LOC, get_logger
 from verifier.verifer_arg import Verifier
@@ -53,14 +55,25 @@ def main():
     if not Verifier.checks_for_Analyzer(file_list_verify):
         logger.critical('Argument verify failed, exiting')
         exit(1)
-    main_res, feature_to_function = Analyzer.pre_analyze_changed_method(
-        args.kernel_json_path, args.ofed_json_path)
-    Analyzer.pre_create_changed_functions_excel(main_res, feature_to_function,
-                                                'Feature_methods_changed' if
-                                                args.output_filename is None else args.output_filename,
-                                                args.kernel_start_tag, args.kernel_end_tag, args.ofed_tag)
-    end_time = time.time()
-    show_runtime(end_time, start_time)
+    # main_res, feature_to_function = Analyzer.pre_analyze_changed_method(
+    #     args.kernel_json_path, args.ofed_json_path)
+    # Analyzer.pre_create_changed_functions_excel(main_res, feature_to_function,
+    #                                             'Feature_methods_changed' if
+    #                                             args.output_filename is None else args.output_filename,
+    #                                             args.kernel_start_tag, args.kernel_end_tag, args.ofed_tag)
+    Analyzer.function_modified_by_feature(args.ofed_json_path)
+    output1 = Comperator.extract_method_from_file('/tmp/en_main.c', 'mlx5e_alloc_rq')
+    output2 = Comperator.extract_method_from_file('/tmp/en_main2.c', 'mlx5e_alloc_rq')
+    # with open('/tmp/o1.txt', 'w') as handle:
+    #     handle.write(output1)
+    # with open('/tmp/o2.txt', 'w') as handle:
+    #     handle.write(output2)
+    Comperator.get_functions_diff_stats(output1, output2)
+    # print(output1)
+    # print('-----------')
+    # print(output2)
+    # end_time = time.time()
+    # show_runtime(end_time, start_time)
 
 
 if __name__ == '__main__':
