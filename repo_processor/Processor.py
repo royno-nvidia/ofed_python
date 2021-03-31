@@ -130,36 +130,33 @@ class Processor(object):
             logger.critical(f"Fail to process kernel: '{self._repo_path}',\n{e}")
         try:
             all_deleted_methods_set = set()
-            all_modified_methods_set = set()
             for commit in self._repo.traverse_commits():
                 logger.debug(f'Processing commit {commit.hash}:')
                 # iterate all commit in repo
                 self.up()
                 for mod in commit.modifications:
+                    mod_file_path = mod.new_path
                     before_methods = set([meth.name for meth in mod.methods_before])
                     after_methods = set([meth.name for meth in mod.methods])
                     delete_methods_in_file = before_methods - after_methods
                     # if method name was in file before commit and missing after means function
                     # deleted/moved/renamed any way handled as deleted
-                    logger.debug('removed methods in commit:')
-                    # for delete in delete_methods:
-                    logger.debug(f'{delete_methods_in_file}')
                     all_deleted_methods_set |= delete_methods_in_file
-                    # if delete not in self._results['deleted'].keys():
-                    #     self._results['deleted'][delete] = 0  # for now 0 maybe will be changed
-                    if len(mod.changed_methods) > 0:
-                        logger.debug('changed methods in commit:')
-                        for method in mod.changed_methods:
-                            # iterate all changed methods
-                            logger.debug(f'{method.name}')
-                            all_modified_methods_set.add(method.name)
-                            # key = method.name
-                            # if key not in self._results['modified'].keys():
-                            #     self._results['modified'][key] = 0  # for now 0 maybe will be changed
+                    for method in mod.changed_methods:
+                        # iterate all changed methods in file
+                        self._results['modified'][method.name] = {'location': mod_file_path}
+                        logger.debug(f"self._results['modified'][{method.name}] = 'location': {mod_file_path}")
+                    for deleted in delete_methods_in_file:
+                        self._results['deleted'][deleted] = {'location': mod_file_path}
+                        logger.debug(f"self._results['deleted'][{deleted}] = 'location': {mod_file_path}")
         #     create _results dict, make sure deleted method don't appear also in modified
-            all_modified_methods_set -= all_deleted_methods_set
-            self._results['modified'] = dict.fromkeys(all_modified_methods_set, 0)
-            self._results['deleted'] = dict.fromkeys(all_deleted_methods_set, 0)
+            for method in all_deleted_methods_set:
+                # itarate all methods removed from kernel to avoid duplications
+                ret = self._results['modified'].pop(method, None)  # throw ofed only duplicates in 'kernel'
+                if ret is None:
+                    logger.debug(f"could not find {method} in result['modified']")
+                else:
+                    logger.debug(f"{method} abandoned from kernel, removed from result['modified']")
         except Exception as e:
             logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
@@ -241,9 +238,9 @@ class Processor(object):
                 for ofed_func in ofed_only_set:
                     ret = self._results[feature]['kernel'].pop(ofed_func, None) # throw ofed only duplicates in 'kernel'
                     if ret is None:
-                        logger.debug(f"could not find {ofed_func} in result[{feature}]'kernel'")
+                        logger.debug(f"could not find {ofed_func} in result[{feature}]['kernel']")
                     else:
-                        logger.debug(f"{ofed_func} is ofed only, removed from result[{feature}]'kernel'")
+                        logger.debug(f"{ofed_func} is ofed only, removed from result[{feature}]['kernel']")
         except Exception as e:
             logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
