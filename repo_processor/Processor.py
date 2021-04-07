@@ -6,6 +6,7 @@ import os
 from colorlog import ColoredFormatter
 from pydriller import Commit, RepositoryMining
 
+from Comperator.Comperator import Comperator
 from ofed_classes.OfedRepository import OfedRepository
 from utils.setting_utils import get_logger, JSON_LOC
 
@@ -262,3 +263,36 @@ class Processor(object):
             json.dump(self._results, handle, indent=4)
         self._last_result_path = os.path.abspath(filename)
         logger.info(f"Results saved in '{JSON_LOC + filename}'")
+
+    @staticmethod
+    def get_kernels_methods_diffs(src_kernel_path: str, dst_kernel_path: str,
+                                  kernels_modified_methods_json_path, output_file: str):
+        ret_diff_stats = {}
+        overall = 0
+        try:
+            with open(JSON_LOC+kernels_modified_methods_json_path) as handle:
+                kernels_modified_methods_dict = json.load(handle)
+                for key, value in kernels_modified_methods_dict['modified'].items():
+                    # print(f"key: {key}, value: {value}")
+                    src_func = Comperator.extract_method_from_file(f"{src_kernel_path}/{value['location']}", key)
+                    # print(src_func)
+                    if src_func is None:
+                        logger.warn(f"Failed to find {key} in file {src_kernel_path}/{value['location']}")
+                    dest_func = Comperator.extract_method_from_file(f"{dst_kernel_path}/{value['location']}", key)
+                    # print(dest_func)
+                    if dest_func is None:
+                        logger.warn(f"Failed to find {key} in file {src_kernel_path}/{value['location']}")
+                    if dest_func is None or src_func is None:
+                        continue
+                    ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func)
+                    # print(ret_diff_stats)
+                overall= len(kernels_modified_methods_dict['modified'].keys())
+                able_to_process = len(ret_diff_stats.keys())
+                with open(JSON_LOC + output_file, 'w') as handle:
+                    json.dump(ret_diff_stats, handle, indent=4)
+                logger.debug(f"create json: {output_file}")
+                print(f"overall functions: {overall}")
+                print(f"able to process functions: {able_to_process}")
+                print(f"success rate {able_to_process/overall*100}%")
+        except IOError as e:
+            logger.critical(f"failed to read json:\n{e}")

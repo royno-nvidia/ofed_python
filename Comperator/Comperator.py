@@ -1,6 +1,8 @@
 from difflib import Differ
 from pprint import pprint
+from utils.setting_utils import get_logger, JSON_LOC
 
+logger = get_logger('Comperator', 'Comperator.log')
 
 class Comperator(object):
     def __init__(self):
@@ -20,7 +22,7 @@ class Comperator(object):
         diff_stats_dict = {}
         t1 = func_a.replace('\t', '    ').splitlines(keepends=True)
         t2 = func_b.replace('\t', '    ').splitlines(keepends=True)
-        pprint(t2)
+        # pprint(t2)
         d = Differ()
         diff = list(d.compare(t1, t2))
         plus_diff = 0
@@ -30,7 +32,9 @@ class Comperator(object):
         new_func_lines = len(t2)
         lines_diff = new_func_lines - old_func_lines
         prototype_changed = Comperator.is_prototype_changed(diff)
+        diff_strip = []
         for line in diff:
+            diff_strip.append(line.replace('\n', ''))
             if line.startswith('+'):
                 plus_diff += 1
             elif line.startswith('-'):
@@ -38,7 +42,7 @@ class Comperator(object):
             else:
                 unchanged_diff += 1
 
-        diff_stats_dict = {'Diff': diff,
+        diff_stats_dict = {'Diff': diff_strip,
                            'Stats': {
                                'Prototype changed': prototype_changed,
                                'Line number diff': lines_diff,
@@ -49,7 +53,8 @@ class Comperator(object):
                                'Lines unchanged': unchanged_diff
                                }
                            }
-        pprint(diff_stats_dict)
+        logger.debug(diff_stats_dict)
+        return diff_stats_dict
 
     @staticmethod
     # def extract_method_from_file(filepath: str, proto_line: str) -> str:

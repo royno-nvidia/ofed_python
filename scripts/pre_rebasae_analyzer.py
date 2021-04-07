@@ -61,7 +61,7 @@ def main():
     #                                             'Feature_methods_changed' if
     #                                             args.output_filename is None else args.output_filename,
     #                                             args.kernel_start_tag, args.kernel_end_tag, args.ofed_tag)
-    Analyzer.function_modified_by_feature(args.ofed_json_path)
+    # Analyzer.function_modified_by_feature(args.ofed_json_path)
     output1 = Comperator.extract_method_from_file('/tmp/en_main.c', 'mlx5e_alloc_rq')
     output2 = Comperator.extract_method_from_file('/tmp/en_main2.c', 'mlx5e_alloc_rq')
     # with open('/tmp/o1.txt', 'w') as handle:
