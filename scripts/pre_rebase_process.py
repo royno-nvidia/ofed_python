@@ -2,6 +2,8 @@ import argparse
 import datetime
 import logging
 import time
+from pprint import pprint
+
 from colorlog import ColoredFormatter
 
 from Comperator.Comperator import Comperator
@@ -42,14 +44,23 @@ def show_runtime(end_time, start_time):
 def main():
     start_time = time.time()
     args = parse_args()
-    # if not Verifier.checks_for_processor(args):
-    #     logger.critical('Argument verify failed, exiting')
-    #     exit(1)
+    if not Verifier.checks_for_processor(args):
+        logger.critical('Argument verify failed, exiting')
+        exit(1)
     # processor = Processor(args)
     # processor.process()
     # processor.save_to_json(args.output_filename)
+
     Processor.get_kernels_methods_diffs('/var/tmp/linux_src/linux', '/var/tmp/linux_dst/linux',
-                                        'kernel1234.json', 'function_diff_check.json')
+                                         'v5_9_rc2_to_v5_12_rc6.json', 'function_diff_v5_9_to_v5_12.json')
+    # func_name = 'mlx5e_open_tx_cqs'
+    # func_name2 = '__writeback_inodes_wb'
+    # func_name3 = 'nosy_ioctl'
+    # func_a = Comperator.extract_method_from_file('/tmp/nosy.c', func_name3)
+    # pprint(func_a)
+    # func_b = Comperator.extract_method_from_file('/tmp/en_main2.c', func_name)
+    # diff = Comperator.get_functions_diff_stats(func_a, func_b, func_name)
+    # pprint(diff)
     end_time = time.time()
     show_runtime(end_time, start_time)
 

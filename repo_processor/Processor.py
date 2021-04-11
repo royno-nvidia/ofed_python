@@ -269,25 +269,34 @@ class Processor(object):
                                   kernels_modified_methods_json_path, output_file: str):
         ret_diff_stats = {}
         overall = 0
+        able_to_process = 0
         try:
             with open(JSON_LOC+kernels_modified_methods_json_path) as handle:
                 kernels_modified_methods_dict = json.load(handle)
                 for key, value in kernels_modified_methods_dict['modified'].items():
                     # print(f"key: {key}, value: {value}")
-                    src_func = Comperator.extract_method_from_file(f"{src_kernel_path}/{value['location']}", key)
+                    src_path = f"{src_kernel_path}/{value['location']}"
+                    if not os.path.exists(src_path):
+                        logger.warn(f"SRC: FIle not exist: {src_path}")
+                    else:
+                        src_func = Comperator.extract_method_from_file(src_path, key)
                     # print(src_func)
-                    if src_func is None:
-                        logger.warn(f"Failed to find {key} in file {src_kernel_path}/{value['location']}")
-                    dest_func = Comperator.extract_method_from_file(f"{dst_kernel_path}/{value['location']}", key)
+                        if src_func is None:
+                            logger.warn(f"SRC: Failed to find {key} in file {src_kernel_path}/{value['location']}")
+                    dst_path = f"{dst_kernel_path}/{value['location']}"
+                    if not os.path.exists(dst_path):
+                        logger.warn(f"DST: FIle not exist: {dst_path}")
+                    else:
+                        dest_func = Comperator.extract_method_from_file(f"{dst_kernel_path}/{value['location']}", key)
                     # print(dest_func)
-                    if dest_func is None:
-                        logger.warn(f"Failed to find {key} in file {src_kernel_path}/{value['location']}")
+                        if dest_func is None:
+                            logger.warn(f"DST: Failed to find {key} in file {src_kernel_path}/{value['location']}")
                     if dest_func is None or src_func is None:
                         continue
-                    ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func)
-                    # print(ret_diff_stats)
+                    ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func, key)
+                    able_to_process += 1
                 overall= len(kernels_modified_methods_dict['modified'].keys())
-                able_to_process = len(ret_diff_stats.keys())
+                # able_to_process = len(ret_diff_stats.keys())
                 with open(JSON_LOC + output_file, 'w') as handle:
                     json.dump(ret_diff_stats, handle, indent=4)
                 logger.debug(f"create json: {output_file}")
