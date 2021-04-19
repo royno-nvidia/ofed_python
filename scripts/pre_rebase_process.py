@@ -55,8 +55,9 @@ def main():
                                          'v5_9_rc2_to_v5_12_rc6.json', 'function_diff_v5_9_to_v5_12.json')
     # func_name = 'mlx5e_open_tx_cqs'
     # func_name2 = '__writeback_inodes_wb'
-    # func_name3 = 'nosy_ioctl'
-    # func_a = Comperator.extract_method_from_file('/tmp/nosy.c', func_name3)
+    func_name3 = 'nosy_ioctl'
+    # func_name4 = 'create_object'
+    # func_a = Comperator.extract_method_from_file('/var/tmp/linux_dst/linux/kernel/bpf/trampoline.c', '_bpf_tramp_image_put_deferred')
     # pprint(func_a)
     # func_b = Comperator.extract_method_from_file('/tmp/en_main2.c', func_name)
     # diff = Comperator.get_functions_diff_stats(func_a, func_b, func_name)

@@ -290,7 +290,7 @@ class Processor(object):
                         dest_func = Comperator.extract_method_from_file(f"{dst_kernel_path}/{value['location']}", key)
                     # print(dest_func)
                         if dest_func is None:
-                            logger.warn(f"DST: Failed to find {key} in file {src_kernel_path}/{value['location']}")
+                            logger.warn(f"DST: Failed to find {key} in file {dst_kernel_path}/{value['location']}")
                     if dest_func is None or src_func is None:
                         continue
                     ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func, key)

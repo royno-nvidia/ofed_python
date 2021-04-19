@@ -80,7 +80,7 @@ class Comperator(object):
                                'Content changed': context_changed,
                                'Old function size': old_func_lines,
                                'New function size': new_func_lines,
-                               'Old function unique lines :': minus,
+                               'Old function unique lines': minus,
                                'New function unique lines': plus,
                                'Lines unchanged': unchanged,
                                'Old function scope': old_scope,
@@ -110,6 +110,9 @@ class Comperator(object):
             with open(filepath) as handle:
                 # for i, line in enumerate(handle):
                 #     if i >= line_start - 1:
+                start_line_types = [f'{func_name}', f"*{func_name}"]
+                middle_line_types = [f' {func_name}(' ]
+
                 for line in handle:
                     if '/*' in line:
                         inside_note = True
@@ -117,8 +120,8 @@ class Comperator(object):
                         inside_note = False
                     if inside_note:
                         continue
-
-                    if f' {func_name}(' in line or found or line.startswith(f'{func_name}('):
+                    if found or any(s_type in line for s_type in start_line_types) or any(type in line for type in middle_line_types):
+                    # if f' {func_name}(' in line or found or line.startswith(f'{func_name}('):
                         if line.startswith(f'{func_name}('):
                             function_string += last_line
                         found = True

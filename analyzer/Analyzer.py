@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import logging
 from pprint import pprint
@@ -8,6 +9,7 @@ import pandas as pd
 import xlsxwriter
 import os
 import difflib
+
 
 from repo_processor.Processor import Processor
 from utils.setting_utils import get_logger, EXCEL_LOC, JSON_LOC
@@ -79,7 +81,7 @@ class Analyzer(object):
 
 
     @staticmethod
-    def pre_analyze_changed_method(kernel_json: str, ofed_json: str) -> Tuple[dict, dict, dict]:
+    def pre_analyze_changed_method(kernel_json: str, ofed_json: str, diff_json: str) -> Tuple[dict, dict, dict]:
         """
         Take processor Json's output and analyze result, build data for Excel display
         :param kernel_json:
@@ -95,17 +97,29 @@ class Analyzer(object):
         try:
             with open(JSON_LOC+ofed_json) as o_file:
                 ofed_dict = json.load(o_file)
+            with open(JSON_LOC + diff_json) as d_file:
+                diff_dict = json.load(d_file)
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
+        dir_name = str(datetime.timestamp(datetime.now()))
+        dir_path = f"{EXCEL_LOC + dir_name}"
+        os.mkdir(dir_path, 0o0755)
         for feature in ofed_dict.keys():
             changed_set = set()
             removed_set = set()
+            uniq_new = 0
+            uniq_old = 0
             # overall_methods = len(ofed_dict[feature][''])
             for method in ofed_dict[feature]['kernel']:
                 if method in kernel_dict['deleted'].keys():
                     removed_set.add(method)
                 if method in kernel_dict['modified'].keys():
                     changed_set.add(method)
+                    if method in diff_dict.keys():
+                        uniq_new += diff_dict[method]['Stats']['New function unique lines']
+                        uniq_old += diff_dict[method]['Stats']['Old function unique lines']
+                    else:
+                        logger.warn(f"Missing Info: method - {method} | feature - {feature}")
             changed_set -= removed_set
             ofed_only_methods_num = len(ofed_dict[feature]['ofed_only'])
             kernel_methods_num = len(ofed_dict[feature]['kernel'])
@@ -121,24 +135,38 @@ class Analyzer(object):
                                  "Deleted from kernel": len(removed_set),
                                  "Deleted % [comparison to kernel methods]":
                                      int((len(removed_set) / kernel_methods_num) * 100)
-                                     if kernel_methods_num != 0 else 0}
+                                     if kernel_methods_num != 0 else 0,
+                                 "Old lines unique": uniq_old,
+                                 "New lines unique": uniq_new
+                                 }
+
             if len(removed_set) or len(changed_set):
                 feature_to_function[feature] = []
+
                 for rem in list(removed_set):
+                    method_diff = diff_dict[rem]['Diff'] if rem in diff_dict.keys() else 'Missing'
                     feature_to_function[feature].append({
                                                 "Feature name": feature,
                                                 "Method": rem,
-                                                "Status": "removed"})
+                                                "Status": "removed",
+                                                "Diff": 'Missing' if method_diff == 'Missing'
+                                                else Analyzer.create_diff_file_and_link(rem, method_diff, dir_path)})
                 for mod in list(changed_set):
+                    method_diff = diff_dict[mod]['Diff'] if mod in diff_dict.keys() else 'Missing'
                     feature_to_function[feature].append({
                                                 "Feature name": feature,
                                                 "Method": mod,
-                                                "Status": "modified"})
+                                                "Status": "modified",
+                                                "Diff": 'Missing' if method_diff == 'Missing'
+                                                else Analyzer.create_diff_file_and_link(mod, method_diff, dir_path)})
                 for oo in ofed_dict[feature]['ofed_only']:
+                    method_diff = diff_dict[oo]['Diff'] if oo in diff_dict.keys() else 'Missing'
                     feature_to_function[feature].append({
                         "Feature name": feature,
                         "Method": oo,
-                        "Status": "ofed only"})
+                        "Status": "ofed only",
+                        "Diff": 'Missing' if method_diff == 'Missing'
+                        else Analyzer.create_diff_file_and_link(oo, method_diff, dir_path)})
                 unchhanged_set = set(ofed_dict[feature]['kernel'])
                 unchhanged_set = unchhanged_set.difference(changed_set, removed_set)
                 for unchanged in list(unchhanged_set):
@@ -146,9 +174,21 @@ class Analyzer(object):
                         "Feature name": feature,
                         "Method": unchanged,
                         "Status": "unchanged"})
-
-
+        print(f"success {count} from {overall}")
         return main_res, feature_to_function
+
+    @staticmethod
+    def create_diff_file_and_link(method_name: str, method_diff: str, directory: str):
+        filename = f'{directory}/{method_name}.diff'
+        if not os.path.isfile(filename):
+            with open(filename, 'w') as handle:
+                for line in method_diff:
+                    handle.write(line+'\n')
+        hyperlink = f'=HYPERLINK("{os.path.basename(directory)}\{method_name}.diff","See Diff")'
+        print(hyperlink)
+        return hyperlink
+
+
 
     @staticmethod
     def post_analyze_changed_method(kernel_json: str, new_ofed_json: str, old_ofed_json: str):
@@ -200,7 +240,7 @@ class Analyzer(object):
                                  "Missing methods dependencies": len(only_old_methods),
                                  "Modified methods in kernel": len(changed_list),
                                  "Removed methods from kernel": len(removed_list)}
-            if only_old_methods or only_new_methods or overlapping_methods or changed_list or removed_list:
+            if len(only_old_methods) or len(only_new_methods) or len(overlapping_methods) or len(changed_list) or len(removed_list):
                 feature_function_status[feature] = []
                 for added in only_new_methods:
                     kernel_status = "removed" if added in removed_list else "modified" if added in changed_list else "unchanged"
@@ -209,6 +249,7 @@ class Analyzer(object):
                                                 "Method": added,
                                                 "Status": "add",
                                                 "Kernel Status": kernel_status})
+                    print(feature_function_status[feature])
                 for aband in only_old_methods:
                     kernel_status = "removed" if aband in removed_list else "modified" if aband in changed_list else "unchanged"
                     feature_function_status[feature].append({
@@ -287,6 +328,7 @@ class Analyzer(object):
         :param ofed: Ofed specific tag
         :return:
         """
+        # pprint(feature_to_functiom)
         title = f"MSR Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
         df_main = pd.DataFrame([results[feature] for feature in results.keys()])
         df_main.set_index('Feature name')
@@ -322,7 +364,7 @@ class Analyzer(object):
         dicts_list_from_modify = [feature_to_functiom[feature][index] for
                                   feature in feature_to_functiom.keys() for
                                   index in range(len(feature_to_functiom[feature]))]
-
+        # pprint(dicts_list_from_modify)
         df_mod = pd.DataFrame(dicts_list_from_modify)
         df_mod.set_index('Feature name')
         df_mod.to_excel(writer, sheet_name='Feature function status', startrow=1, header=False, index=False)
@@ -389,4 +431,4 @@ class Analyzer(object):
             worksheet_mod.write(0, col_num, value, header_format)
 
         writer.save()
-        logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
+        logger.info(f"Excel was created in {EXCEL_LOC+filename}.xlsx")
