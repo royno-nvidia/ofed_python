@@ -23,9 +23,6 @@ class Analyzer(object):
         Init Analyzer, create instance of Analyzer can be used for static method calls
         """
 
-
-
-
     @staticmethod
     def combine_kernel_dicts(kernel_jsons) -> dict:
         """
@@ -174,7 +171,6 @@ class Analyzer(object):
                         "Feature name": feature,
                         "Method": unchanged,
                         "Status": "unchanged"})
-        print(f"success {count} from {overall}")
         return main_res, feature_to_function
 
     @staticmethod

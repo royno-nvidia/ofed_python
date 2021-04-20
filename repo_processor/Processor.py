@@ -1,13 +1,10 @@
-from datetime import datetime
 import json
-import logging
 import os
-
-from colorlog import ColoredFormatter
 from pydriller import Commit, RepositoryMining
-
 from Comperator.Comperator import Comperator
+from Comperator.comperator_helpers import extract_method_from_file
 from ofed_classes.OfedRepository import OfedRepository
+from repo_processor.processor_helpers import save_to_json
 from utils.setting_utils import get_logger, JSON_LOC
 
 logger = get_logger('Processor', 'Processor.log')
@@ -246,23 +243,7 @@ class Processor(object):
             logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
 
-    def save_to_json(self, name=None):
-        """
-        Output process results into timestamp json file for future analyze
-        :return:
-        """
-        if name is None:
-            time_stamp = datetime.timestamp(datetime.now())
-            if self._is_ofed:
-                filename = f"ofed_{time_stamp}.json"
-            else:
-                filename = f"kernel_{self._args.start_tag}_{self._args.end_tag}.json"
-        else:
-            filename = f"{name}.json"
-        with open(JSON_LOC+filename, 'w') as handle:
-            json.dump(self._results, handle, indent=4)
-        self._last_result_path = os.path.abspath(filename)
-        logger.info(f"Results saved in '{JSON_LOC + filename}'")
+
 
     @staticmethod
     def get_kernels_methods_diffs(src_kernel_path: str, dst_kernel_path: str,
@@ -279,7 +260,7 @@ class Processor(object):
                     if not os.path.exists(src_path):
                         logger.warn(f"SRC: FIle not exist: {src_path}")
                     else:
-                        src_func = Comperator.extract_method_from_file(src_path, key)
+                        src_func = extract_method_from_file(src_path, key)
                     # print(src_func)
                         if src_func is None:
                             logger.warn(f"SRC: Failed to find {key} in file {src_kernel_path}/{value['location']}")
@@ -287,7 +268,7 @@ class Processor(object):
                     if not os.path.exists(dst_path):
                         logger.warn(f"DST: FIle not exist: {dst_path}")
                     else:
-                        dest_func = Comperator.extract_method_from_file(f"{dst_kernel_path}/{value['location']}", key)
+                        dest_func = extract_method_from_file(f"{dst_kernel_path}/{value['location']}", key)
                     # print(dest_func)
                         if dest_func is None:
                             logger.warn(f"DST: Failed to find {key} in file {dst_kernel_path}/{value['location']}")
@@ -295,13 +276,11 @@ class Processor(object):
                         continue
                     ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func, key)
                     able_to_process += 1
-                overall= len(kernels_modified_methods_dict['modified'].keys())
+                overall = len(kernels_modified_methods_dict['modified'].keys())
                 # able_to_process = len(ret_diff_stats.keys())
-                with open(JSON_LOC + output_file, 'w') as handle:
-                    json.dump(ret_diff_stats, handle, indent=4)
-                logger.debug(f"create json: {output_file}")
-                print(f"overall functions: {overall}")
-                print(f"able to process functions: {able_to_process}")
-                print(f"success rate {able_to_process/overall*100}%")
+                save_to_json(ret_diff_stats, output_file)
+                logger.info(f"overall functions: {overall}")
+                logger.info(f"able to process functions: {able_to_process}")
+                logger.info(f"success rate {able_to_process/overall*100}%")
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
