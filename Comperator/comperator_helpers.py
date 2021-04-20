@@ -4,6 +4,7 @@ logger = get_logger('Comperator', 'Comperator.log')
 
 
 def is_prototype_changed(diff: list, func_name: str) -> tuple:
+    """Check if function prototype and context has changed"""
     proto = False
     ctx = False
     inside_proto = False
@@ -27,6 +28,7 @@ def is_prototype_changed(diff: list, func_name: str) -> tuple:
 
 
 def count_scopes(func: str):
+    """Return bumber of scopes inside function"""
     cnt = 0
     split_func = func.replace('\t', '    ').splitlines(keepends=True)
     for line in split_func:
@@ -36,6 +38,7 @@ def count_scopes(func: str):
 
 
 def count_changes(diff) -> tuple:
+    """Return counts for unique new/old lines and unchanged lines"""
     plus = 0
     minus = 0
     unchanged = 0

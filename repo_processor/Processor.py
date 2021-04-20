@@ -1,5 +1,7 @@
 import json
 import os
+from pprint import pprint
+
 from pydriller import Commit, RepositoryMining
 from Comperator.Comperator import Comperator
 from Comperator.comperator_helpers import extract_method_from_file
@@ -247,14 +249,26 @@ class Processor(object):
 
     @staticmethod
     def get_kernels_methods_diffs(src_kernel_path: str, dst_kernel_path: str,
-                                  kernels_modified_methods_json_path, output_file: str):
+                                  kernels_modified_methods_json_path, output_file: str,
+                                  minimize, minimized_ofed_json):
         ret_diff_stats = {}
         overall = 0
         able_to_process = 0
         try:
+            if minimize:
+                with open(JSON_LOC + minimized_ofed_json) as handle:
+                    ofed_modified_methods_dict = json.load(handle)
+                    actual_ofed_mothods_modified = set()
+                    for feature in ofed_modified_methods_dict.keys():
+                        pprint(ofed_modified_methods_dict[feature])
+                        actual_ofed_mothods_modified |= set(ofed_modified_methods_dict[feature]['kernel'])
+                        actual_ofed_mothods_modified |= set(ofed_modified_methods_dict[feature]['ofed_only'])
             with open(JSON_LOC+kernels_modified_methods_json_path) as handle:
                 kernels_modified_methods_dict = json.load(handle)
                 for key, value in kernels_modified_methods_dict['modified'].items():
+                    if minimize and key not in actual_ofed_mothods_modified:
+                        continue
+                    overall += 1
                     # print(f"key: {key}, value: {value}")
                     src_path = f"{src_kernel_path}/{value['location']}"
                     if not os.path.exists(src_path):
@@ -276,7 +290,10 @@ class Processor(object):
                         continue
                     ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func, key)
                     able_to_process += 1
-                overall = len(kernels_modified_methods_dict['modified'].keys())
+                # if minimize:
+                #     overall = len(actual_ofed_mothods_modified)
+                # else:
+                #     overall = len(kernels_modified_methods_dict['modified'].keys())
                 # able_to_process = len(ret_diff_stats.keys())
                 save_to_json(ret_diff_stats, output_file)
                 logger.info(f"overall functions: {overall}")

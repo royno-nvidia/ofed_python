@@ -1,17 +1,10 @@
 from datetime import datetime
 import json
-import logging
-from pprint import pprint
-from difflib import Differ
-from typing import Tuple
-from colorlog import ColoredFormatter
 import pandas as pd
-import xlsxwriter
 import os
-import difflib
 
-
-from repo_processor.Processor import Processor
+from analyzer.analyze_helpers import colored_condition_column, colored_condition_row, \
+    update_current_feature_methods, post_update_excel_dict
 from utils.setting_utils import get_logger, EXCEL_LOC, JSON_LOC
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -78,7 +71,7 @@ class Analyzer(object):
 
 
     @staticmethod
-    def pre_analyze_changed_method(kernel_json: str, ofed_json: str, diff_json: str) -> Tuple[dict, dict, dict]:
+    def pre_analyze_changed_method(kernel_json: str, ofed_json: str, diff_json: str):
         """
         Take processor Json's output and analyze result, build data for Excel display
         :param kernel_json:
@@ -137,52 +130,20 @@ class Analyzer(object):
                                  "New lines unique": uniq_new
                                  }
 
-            if len(removed_set) or len(changed_set):
-                feature_to_function[feature] = []
-
-                for rem in list(removed_set):
-                    method_diff = diff_dict[rem]['Diff'] if rem in diff_dict.keys() else 'Missing'
-                    feature_to_function[feature].append({
-                                                "Feature name": feature,
-                                                "Method": rem,
-                                                "Status": "removed",
-                                                "Diff": 'Missing' if method_diff == 'Missing'
-                                                else Analyzer.create_diff_file_and_link(rem, method_diff, dir_path)})
-                for mod in list(changed_set):
-                    method_diff = diff_dict[mod]['Diff'] if mod in diff_dict.keys() else 'Missing'
-                    feature_to_function[feature].append({
-                                                "Feature name": feature,
-                                                "Method": mod,
-                                                "Status": "modified",
-                                                "Diff": 'Missing' if method_diff == 'Missing'
-                                                else Analyzer.create_diff_file_and_link(mod, method_diff, dir_path)})
-                for oo in ofed_dict[feature]['ofed_only']:
-                    method_diff = diff_dict[oo]['Diff'] if oo in diff_dict.keys() else 'Missing'
-                    feature_to_function[feature].append({
-                        "Feature name": feature,
-                        "Method": oo,
-                        "Status": "ofed only",
-                        "Diff": 'Missing' if method_diff == 'Missing'
-                        else Analyzer.create_diff_file_and_link(oo, method_diff, dir_path)})
-                unchhanged_set = set(ofed_dict[feature]['kernel'])
-                unchhanged_set = unchhanged_set.difference(changed_set, removed_set)
-                for unchanged in list(unchhanged_set):
-                    feature_to_function[feature].append({
-                        "Feature name": feature,
-                        "Method": unchanged,
-                        "Status": "unchanged"})
+            feature_to_function[feature] = []
+            feature_to_function = update_current_feature_methods(feature_to_function, list(removed_set),
+                                                                 feature, diff_dict,dir_path, 'Removed')
+            feature_to_function = update_current_feature_methods(feature_to_function, list(changed_set),
+                                                                 feature, diff_dict, dir_path, 'Changed')
+            feature_to_function = update_current_feature_methods(feature_to_function, ofed_dict[feature]['ofed_only'],
+                                                                 feature, diff_dict, dir_path, 'OFED added')
+            unchanged_set = set(ofed_dict[feature]['kernel'])
+            unchanged_set = unchanged_set.difference(changed_set, removed_set)
+            feature_to_function = update_current_feature_methods(feature_to_function, list(unchanged_set),
+                                                                     feature, diff_dict, dir_path, 'Unchanged')
         return main_res, feature_to_function
 
-    @staticmethod
-    def create_diff_file_and_link(method_name: str, method_diff: str, directory: str):
-        filename = f'{directory}/{method_name}.diff'
-        if not os.path.isfile(filename):
-            with open(filename, 'w') as handle:
-                for line in method_diff:
-                    handle.write(line+'\n')
-        hyperlink = f'=HYPERLINK("{os.path.basename(directory)}\{method_name}.diff","See Diff")'
-        print(hyperlink)
-        return hyperlink
+
 
 
 
@@ -238,77 +199,14 @@ class Analyzer(object):
                                  "Removed methods from kernel": len(removed_list)}
             if len(only_old_methods) or len(only_new_methods) or len(overlapping_methods) or len(changed_list) or len(removed_list):
                 feature_function_status[feature] = []
-                for added in only_new_methods:
-                    kernel_status = "removed" if added in removed_list else "modified" if added in changed_list else "unchanged"
-                    feature_function_status[feature].append({
-                                                "Feature name": feature,
-                                                "Method": added,
-                                                "Status": "add",
-                                                "Kernel Status": kernel_status})
-                    print(feature_function_status[feature])
-                for aband in only_old_methods:
-                    kernel_status = "removed" if aband in removed_list else "modified" if aband in changed_list else "unchanged"
-                    feature_function_status[feature].append({
-                                                "Feature name": feature,
-                                                "Method": aband,
-                                                "Status": "abandon",
-                                                "Kernel Status": kernel_status})
-                for ol in overlapping_methods:
-                    kernel_status = "removed" if ol in removed_list else "modified" if ol in changed_list else "unchanged"
-                    feature_function_status[feature].append({
-                                                "Feature name": feature,
-                                                "Method": ol,
-                                                "Status": "overlap",
-                                                "Kernel Status": kernel_status})
+                feature_function_status = post_update_excel_dict(only_new_methods, feature_function_status,
+                                                                 feature, removed_list, changed_list, 'Add')
+                feature_function_status = post_update_excel_dict(only_old_methods, feature_function_status,
+                                                                 feature, removed_list, changed_list, 'Abandon')
+                feature_function_status = post_update_excel_dict(overlapping_methods, feature_function_status,
+                                                                 feature, removed_list, changed_list, 'Overlap')
         return main_res, feature_function_status
 
-    @staticmethod
-    def __colored_condition_row(workbook, worksheet, col: chr, col_len: int):
-        red_format = workbook.add_format({'bg_color': '#FFC7CE',
-                                          'font_color': '#9C0006'})
-        yellow_format = workbook.add_format({'bg_color': '#FFEB9C',
-                                             'font_color': '#9C6500'})
-        worksheet.conditional_format(f'A3:{col}{col_len+2}',
-                                     {'type':     'formula',
-                                      'criteria': '=AND($G3+H3=0,$E3+FC3>0)',
-                                      'format':   red_format})
-
-
-    @staticmethod
-    def __colored_condition_column(workbook, worksheet, col: chr, col_len: int, red_zone: int, green_zone: int):
-        """
-        create 3 color condition in wanted col over worksheet
-        :param workbook: xlsxlwriter workbook
-        :param worksheet: xlsxwriter worksheet
-        :param col: Excel col char (e.g 'A','B'..)
-        :param col_len: number of rows in col
-        :param red_zone: number which above it row will be colored in red
-        :param green_zone: number which below it row will be colored in green
-        :return:
-        """
-        # formatting
-        red_format = workbook.add_format({'bg_color': '#FFC7CE',
-                                          'font_color': '#9C0006'})
-        yellow_format = workbook.add_format({'bg_color': '#FFEB9C',
-                                             'font_color': '#9C6500'})
-        green_format = workbook.add_format({'bg_color': '#C6EFCE',
-                                            'font_color': '#006100'})
-        worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
-                                     {'type': 'cell',
-                                      'criteria': '>=',
-                                      'value': red_zone,
-                                      'format': red_format})
-        worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
-                                     {'type': 'cell',
-                                      'criteria': '<=',
-                                      'value': green_zone,
-                                      'format': green_format})
-        worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
-                                     {'type': 'cell',
-                                      'criteria': 'between',
-                                      'minimum': green_zone,
-                                      'maximum': red_zone,
-                                      'format': yellow_format})
 
 
     @staticmethod
@@ -353,9 +251,9 @@ class Analyzer(object):
             worksheet.write(1, col_num, value, header_format)
 
         # apply conditions for modification
-        Analyzer.__colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
+        colored_condition_column(workbook, worksheet, 'E', len(df_main.index), 30, 10)
         # apply conditions for deletions
-        Analyzer.__colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
+        colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
         # Modified worksheet
         dicts_list_from_modify = [feature_to_functiom[feature][index] for
                                   feature in feature_to_functiom.keys() for
@@ -404,7 +302,7 @@ class Analyzer(object):
         red_format = workbook.add_format({'bg_color': '#FFC7CE',
                                           'font_color': '#9C0006'})
         worksheet.merge_range(f'A1:{chr(ord("A") + len(df_main.columns) - 1)}1', title, title_format)
-        Analyzer.__colored_condition_row(workbook, worksheet, 'H', len(df_main.index))
+        colored_condition_row(workbook, worksheet, 'H', len(df_main.index))
         # header
         header_format = workbook.add_format({
             'bold': True,

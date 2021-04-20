@@ -8,6 +8,29 @@ from utils.setting_utils import get_logger, JSON_LOC
 
 logger = get_logger('Verifier', 'Verifier.log')
 
+def functions_diff_checks(args) -> bool:
+    """
+    Verify user arguments for 'pre_rebase_process.py' script
+    :param args: user input
+    :return:
+    """
+    if not is_git_repo(args.src):
+        logger.critical(f'Path {args.src} is not a git repo')
+        return False
+    if not is_git_repo(args.dst):
+        logger.critical(f'Path {args.dst} is not a git repo')
+        return False
+    if not os.path.isfile(f'{JSON_LOC}{args.kernel_methods_info}'):
+        logger.critical(f'Path {args.kernel_methods_info} is not a file')
+        return False
+    if args.minimized:
+        if not args.ofed_methods_info:
+            logger.critical(f'-minimized use requires -ofed_methods_info')
+            return False
+        if not os.path.isfile(f'{JSON_LOC}{args.ofed_methods_info}'):
+            logger.critical(f'Path {args.kernel_methods_info} is not a file')
+    return True
+
 
 def checks_for_processor(args) -> bool:
     """
