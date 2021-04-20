@@ -63,7 +63,7 @@ class Processor(object):
         for _ in repo.traverse_commits():
             cnt += 1
         self._overall_commits = cnt
-        logger.info(f'Repository contains {self._overall_commits}..')
+        logger.info(f'Repository contains {self._overall_commits} commits')
 
     @property
     def results(self):
@@ -241,6 +241,7 @@ class Processor(object):
                         logger.debug(f"could not find {ofed_func} in result[{feature}]['kernel']")
                     else:
                         logger.debug(f"{ofed_func} is ofed only, removed from result[{feature}]['kernel']")
+            save_to_json(self._results)
         except Exception as e:
             logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")

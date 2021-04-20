@@ -13,7 +13,7 @@ def save_to_json(dict_for_saving, filename=None):
     """
     if filename is None:
         time_stamp = datetime.timestamp(datetime.now())
-        filename = time_stamp
+        filename = str(time_stamp)
     else:
         filename = f"{filename}.json"
     with open(JSON_LOC + filename, 'w') as handle:

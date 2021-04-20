@@ -69,8 +69,8 @@ def extract_method_from_file(filepath: str, func_name: str) -> str:
     last_line = ""
     try:
         with open(filepath) as handle:
-            start_line_types = [f'{func_name}', f"*{func_name}"]
-            middle_line_types = [f' {func_name}(' ]
+            start_line_types = [f'{func_name}(', f'*{func_name}(']
+            middle_line_types = [f' {func_name}(', f' *{func_name}(', f'* {func_name}(']
             for line in handle:
                 if '/*' in line:
                     inside_note = True

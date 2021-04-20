@@ -23,6 +23,9 @@ def functions_diff_checks(args) -> bool:
     if not os.path.isfile(f'{JSON_LOC}{args.kernel_methods_info}'):
         logger.critical(f'Path {args.kernel_methods_info} is not a file')
         return False
+    if os.path.isfile(f'{JSON_LOC}{args.output}.json'):
+        logger.critical(f'{JSON_LOC}{args.output} already exists, please change -output argument')
+        return False
     if args.minimized:
         if not args.ofed_methods_info:
             logger.critical(f'-minimized use requires -ofed_methods_info')

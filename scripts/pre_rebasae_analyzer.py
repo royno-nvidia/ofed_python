@@ -8,6 +8,7 @@ from pprint import pprint
 from colorlog import ColoredFormatter
 
 from Comperator.Comperator import Comperator
+from Comperator.comperator_helpers import extract_method_from_file
 from analyzer.Analyzer import Analyzer
 from utils.setting_utils import LOGGER_LOC, get_logger
 from verifier.verifer_arg import Verifier
@@ -62,14 +63,13 @@ def main():
         exit(1)
     main_res, feature_to_function = Analyzer.pre_analyze_changed_method(
         args.kernel, args.ofed, args.diff)
-    # pprint(feature_to_function)
     Analyzer.pre_create_changed_functions_excel(main_res, feature_to_function,
                                                 'Feature_methods_changed' if
                                                 args.output_filename is None else args.output_filename,
                                                 args.kernel_start_tag, args.kernel_end_tag, args.ofed_tag)
     # Analyzer.function_modified_by_feature(args.ofed_json_path)
-    # output1 = Comperator.extract_method_from_file('/tmp/en_main.c', 'mlx5e_alloc_rq')
-    # output2 = Comperator.extract_method_from_file('/tmp/en_main2.c', 'mlx5e_alloc_rq')
+    # output1 = extract_method_from_file('/tmp/en_main.c', 'mlx5e_alloc_rq')
+    # output2 = extract_method_from_file('/tmp/en_main2.c', 'mlx5e_alloc_rq')
     # with open('/tmp/o1.txt', 'w') as handle:
     #     handle.write(output1)
     # with open('/tmp/o2.txt', 'w') as handle:
