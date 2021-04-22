@@ -11,7 +11,7 @@ from Comperator.Comperator import Comperator
 from Comperator.comperator_helpers import extract_method_from_file
 from analyzer.Analyzer import Analyzer
 from utils.setting_utils import LOGGER_LOC, get_logger
-from verifier.verifer_arg import Verifier
+from verifier.verifer_arg import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
 
@@ -31,8 +31,8 @@ def parse_args():
                         help="Kernel version start tag processed")
     parser.add_argument("-kernel_end_tag", type=str, default="", required=True,
                         help="Kernel version end tag processed")
-    parser.add_argument("-output_filename", type=str, default=None,
-                        help="Result Excel name [default: 'Feature_methods_changed']")
+    parser.add_argument("-output", type=str, default=None, required=True,
+                        help="Result Excel name")
     options = parser.parse_args()
     return options
 
@@ -58,26 +58,15 @@ def main():
     file_list_verify.extend(args.kernel)
     file_list_verify.append(args.ofed)
     file_list_verify.append(args.diff)
-    if not Verifier.checks_for_Analyzer(file_list_verify):
+    if not checks_for_Analyzer(file_list_verify, args.output):
         logger.critical('Argument verify failed, exiting')
         exit(1)
     main_res, feature_to_function = Analyzer.pre_analyze_changed_method(
-        args.kernel, args.ofed, args.diff)
+        args.kernel, args.ofed, args.diff, args.output)
     Analyzer.pre_create_changed_functions_excel(main_res, feature_to_function,
                                                 'Feature_methods_changed' if
-                                                args.output_filename is None else args.output_filename,
+                                                args.output is None else args.output,
                                                 args.kernel_start_tag, args.kernel_end_tag, args.ofed_tag)
-    # Analyzer.function_modified_by_feature(args.ofed_json_path)
-    # output1 = extract_method_from_file('/tmp/en_main.c', 'mlx5e_alloc_rq')
-    # output2 = extract_method_from_file('/tmp/en_main2.c', 'mlx5e_alloc_rq')
-    # with open('/tmp/o1.txt', 'w') as handle:
-    #     handle.write(output1)
-    # with open('/tmp/o2.txt', 'w') as handle:
-    #     handle.write(output2)
-    # Comperator.get_functions_diff_stats(output1, output2)
-    # print(output1)
-    # print('-----------')
-    # print(output2)
     end_time = time.time()
     show_runtime(end_time, start_time)
 

@@ -71,7 +71,7 @@ class Analyzer(object):
 
 
     @staticmethod
-    def pre_analyze_changed_method(kernel_json: str, ofed_json: str, diff_json: str):
+    def pre_analyze_changed_method(kernel_json: str, ofed_json: str, diff_json: str, output: str):
         """
         Take processor Json's output and analyze result, build data for Excel display
         :param kernel_json:
@@ -92,9 +92,10 @@ class Analyzer(object):
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
         dir_name = str(datetime.timestamp(datetime.now()))
-        dir_path = f"{EXCEL_LOC + dir_name}"
+        dir_path = f"{EXCEL_LOC + output}"
         os.mkdir(dir_path, 0o0755)
         for feature in ofed_dict.keys():
+            print(f'featur: {feature}')
             changed_set = set()
             removed_set = set()
             uniq_new = 0
@@ -129,17 +130,21 @@ class Analyzer(object):
                                  "Old lines unique": uniq_old,
                                  "New lines unique": uniq_new
                                  }
-
-            feature_to_function[feature] = []
-            feature_to_function = update_current_feature_methods(feature_to_function, list(removed_set),
-                                                                 feature, diff_dict,dir_path, 'Removed')
-            feature_to_function = update_current_feature_methods(feature_to_function, list(changed_set),
-                                                                 feature, diff_dict, dir_path, 'Changed')
-            feature_to_function = update_current_feature_methods(feature_to_function, ofed_dict[feature]['ofed_only'],
-                                                                 feature, diff_dict, dir_path, 'OFED added')
+            if feature not in feature_to_function.keys():
+                feature_to_function[feature] = []
+            if removed_set:
+                feature_to_function = update_current_feature_methods(feature_to_function, list(removed_set),
+                                                                     feature, diff_dict,dir_path, 'Removed')
+            if changed_set:
+                feature_to_function = update_current_feature_methods(feature_to_function, list(changed_set),
+                                                                     feature, diff_dict, dir_path, 'Changed')
+            if len(ofed_dict[feature]['ofed_only']):
+                feature_to_function = update_current_feature_methods(feature_to_function, ofed_dict[feature]['ofed_only'],
+                                                                     feature, diff_dict, dir_path, 'OFED added')
             unchanged_set = set(ofed_dict[feature]['kernel'])
             unchanged_set = unchanged_set.difference(changed_set, removed_set)
-            feature_to_function = update_current_feature_methods(feature_to_function, list(unchanged_set),
+            if unchanged_set:
+                feature_to_function = update_current_feature_methods(feature_to_function, list(unchanged_set),
                                                                      feature, diff_dict, dir_path, 'Unchanged')
         return main_res, feature_to_function
 
