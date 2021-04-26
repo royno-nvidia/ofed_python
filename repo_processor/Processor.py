@@ -12,6 +12,8 @@ from utils.setting_utils import get_logger, JSON_LOC
 logger = get_logger('Processor', 'Processor.log')
 
 
+
+
 class Processor(object):
     def __init__(self, args=None, repo=None):
         """
@@ -289,8 +291,15 @@ class Processor(object):
                             logger.warn(f"DST: Failed to find {key} in file {dst_kernel_path}/{value['location']}")
                     if dest_func is None or src_func is None:
                         continue
-                    ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func, key)
+                    ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func, key, False)
                     able_to_process += 1
+                for key in kernels_modified_methods_dict['deleted'].keys():
+                    if minimize and key not in actual_ofed_mothods_modified:
+                        continue
+                    if 'High risk' not in ret_diff_stats.keys():
+                        ret_diff_stats['High risk'] = []
+                    ret_diff_stats['High risk'].append(key)
+
                 # if minimize:
                 #     overall = len(actual_ofed_mothods_modified)
                 # else:

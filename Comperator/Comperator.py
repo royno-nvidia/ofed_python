@@ -5,6 +5,7 @@ from utils.setting_utils import get_logger
 logger = get_logger('Comperator', 'Comperator.log')
 
 
+
 class Comperator(object):
     def __init__(self):
         """
@@ -12,7 +13,7 @@ class Comperator(object):
         """
 
     @staticmethod
-    def get_functions_diff_stats(func_a: str, func_b: str, func_name: str):
+    def get_functions_diff_stats(func_a: str, func_b: str, func_name: str, is_removed: bool):
         diff_stats_dict = {}
         t1 = func_a.replace('\t', '    ').splitlines(keepends=True)
         t2 = func_b.replace('\t', '    ').splitlines(keepends=True)
@@ -28,6 +29,8 @@ class Comperator(object):
 
         diff_stats_dict = {'Diff': diff_strip,
                            'Stats': {
+                               'Risk': get_function_risk(is_removed, prototype_changed, context_changed),
+                               'Removed': is_removed,
                                'Prototype changed': prototype_changed,
                                'Content changed': context_changed,
                                'Old function size': old_func_lines,
