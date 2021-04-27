@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d4ad855-7f94-4963-9d83-e566622cc23e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/scripts/process_ofed_by_commit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Comperator/Comperator.py" beforeDir="false" afterPath="$PROJECT_DIR$/Comperator/Comperator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Comperator/comperator_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/Comperator/comperator_helpers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repo_processor/Processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo_processor/Processor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo_processor/processor_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo_processor/processor_helpers.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/venv/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,10 +26,52 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="395">
-              <caret line="269" column="53" selection-start-line="269" selection-start-column="53" selection-end-line="269" selection-end-column="53" />
+            <state relative-caret-position="-4320">
+              <caret line="8" column="46" lean-forward="true" selection-start-line="8" selection-start-column="46" selection-end-line="8" selection-end-column="46" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/repo_processor/processor_helpers.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="140">
+              <caret line="7" column="32" selection-start-line="7" selection-start-column="32" selection-end-line="7" selection-end-column="32" />
               <folding>
-                <element signature="e#1#12#0" expanded="true" />
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ofed_classes/OfedCommit.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-125">
+              <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ofed_classes/Metadata.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="55">
+              <caret line="25" column="103" lean-forward="true" selection-start-line="25" selection-start-column="89" selection-end-line="25" selection-end-column="103" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/process_ofed_by_commit.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="53" column="11" selection-start-line="53" selection-start-column="11" selection-end-line="53" selection-end-column="11" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -55,22 +99,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/verifier/verifer_arg.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1520">
-              <caret line="76" column="10" selection-start-line="76" selection-start-column="10" selection-end-line="76" selection-end-column="10" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/process_ofed_repo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="51" column="9" lean-forward="true" selection-start-line="51" selection-start-column="9" selection-end-line="51" selection-end-column="9" />
+            <state relative-caret-position="215">
+              <caret line="25" column="21" selection-end-line="60" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -81,38 +113,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/process_kernel_repo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="40">
-              <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="15" column="37" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="37" />
+            <state relative-caret-position="400">
+              <caret line="44" column="14" selection-start-line="44" selection-start-column="14" selection-end-line="44" selection-end-column="14" />
               <folding>
-                <element signature="e#0#14#0" expanded="true" />
+                <element signature="e#0#15#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/jsons/v5_9_rc2_TO_v5_9-rc3.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="305">
-              <caret line="210" column="44" lean-forward="true" selection-start-line="210" selection-start-column="44" selection-end-line="210" selection-end-column="44" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/jsons/ofed_5_4_update.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3365">
-              <caret line="38811" column="14" selection-start-line="38811" selection-start-column="14" selection-end-line="38811" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -120,8 +125,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/create_function_diffs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
-              <caret line="55" column="25" selection-start-line="55" selection-start-column="25" selection-end-line="55" selection-end-column="25" />
+            <state relative-caret-position="360">
+              <caret line="27" column="89" lean-forward="true" selection-start-line="26" selection-start-column="4" selection-end-line="27" selection-end-column="89" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -140,7 +145,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>intc_irq_xlate_debug</find>
       <find>lineinfo_unwatch</find>
       <find>ufshcd_intr</find>
       <find>in file</find>
@@ -170,6 +174,7 @@
       <find>update_current_feature_methods</find>
       <find>updated</find>
       <find>save_to_json</find>
+      <find>ofed_only_set</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -224,7 +229,6 @@
         <option value="$PROJECT_DIR$/Comperator/comperator.py" />
         <option value="$PROJECT_DIR$/scripts/create_function_diffs.py" />
         <option value="$PROJECT_DIR$/scripts/pre_rebase_process.py" />
-        <option value="$PROJECT_DIR$/repo_processor/processor_helpers.py" />
         <option value="$PROJECT_DIR$/scripts/process_ofed_repo.py" />
         <option value="$PROJECT_DIR$/analyzer/analyze_helpers.py" />
         <option value="$PROJECT_DIR$/analyzer/Analyzer.py" />
@@ -234,6 +238,8 @@
         <option value="$PROJECT_DIR$/jsons/v5_9_rc2_TO_v5_9-rc3.json" />
         <option value="$PROJECT_DIR$/Comperator/Comperator.py" />
         <option value="$PROJECT_DIR$/Comperator/comperator_helpers.py" />
+        <option value="$PROJECT_DIR$/scripts/process_ofed_by_commit.py" />
+        <option value="$PROJECT_DIR$/repo_processor/processor_helpers.py" />
         <option value="$PROJECT_DIR$/repo_processor/Processor.py" />
       </list>
     </option>
@@ -271,6 +277,16 @@
               <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
               <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
               <item name="jsons" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
+              <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
+              <item name="ofed_classes" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
+              <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
+              <item name="repo_processor" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
@@ -313,7 +329,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.create_function_diffs">
+  <component name="RunManager" selected="Python.process_ofed_by_commit">
     <configuration name="Common" type="PythonConfigurationType" factoryName="Python">
       <module name="OfedProject" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -349,27 +365,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/create_function_diffs.py" />
       <option name="PARAMETERS" value="-src /var/tmp/linux_src/linux -dst /var/tmp/linux_dst/linux -kernel_methods_info v5_9_rc2_to_v5_12_rc6.json -output high_risk_ofed_5_4.json -ofed_methods_info ofed_5_4_update.json -minimized" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="dup_remover" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="OfedProject" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dup_remover.py" />
-      <option name="PARAMETERS" value="-filename $PROJECT_DIR$/../../parav_files/t.txt" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -482,6 +477,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="process_ofed_by_commit" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="OfedProject" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/process_ofed_by_commit.py" />
+      <option name="PARAMETERS" value="-path $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_4/mlnx-ofa_kernel-4.0 -by_commit -output ofed_5_4_by_commit" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="process_ofed_repo" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="OfedProject" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -495,7 +511,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/process_ofed_repo.py" />
-      <option name="PARAMETERS" value="-path $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_2_2/mlnx-ofa_kernel-4.0 -output ofed_5_2_2_update" />
+      <option name="PARAMETERS" value="-path $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_4/mlnx-ofa_kernel-4.0 -output ofed_5_4_by_commit" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -509,18 +525,18 @@
       <item itemvalue="Python.pre_ofed" />
       <item itemvalue="Python.post_rebase_analyzer" />
       <item itemvalue="Python.pre_rebase_process" />
-      <item itemvalue="Python.dup_remover" />
       <item itemvalue="Python.create_function_diffs" />
       <item itemvalue="Python.process_ofed_repo" />
       <item itemvalue="Python.process_kernel_repo" />
+      <item itemvalue="Python.process_ofed_by_commit" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.create_function_diffs" />
+        <item itemvalue="Python.process_ofed_by_commit" />
         <item itemvalue="Python.process_kernel_repo" />
+        <item itemvalue="Python.create_function_diffs" />
         <item itemvalue="Python.process_ofed_repo" />
         <item itemvalue="Python.pre_rebase_process" />
-        <item itemvalue="Python.dup_remover" />
       </list>
     </recent_temporary>
   </component>
@@ -550,12 +566,12 @@
     <frame x="0" y="-3" width="1920" height="1060" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.25131717" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.25131717" />
       <window_info id="Structure" order="1" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info id="Favorites" order="2" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32941177" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49841937" visible="true" weight="0.35080215" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49841937" visible="true" weight="0.35080215" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3989305" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -607,20 +623,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/jsons/kernel_v5.8_v5.9.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-82985">
-          <caret line="28886" selection-start-line="28886" selection-end-line="28886" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/jsons/check_combiner2.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1215745" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/jsons/demo_ofed_5_2.json" />
-    <entry file="file://$PROJECT_DIR$/jsons/demo_ofed_5_2_after_rebase.json" />
     <entry file="file://$PROJECT_DIR$/jsons/demo_ofed_5_1_2.json" />
     <entry file="file://$PROJECT_DIR$/jsons/kernel_v5.6-rc2_v5.9-rc2.json">
       <provider selected="true" editor-type-id="text-editor">
@@ -809,16 +811,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/repo_processor/processor_helpers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="17" column="37" selection-start-line="17" selection-start-column="37" selection-end-line="17" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/jsons/minimized_diff_v5_9_to_v5_12_ofed_5_4.json.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="140">
@@ -880,23 +872,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/process_kernel_repo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="40">
-          <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/process_ofed_repo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="51" column="9" lean-forward="true" selection-start-line="51" selection-start-column="9" selection-end-line="51" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/jsons/v5_9_rc2_to_v5_12_rc6.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-5216023">
@@ -914,20 +889,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/create_function_diffs.py">
+    <entry file="file://$PROJECT_DIR$/jsons/v5_9_rc2_TO_v5_9-rc3.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="55" column="25" selection-start-line="55" selection-start-column="25" selection-end-line="55" selection-end-column="25" />
+        <state relative-caret-position="305">
+          <caret line="210" column="44" lean-forward="true" selection-start-line="210" selection-start-column="44" selection-end-line="210" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Comperator/comperator_helpers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-105">
+          <caret line="54" selection-start-line="54" selection-end-line="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/process_ofed_repo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="25" column="21" selection-end-line="60" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jsons/v5_9_rc2_TO_v5_9-rc3.json">
+    <entry file="file://$PROJECT_DIR$/scripts/create_function_diffs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="210" column="44" lean-forward="true" selection-start-line="210" selection-start-column="44" selection-end-line="210" selection-end-column="44" />
+        <state relative-caret-position="360">
+          <caret line="27" column="89" lean-forward="true" selection-start-line="26" selection-start-column="4" selection-end-line="27" selection-end-column="89" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -941,20 +933,64 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Comperator/comperator_helpers.py">
+    <entry file="file:///usr/lib64/python3.6/argparse.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-105">
-          <caret line="54" selection-start-line="54" selection-end-line="54" />
+        <state relative-caret-position="193">
+          <caret line="1732" column="8" selection-start-line="1732" selection-start-column="8" selection-end-line="1732" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ofed_classes/OfedCommit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-125">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ofed_classes/Metadata.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="55">
+          <caret line="25" column="103" lean-forward="true" selection-start-line="25" selection-start-column="89" selection-end-line="25" selection-end-column="103" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/process_ofed_by_commit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="53" column="11" selection-start-line="53" selection-start-column="11" selection-end-line="53" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/process_kernel_repo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="44" column="14" selection-start-line="44" selection-start-column="14" selection-end-line="44" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/repo_processor/processor_helpers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="7" column="32" selection-start-line="7" selection-start-column="32" selection-end-line="7" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="269" column="53" selection-start-line="269" selection-start-column="53" selection-end-line="269" selection-end-column="53" />
-          <folding>
-            <element signature="e#1#12#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="-4320">
+          <caret line="8" column="46" lean-forward="true" selection-start-line="8" selection-start-column="46" selection-end-line="8" selection-end-column="46" />
         </state>
       </provider>
     </entry>

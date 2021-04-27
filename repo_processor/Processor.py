@@ -6,11 +6,10 @@ from pydriller import Commit, RepositoryMining
 from Comperator.Comperator import Comperator
 from Comperator.comperator_helpers import extract_method_from_file
 from ofed_classes.OfedRepository import OfedRepository
-from repo_processor.processor_helpers import save_to_json
+from repo_processor.processor_helpers import *
 from utils.setting_utils import get_logger, JSON_LOC
 
 logger = get_logger('Processor', 'Processor.log')
-
 
 
 
@@ -26,7 +25,7 @@ class Processor(object):
         self._repo_path = args.path if not args.path.endswith('/') else args.path[:-1]
         self._repo = repo
         self._is_ofed = self.is_ofed_repo()
-        self._results = {}
+        self._results = None
         self._commits_processed = 0
         self._overall_commits = 0
         self._last_result_path = ""
@@ -112,7 +111,10 @@ class Processor(object):
         :return:
         """
         if self._is_ofed:
-            self.ofed_repo_processor()
+            if self._args.by_commit:
+                self.ofed_process_by_commit()
+            else:
+                self.ofed_repo_processor()
         else:
             self.kernel_repo_processor()
 
@@ -126,8 +128,7 @@ class Processor(object):
             self._repo = RepositoryMining(self._repo_path,
                                           from_tag=self._args.start_tag, to_tag=self._args.end_tag)
             self.set_overall_commits(self._repo)
-            self._results = {'modified': {},
-                             'deleted': {}}
+            self._results = {}
         except Exception as e:
             logger.critical(f"Fail to process kernel: '{self._repo_path}',\n{e}")
         try:
@@ -146,21 +147,116 @@ class Processor(object):
                     all_deleted_methods_set |= delete_methods_in_file
                     for method in mod.changed_methods:
                         # iterate all changed methods in file
-                        self._results['modified'][method.name] = {'location': mod_file_path}
-                        logger.debug(f"self._results['modified'][{method.name}] = 'location': {mod_file_path}")
+                        self._results[method.name] = {
+                            'Location': mod_file_path,
+                            'Status': 'Modify'
+                        }
+                        logger.debug(f"self._results[{method.name}] = {self._results[method.name]}")
                     for deleted in delete_methods_in_file:
-                        self._results['deleted'][deleted] = {'location': mod_file_path}
-                        logger.debug(f"self._results['deleted'][{deleted}] = 'location': {mod_file_path}")
+                        self._results[deleted] = {
+                            'location': mod_file_path,
+                            'Status': 'Delete'
+                        }
+                        logger.debug(f"self._results[{deleted}] = {self._results[deleted]}")
         #     create _results dict, make sure deleted method don't appear also in modified
             for method in all_deleted_methods_set:
                 # itarate all methods removed from kernel to avoid duplications
-                ret = self._results['modified'].pop(method, None)  # throw ofed only duplicates in 'kernel'
+                ret = self._results.pop(method, None)  # throw ofed only duplicates in 'kernel'
                 if ret is None:
                     logger.debug(f"could not find {method} in result['modified']")
                 else:
                     logger.debug(f"{method} abandoned from kernel, removed from result['modified']")
         except Exception as e:
             logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
+        logger.info(f"over all commits processed: {self._commits_processed}")
+
+    def ofed_process_by_commit(self):
+        """
+        Process self._repo_for_process in case of OFED repo
+        when iterate all commits in repo and create dict {'commit': [method changed by feature list]}
+        :return:
+        """
+        try:
+            self._repo = OfedRepository(self._repo_path,
+                                        None if not self._args.start_tag else self._args.start_tag,
+                                        None if not self._args.start_tag else self._args.end_tag)
+            self.set_overall_commits(self._repo)
+        except Exception as e:
+            logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
+        block_ofed_only = True
+        all_tree_info = []
+        added_methods_in_commit = []
+        try:
+            # cnt = 0
+            ofed_only_set = set()
+            for ofed_commit in self._repo.traverse_commits():
+                if ofed_commit.info is None:
+                    logger.warn(f"Could not get metadata info - hash: {ofed_commit.commit.hash[:12]}")
+                    continue
+                cstatus = ofed_commit.info['upstream_status']
+                if cstatus == 'accepted' or cstatus == 'ignore':
+                    continue
+                chash = ofed_commit.commit.hash
+                csubj = ofed_commit.info['subject']
+                ccid = ofed_commit.info['Change-Id']
+                cauthor = ofed_commit.commit.author.name
+
+                cfeature = ofed_commit.info['feature']
+
+                commit_info_dict = {
+                    'Hash': chash,
+                    'Subject': csubj,
+                    'Change-Id': ccid,
+                    'Author': cauthor,
+                    'Status': cstatus,
+                    'Feature': cfeature
+                }
+                commit_methods_info = {}
+                # iterate all repo commit
+                logger.debug(f"process hash: {ofed_commit.commit.hash[:12]}, feature: {cfeature}")
+                self.up()
+                if cfeature == 'accepted':
+                    # skip accepted
+                    logger.debug(f"skipped {chash} due to accepted status")
+                    continue
+                for mod in ofed_commit.commit.modifications:
+                    mod_file_path = mod.new_path
+                    # iterate all modifications in commit
+                    if len(mod.changed_methods) > 0:
+                        if block_ofed_only:
+                            # ofed repo commits are setting the base code so methods added
+                            # in those commits not ofed only but kernel methods!
+                            added_methods_in_commit = []
+                        else:
+                            methods_before_commit = [meth.name for meth in mod.methods_before]
+                            methods_after_commit = [meth.name for meth in mod.methods]
+                            added_methods_in_commit = list(set(methods_after_commit) - set(methods_before_commit))
+                            # sets algebra, methods after\methods before = method added by commit
+
+                        logger.debug('methods changed:')
+                        for method in mod.changed_methods:
+                            # add all changed methods to dict
+                            commit_methods_info[method.name] = {
+                                'Location': mod_file_path,
+                                'Status': 'Modify'
+                            }
+                        for ofed_method in added_methods_in_commit:
+                            # add all added methods to dict
+                            commit_methods_info[ofed_method] = {
+                                'Location': mod_file_path,
+                                'Status': 'Add'
+                            }
+                            ofed_only_set.add(ofed_method)
+                    else:
+                        logger.debug(f'nothing to do in {ofed_commit.commit.hash}, file {mod.filename}')
+                commit_info_dict['Functions'] = commit_methods_info
+                all_tree_info.append(commit_info_dict)
+                if "Set base code to" in ofed_commit.commit.msg:
+                    block_ofed_only = False
+            self._results = verify_added_funtions_status(all_tree_info, ofed_only_set)
+            save_to_json(self._results)
+        except Exception as e:
+            logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
 
     def ofed_repo_processor(self):

@@ -5,6 +5,14 @@ from datetime import datetime
 
 logger = get_logger('Processor', 'Processor.log')
 
+def verify_added_funtions_status(all_tree_info: list, ofed_only_set: set):
+    for index in range(0, len(all_tree_info)):
+        # itarate all commits in tree
+        for func in all_tree_info[index]['Functions']:
+            if func in ofed_only_set:
+                all_tree_info[index]['Functions'][func]['Status'] = 'Add'
+                logger.debug(f"{func} moved status to 'Add'")
+    return all_tree_info
 
 def save_to_json(dict_for_saving, filename=None):
     """
