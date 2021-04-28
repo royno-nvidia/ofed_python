@@ -275,6 +275,62 @@ class Analyzer(object):
                                                                  feature, removed_list, changed_list, 'Overlap')
         return main_res, feature_function_status
 
+    @staticmethod
+    def create_colored_tree_excel(main_results: dict, commit_to_function: dict, filename: str,
+                                  src: str, dst: str, ofed: str):
+
+        """
+        Build excel file from analyzed results
+        :return:
+        """
+
+        # pprint(feature_to_functiom)
+        title = f"MSR Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
+        df_main = pd.DataFrame(main_results[::-1])
+        df_main.set_index('Hash')
+        writer = pd.ExcelWriter(EXCEL_LOC + filename + '.xlsx', engine='xlsxwriter')
+        df_main.to_excel(writer, sheet_name='Analyzed_result', startrow=2, header=False, index=False)
+
+        workbook = writer.book
+        worksheet = writer.sheets['Analyzed_result']
+
+        title_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#00E4BC',
+            'border': 1})
+        worksheet.merge_range(f'A1:{chr(ord("A") + len(df_main.columns) - 1)}1', title, title_format)
+
+        # header
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        for col_num, value in enumerate(df_main.columns.values):
+            worksheet.write(1, col_num, value, header_format)
+
+        # apply conditions for modification
+        colored_condition_column(workbook, worksheet, 'C', len(df_main.index))
+        # apply conditions for deletions
+        # colored_condition_column(workbook, worksheet, 'G', len(df_main.index), 15, 0)
+        # Modified worksheet
+        # dicts_list_from_modify = [commit_to_function[feature][index] for
+        #                           feature in commit_to_function.keys() for
+        #                           index in range(len(commit_to_function[feature]))]
+        dicts_list_from_modify = commit_to_function
+        # pprint(dicts_list_from_modify)
+        df_mod = pd.DataFrame(dicts_list_from_modify)
+        df_mod.set_index('Hash')
+        df_mod.to_excel(writer, sheet_name='Feature function status', startrow=1, header=False, index=False)
+        worksheet_mod = writer.sheets['Feature function status']
+        for col_num, value in enumerate(df_mod.columns.values):
+            worksheet_mod.write(0, col_num, value, header_format)
+
+        writer.save()
+        logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
 
 
     @staticmethod

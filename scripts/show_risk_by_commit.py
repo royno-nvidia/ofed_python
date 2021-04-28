@@ -55,10 +55,9 @@ def main():
         exit(1)
     main_res, commit_to_function = Analyzer.build_commit_dicts(
         args.kernel, args.ofed, args.diff, args.output)
-    # Analyzer.pre_create_changed_functions_excel(main_res, feature_to_function,
-    #                                             'Feature_methods_changed' if
-    #                                             args.output is None else args.output,
-    #                                             args.kernel_start_tag, args.kernel_end_tag, args.ofed_tag)
+    Analyzer.create_colored_tree_excel(main_res, commit_to_function,
+                                                args.output, args.kernel_start_tag,
+                                                args.kernel_end_tag, args.ofed_tag)
     end_time = time.time()
     show_runtime(end_time, start_time)
 

@@ -9,7 +9,8 @@ from utils.setting_utils import get_logger, EXCEL_LOC, JSON_LOC
 logger = get_logger('Analyzer', 'Analyzer.log')
 
 
-def colored_condition_column(workbook, worksheet, col: chr, col_len: int, red_zone: int, green_zone: int):
+def colored_condition_column(workbook, worksheet, col: chr, col_len: int):
+                             #red_zone: int, green_zone: int):
     """
     create 3 color condition in wanted col over worksheet
     :param workbook: xlsxlwriter workbook
@@ -22,27 +23,50 @@ def colored_condition_column(workbook, worksheet, col: chr, col_len: int, red_zo
     """
     # formatting
     red_format = workbook.add_format({'bg_color': '#FFC7CE',
-                                      'font_color': '#9C0006'})
+                                      'font_color': '#FFC7CE'})
     yellow_format = workbook.add_format({'bg_color': '#FFEB9C',
-                                         'font_color': '#9C6500'})
+                                         'font_color': '#FFEB9C'})
     green_format = workbook.add_format({'bg_color': '#C6EFCE',
-                                        'font_color': '#006100'})
+                                        'font_color': '#C6EFCE'})
+    orange_format = workbook.add_format({'bg_color': '#FFA500',
+                                        'font_color': '#FFA500'})
     worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
                                  {'type': 'cell',
-                                  'criteria': '>=',
-                                  'value': red_zone,
-                                  'format': red_format})
-    worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
-                                 {'type': 'cell',
-                                  'criteria': '<=',
-                                  'value': green_zone,
+                                  'criteria': '==',
+                                  'value': 0,
                                   'format': green_format})
     worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
                                  {'type': 'cell',
-                                  'criteria': 'between',
-                                  'minimum': green_zone,
-                                  'maximum': red_zone,
+                                  'criteria': '==',
+                                  'value': 1,
                                   'format': yellow_format})
+    worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+                                 {'type': 'cell',
+                                  'criteria': '==',
+                                  'value': 2,
+                                  'format': orange_format})
+    worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+                                 {'type': 'cell',
+                                  'criteria': '==',
+                                  'value': 3,
+                                  'format': red_format})
+
+    # worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+    #                              {'type': 'cell',
+    #                               'criteria': '>=',
+    #                               'value': red_zone,
+    #                               'format': red_format})
+    # worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+    #                              {'type': 'cell',
+    #                               'criteria': '<=',
+    #                               'value': green_zone,
+    #                               'format': green_format})
+    # worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+    #                              {'type': 'cell',
+    #                               'criteria': 'between',
+    #                               'minimum': green_zone,
+    #                               'maximum': red_zone,
+    #                               'format': yellow_format})
 
 
 def colored_condition_row(workbook, worksheet, col: chr, col_len: int):
@@ -57,7 +81,9 @@ def colored_condition_row(workbook, worksheet, col: chr, col_len: int):
 
 
 def create_diff_file_and_link(method_name: str, info_dict: str, directory: str):
-    if method_name  not in info_dict.keys():
+    if method_name not in info_dict.keys():
+        return 'NA'
+    if info_dict[method_name]['Diff'] == 'NA':
         return 'NA'
     method_diff = info_dict[method_name]['Diff']
     filename = f'{directory}/{method_name}.diff'
@@ -71,7 +97,7 @@ def create_diff_file_and_link(method_name: str, info_dict: str, directory: str):
 
 
 def get_stat_or_none(method: str, info_dict :dict, stat: str):
-    if method in info_dict.keys():
+    if method in info_dict.keys() and info_dict[method]['Stats'][stat] != 'NA':
         return info_dict[method]['Stats'][stat]
     else:
         return ''

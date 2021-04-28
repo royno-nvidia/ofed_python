@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3d4ad855-7f94-4963-9d83-e566622cc23e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/scripts/show_risk_by_commit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analyzer/Analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/analyzer/Analyzer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analyzer/analyze_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/analyzer/analyze_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/show_risk_by_commit.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/show_risk_by_commit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/setting_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/setting_utils.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/venv/" />
@@ -23,11 +23,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/show_risk_by_commit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="190">
-              <caret line="57" column="5" lean-forward="true" selection-start-line="57" selection-start-column="5" selection-end-line="57" selection-end-column="5" />
+            <state relative-caret-position="1140">
+              <caret line="57" column="29" lean-forward="true" selection-start-line="57" selection-start-column="29" selection-end-line="57" selection-end-column="29" />
               <folding>
                 <element signature="e#1#16#0" expanded="true" />
               </folding>
@@ -38,8 +38,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="297">
-              <caret line="56" column="28" lean-forward="true" selection-start-line="56" selection-start-column="28" selection-end-line="56" selection-end-column="28" />
+            <state relative-caret-position="208">
+              <caret line="315" column="21" lean-forward="true" selection-start-line="315" selection-start-column="21" selection-end-line="315" selection-end-column="21" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -47,11 +47,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/analyzer/analyze_helpers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="128">
-              <caret line="77" selection-start-line="77" selection-end-line="77" />
+            <state relative-caret-position="248">
+              <caret line="31" column="62" selection-start-line="31" selection-start-column="62" selection-end-line="31" selection-end-column="62" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -70,9 +70,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Prototype changed&quot;: True</find>
-      <find>writeback_sb_inode</find>
-      <find>unchanged_diff</find>
       <find>WARNING - DST:</find>
       <find>early_kasan_flag</find>
       <find>Exception</find>
@@ -100,6 +97,9 @@
       <find>verify_added_functions_status</find>
       <find>by_commit</find>
       <find>combine_kernel_dicts</find>
+      <find>get_stat_or_none</find>
+      <find>create_main_dict</find>
+      <find>colored_condition_column</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -164,13 +164,13 @@
         <option value="$PROJECT_DIR$/repo_processor/Processor.py" />
         <option value="$PROJECT_DIR$/repo_processor/processor_helpers.py" />
         <option value="$PROJECT_DIR$/utils/setting_utils.py" />
-        <option value="$PROJECT_DIR$/analyzer/analyze_helpers.py" />
         <option value="$PROJECT_DIR$/scripts/show_risk_by_commit.py" />
         <option value="$PROJECT_DIR$/analyzer/Analyzer.py" />
+        <option value="$PROJECT_DIR$/analyzer/analyze_helpers.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="335" />
     <option name="y" value="105" />
     <option name="width" value="1380" />
@@ -443,7 +443,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/show_risk_by_commit.py" />
-      <option name="PARAMETERS" value="-kernel v5_9_rc2_TO_v5_12.json -ofed ofed_5_4_by_commit.json -diff diff3.json -ofed_tag vmlnx-ofed-5.2-1.0.4 -kernel_start_tag v5.9 -kernel_end_tag v5.12-rc3 -output updated_excel_new5" />
+      <option name="PARAMETERS" value="-kernel v5_9_rc2_TO_v5_12.json -ofed ofed_5_4_by_commit.json -diff diff3.json -ofed_tag vmlnx-ofed-5.2-1.0.4 -kernel_start_tag v5.9 -kernel_end_tag v5.12-rc3 -output updated_excel_new20" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -494,7 +494,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="-3" width="1920" height="1060" extended-state="7" />
+    <frame x="0" y="-3" width="1920" height="1060" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.25131717" />
@@ -502,8 +502,8 @@
       <window_info id="Favorites" order="2" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32941177" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49841937" weight="0.24385026" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.3989305" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49841937" visible="true" weight="0.24385026" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3989305" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32969433" />
@@ -540,7 +540,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/analyzer/Analyzer.py</url>
-          <line>300</line>
+          <line>356</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -555,8 +555,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/scripts/show_risk_by_commit.py</url>
-          <line>61</line>
+          <line>60</line>
           <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/analyzer/Analyzer.py</url>
+          <line>288</line>
+          <option name="timeStamp" value="30" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -569,9 +574,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Excels/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/jsons/demo_post_ofed_5_2_after_rebase.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-300" />
@@ -883,13 +885,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib64/python3.6/codecs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="308" selection-start-line="308" selection-end-line="308" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/repo_processor/processor_helpers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="425">
@@ -930,32 +925,46 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/analyzer/analyze_helpers.py">
+    <entry file="file:///usr/lib64/python3.6/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="77" selection-start-line="77" selection-end-line="77" />
+        <state relative-caret-position="218">
+          <caret line="310" selection-start-line="310" selection-end-line="310" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib64/python3.6/site-packages/pandas/core/frame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="698">
+          <caret line="4554" selection-start-line="4554" selection-end-line="4554" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/show_risk_by_commit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1140">
+          <caret line="57" column="29" lean-forward="true" selection-start-line="57" selection-start-column="29" selection-end-line="57" selection-end-column="29" />
           <folding>
-            <element signature="e#0#29#0" expanded="true" />
+            <element signature="e#1#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="56" column="28" lean-forward="true" selection-start-line="56" selection-start-column="28" selection-end-line="56" selection-end-column="28" />
+        <state relative-caret-position="208">
+          <caret line="315" column="21" lean-forward="true" selection-start-line="315" selection-start-column="21" selection-end-line="315" selection-end-column="21" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/show_risk_by_commit.py">
+    <entry file="file://$PROJECT_DIR$/analyzer/analyze_helpers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="57" column="5" lean-forward="true" selection-start-line="57" selection-start-column="5" selection-end-line="57" selection-end-column="5" />
+        <state relative-caret-position="248">
+          <caret line="31" column="62" selection-start-line="31" selection-start-column="62" selection-end-line="31" selection-end-column="62" />
           <folding>
-            <element signature="e#1#16#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
