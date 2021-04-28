@@ -26,8 +26,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="344" column="8" selection-start-line="344" selection-start-column="8" selection-end-line="344" selection-end-column="8" />
+            <state relative-caret-position="160">
+              <caret line="141" column="43" selection-start-line="141" selection-start-column="20" selection-end-line="141" selection-end-column="43" />
               <folding>
                 <element signature="e#2#48#0" expanded="true" />
               </folding>
@@ -148,7 +148,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>failed to read json</find>
       <find>is_prototype_changed</find>
       <find>Diff</find>
       <find>Prototype changed&quot;: false</find>
@@ -178,6 +177,7 @@
       <find>verify</find>
       <find>רcommits processedl</find>
       <find>DST</find>
+      <find>Faile</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -332,7 +332,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.create_function_diffs">
+  <component name="RunManager" selected="Python.process_kernel_repo">
     <configuration name="Common" type="PythonConfigurationType" factoryName="Python">
       <module name="OfedProject" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -472,7 +472,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/process_kernel_repo.py" />
-      <option name="PARAMETERS" value="-path $PROJECT_DIR$/../../../OFED_WORK_AREA/linux_linus -start_tag v5.9-rc2 -end_tag v5.12 -output v5_9_rc2_TO_v5_12" />
+      <option name="PARAMETERS" value="-path $PROJECT_DIR$/../../../OFED_WORK_AREA/linux_linus -start_tag roy_start -end_tag roy_end -output 112" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -535,8 +535,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.create_function_diffs" />
         <item itemvalue="Python.process_kernel_repo" />
+        <item itemvalue="Python.create_function_diffs" />
         <item itemvalue="Python.process_ofed_by_commit" />
         <item itemvalue="Python.process_ofed_repo" />
         <item itemvalue="Python.pre_rebase_process" />
@@ -567,13 +567,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-3" width="1920" height="1060" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.25131717" />
       <window_info id="Structure" order="1" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info id="Favorites" order="2" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32941177" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49841937" visible="true" weight="0.09946524" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49841937" visible="true" weight="0.24385026" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3989305" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -991,8 +992,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="344" column="8" selection-start-line="344" selection-start-column="8" selection-end-line="344" selection-end-column="8" />
+        <state relative-caret-position="160">
+          <caret line="141" column="43" selection-start-line="141" selection-start-column="20" selection-end-line="141" selection-end-column="43" />
           <folding>
             <element signature="e#2#48#0" expanded="true" />
           </folding>

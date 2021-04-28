@@ -154,13 +154,9 @@ class Processor(object):
                         }
                         logger.debug(f"self._results[{deleted}] = {self._results[deleted]}")
         #     create _results dict, make sure deleted method don't appear also in modified
-            for method in all_deleted_methods_set:
-                # itarate all methods removed from kernel to avoid duplications
-                ret = self._results.pop(method, None)  # throw ofed only duplicates in 'kernel'
-                if ret is None:
-                    logger.debug(f"could not find {method} in result['modified']")
-                else:
-                    logger.debug(f"{method} abandoned from kernel, removed from result['modified']")
+            for rem in all_deleted_methods_set:
+                # Verify all removed methods status is 'Delete'
+                self._results[rem]['Status'] = 'Delete'
         except Exception as e:
             logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
