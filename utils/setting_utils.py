@@ -15,6 +15,17 @@ class RiskLevel(Enum):
     High = 3
 
 
+def string_to_enum(risk: str):
+    if risk == 'No Risk':
+        return 0
+    if risk == 'Low':
+        return 1
+    if risk == 'Medium':
+        return 2
+    if risk == 'High':
+        return 3
+
+
 def enum_risk_to_string(risk: RiskLevel):
     if risk == RiskLevel.No:
         return 'No Risk'

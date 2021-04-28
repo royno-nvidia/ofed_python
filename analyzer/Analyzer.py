@@ -1,13 +1,65 @@
 from datetime import datetime
 import json
+from pprint import pprint
+
 import pandas as pd
 import os
 
+
 from analyzer.analyze_helpers import colored_condition_column, colored_condition_row, \
-    update_current_feature_methods, post_update_excel_dict
-from utils.setting_utils import get_logger, EXCEL_LOC, JSON_LOC
+    post_update_excel_dict, get_stat_or_none, create_diff_file_and_link
+from utils.setting_utils import get_logger, EXCEL_LOC, JSON_LOC, RiskLevel, string_to_enum
 
 logger = get_logger('Analyzer', 'Analyzer.log')
+
+
+def create_main_dict(kernel_dict, ofed_list, diff_dict):
+    main_res = []
+
+    for commit in ofed_list:
+        commit_risk = 0
+        for func in commit['Functions']:
+            if func in diff_dict.keys():
+                commit_risk = max(commit_risk, string_to_enum(diff_dict[func]['Stats']['Risk']))
+            else:
+                logger.warn(f'{func} - not in dict, missing info')
+        main_res.append({
+            "Hash": commit['Hash'],
+            "Subject": commit['Subject'],
+            "Risk Level": commit_risk,
+            "Feature": commit['Feature'],
+            "Status": commit['Status'],
+            "Change-Id": commit['Change-Id'],
+            "Author": commit['Author']
+        })
+    return main_res
+
+def create_func_stats_line(func_name, chash, diff_dict, dir_path):
+    ret_stats = {
+        "Hash": chash,
+        "Function": func_name,
+        "Diff": create_diff_file_and_link(func_name, diff_dict, dir_path),
+        "Removed": get_stat_or_none(func_name, diff_dict,'Removed'),
+        "Prototype changed": get_stat_or_none(func_name, diff_dict, 'Prototype changed'),
+        "Content changed": get_stat_or_none(func_name, diff_dict, 'Content changed'),
+        "Old function size": get_stat_or_none(func_name, diff_dict, 'Old function size'),
+        "New function size": get_stat_or_none(func_name, diff_dict, 'New function size'),
+        "Old function unique lines": get_stat_or_none(func_name, diff_dict, 'Old function unique lines'),
+        "New function unique lines": get_stat_or_none(func_name, diff_dict, 'New function unique lines'),
+        "Lines unchanged": get_stat_or_none(func_name, diff_dict, 'Lines unchanged'),
+        "Old function scope": get_stat_or_none(func_name, diff_dict, 'Old function scope'),
+        "New function scope": get_stat_or_none(func_name, diff_dict, 'New function scope')
+    }
+    return ret_stats
+
+
+def create_commit_to_function_dict(ofed_list, diff_dict, dir_path):
+    feature_to_function = []
+    for commit in ofed_list:
+        for func in commit['Functions'].keys():
+            feature_to_function.append(create_func_stats_line(func, commit['Hash'], diff_dict, dir_path))
+    return feature_to_function
+
 
 
 class Analyzer(object):
@@ -23,23 +75,16 @@ class Analyzer(object):
         :param kernel_jsons: list of kernel jsons
         :return: combined dictionary
         """
-        res_dict = {"modified": {}, "deleted": {}}
-        modified_set = set()
-        deleted_set = set()
-
+        res_dict = {}
         try:
             for j_file in kernel_jsons:
                 with open(JSON_LOC+j_file) as k_file:
                     kernel_dict = json.load(k_file)
-                    modified_set |= set(kernel_dict['modified'].keys())
-                    deleted_set |= set(kernel_dict['deleted'].keys())
-                    modified_set -= deleted_set # remove duplications
+                    for func, info in kernel_dict.items():
+                        if func not in res_dict.keys():
+                            res_dict[func] = info
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
-        res_dict['modified'] = dict.fromkeys(modified_set, 0)
-        res_dict['deleted'] = dict.fromkeys(deleted_set, 0)
-        # with open(JSON_LOC+'check_combiner2.json', 'w') as handle:
-        #     json.dump(res_dict, handle, indent=4)
         return res_dict
 
     @staticmethod
@@ -148,8 +193,26 @@ class Analyzer(object):
                                                                      feature, diff_dict, dir_path, 'Unchanged')
         return main_res, feature_to_function
 
-
-
+    @staticmethod
+    def build_commit_dicts(kernel_json: str, ofed_json: str, diff_json: str, output: str):
+        """
+        Take processor Json's output and analyze result, build data for Excel display
+        :return:
+        """
+        kernel_dict = Analyzer.combine_kernel_dicts(kernel_json)
+        commit_list = []
+        try:
+            with open(JSON_LOC + ofed_json) as o_file:
+                commit_list = json.load(o_file)
+            with open(JSON_LOC + diff_json) as d_file:
+                diff_dict = json.load(d_file)
+        except IOError as e:
+            logger.critical(f"failed to read json:\n{e}")
+        main_res = create_main_dict(kernel_dict, commit_list, diff_dict)
+        dir_path = f"{EXCEL_LOC + output}"
+        os.mkdir(dir_path, 0o0755)
+        commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, dir_path)
+        return main_res, commit_to_function
 
 
     @staticmethod
