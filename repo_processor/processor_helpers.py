@@ -38,7 +38,9 @@ def get_actual_ofed_info(ofed_json):
         ofed_modified_methods_dict = json.load(handle)
         actual_ofed_functions_modified = set()
         for commit in ofed_modified_methods_dict:
-            actual_ofed_functions_modified |= set(commit['Functions'].keys())
+            actual_ofed_functions_modified |= set(
+                [func for func in commit['Functions'].keys() if commit['Functions'][func]['Status'] != 'Add']
+            )
         return actual_ofed_functions_modified
 
 

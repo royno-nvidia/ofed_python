@@ -2,7 +2,7 @@ from difflib import Differ
 from pprint import pprint
 
 from Comperator.comperator_helpers import *
-from utils.setting_utils import get_logger
+from utils.setting_utils import get_logger, RiskLevel, enum_risk_to_string
 
 logger = get_logger('Comperator', 'Comperator.log')
 
@@ -41,13 +41,16 @@ class Comperator(object):
         """
 
     @staticmethod
-    def get_functions_diff_stats(func_a: str, func_b: str, func_name: str, is_removed: bool):
+    def get_functions_diff_stats(func_a: str, func_b: str, func_name: str,
+                                 is_removed: bool, risk: RiskLevel):
         diff_stats_dict = {}
         if is_removed:
+            # In high risk - function cant be found over DST file (removed)
+            # so we don't have stats
             diff_stats_dict = {'Diff': 'NA',
                                'Stats': {
                                     'Risk': 'High',
-                                    'Removed': is_removed,
+                                    'Removed': True,
                                     'Prototype changed': 'NA',
                                     'Content changed': 'NA',
                                     'Old function size': 'NA',
@@ -60,14 +63,32 @@ class Comperator(object):
                                     }
                                }
             return diff_stats_dict
-        old_func = get_func_stats(func_a)
 
+        if risk == RiskLevel.No:
+            diff_stats_dict = {'Diff': 'NA',
+                               'Stats': {
+                                   'Risk': 'No Risk',
+                                   'Removed': False,
+                                   'Prototype changed': False,
+                                   'Content changed': False,
+                                   'Old function size': 'NA',
+                                   'New function size': 'NA',
+                                   'Old function unique lines': 'NA',
+                                   'New function unique lines': 'NA',
+                                   'Lines unchanged': 'NA',
+                                   'Old function scope': 'NA',
+                                   'New function scope': 'NA'
+                                   }
+                               }
+            return diff_stats_dict
+
+        old_func = get_func_stats(func_a)
         new_func = get_func_stats(func_b)
         diff_stats = get_diff_stats(old_func['Splited'], new_func['Splited'], func_name)
 
         diff_stats_dict = {'Diff': diff_stats['Diff'],
                            'Stats': {
-                               'Risk': get_function_risk(is_removed, diff_stats['API'], diff_stats['Ctx']),
+                               'Risk': enum_risk_to_string(get_function_risk(is_removed, diff_stats['API'], diff_stats['Ctx'])),
                                'Removed': is_removed,
                                'Prototype changed': diff_stats['API'],
                                'Content changed': diff_stats['Ctx'],

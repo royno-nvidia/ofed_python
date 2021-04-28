@@ -1,4 +1,4 @@
-from utils.setting_utils import get_logger
+from utils.setting_utils import get_logger, RiskLevel
 
 logger = get_logger('Comperator', 'Comperator.log')
 
@@ -54,16 +54,15 @@ def count_changes(diff) -> tuple:
     return plus, minus, unchanged
 
 
-
 def get_function_risk(is_removed, prototype_changed, context_changed) -> str:
     if is_removed:
-        return 'High'
+        return RiskLevel.High
     elif prototype_changed:
-        return 'Medium'
+        return RiskLevel.Medium
     elif context_changed:
-        return 'Low'
+        return RiskLevel.Low
     else:
-        return 'No risk'
+        return RiskLevel.No
 
 
 def extract_method_from_file(filepath: str, func_name: str) -> str:

@@ -21,13 +21,11 @@ def parse_args():
     parser.add_argument("-dst", type=str, default=None, required=True,
                         help="Linus repository checkout at source version")
     parser.add_argument("-kernel_methods_info", type=str, default=None, required=True,
-                        help="Name of Json under jsons/ directory")
+                        help="Name of Json under Jsons/ directory")
     parser.add_argument("-output", type=str, default=None, required=True,
                         help="Name for Json result file")
-    parser.add_argument("-minimized", default=False, action='store_true',
-                        help="Script will process only OFED relevant methods, required ")
-    parser.add_argument("-ofed_methods_info", type=str, default=None,
-                        help="Name of Json under jsons/ directory")
+    parser.add_argument("-ofed_methods_info", type=str, default=None, required=True,
+                        help="Name of Json under Jsons/ directory")
     options = parser.parse_args()
     return options
 
@@ -56,7 +54,6 @@ def main():
     Processor.get_kernels_methods_diffs(args.src, args.dst,
                                         args.kernel_methods_info,
                                         args.output,
-                                        args.minimized,
                                         args.ofed_methods_info)
     end_time = time.time()
     show_runtime(end_time, start_time)

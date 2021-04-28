@@ -3,9 +3,20 @@ from pydriller import Commit, RepositoryMining
 from Comperator.Comperator import Comperator
 from ofed_classes.OfedRepository import OfedRepository
 from repo_processor.processor_helpers import *
-from utils.setting_utils import get_logger, JSON_LOC
+from utils.setting_utils import get_logger, JSON_LOC, RiskLevel
 
 logger = get_logger('Processor', 'Processor.log')
+
+
+def get_function_statistics(kernels_dict, func_name, src_kernel_path, dst_kernel_path):
+    func_location = kernels_dict[func_name]['Location']
+    src_func = extract_function(src_kernel_path, func_location, func_name, "SRC")
+    dst_func = extract_function(dst_kernel_path, func_location, func_name, "DST")
+    if src_func is None or dst_func is None:
+        return None
+    ret = Comperator.get_functions_diff_stats(src_func, dst_func,
+                                              func_name, False, None)
+    return ret
 
 
 class Processor(object):
@@ -339,37 +350,38 @@ class Processor(object):
 
     @staticmethod
     def get_kernels_methods_diffs(src_kernel_path: str, dst_kernel_path: str,
-                                  kernels_modified_methods_json_path, output_file: str,
-                                  minimize, minimized_ofed_json):
+                                  kernels_json_path, output_file: str,
+                                  ofed_json_path):
         ret_diff_stats = {}
         overall = 0
         actual_process = 0
         try:
-            actual_ofed_functions_modified = []
-            if minimize:
-                actual_ofed_functions_modified = get_actual_ofed_info(minimized_ofed_json)
-            with open(JSON_LOC+kernels_modified_methods_json_path) as handle:
+            actual_ofed_functions_modified = get_actual_ofed_info(ofed_json_path)
+            with open(JSON_LOC+kernels_json_path) as handle:
                 kernels_modified_methods_dict = json.load(handle)
                 for func in kernels_modified_methods_dict.keys():
                 # for key, value in kernels_modified_methods_dict['modified'].items():
-                    if minimize and func not in actual_ofed_functions_modified:
+                    if func not in actual_ofed_functions_modified:
                         continue
                     overall += 1
-                    if kernels_modified_methods_dict[func]['Status']== 'Remove':
-                        ret_diff_stats[func] = Comperator.get_functions_diff_stats(src_func, dst_func,
-                                                                                   func, True)
+                    func_status = kernels_modified_methods_dict[func]['Status']
+                    if func_status == 'Remove':
+                        ret_diff_stats[func] = Comperator.get_functions_diff_stats(None, None,
+                                                                                   func, True, RiskLevel.High)
                     else:
-                        func_location = kernels_modified_methods_dict[func]['Location']
-                        func_status = kernels_modified_methods_dict[func]['Status']
-
-                        src_func = extract_function(src_kernel_path, func_location, func, "SRC")
-                        dst_func = extract_function(dst_kernel_path, func_location, func, "DST")
-                        if src_func is None or dst_func is None:
+                        func_stats = get_function_statistics(kernels_modified_methods_dict, func,
+                                                             src_kernel_path, dst_kernel_path)
+                        if func_stats is None:
                             continue
-                        ret_diff_stats[func] = Comperator.get_functions_diff_stats(src_func, dst_func,
-                                                                                   func, False)
+                        ret_diff_stats[func] = func_stats
                         actual_process += 1
-
+                # handle no risk functions
+                for mod in actual_ofed_functions_modified:
+                    if mod not in kernels_modified_methods_dict.keys():
+                        print(f'{mod}- handle no risk')
+                        ret = Comperator.get_functions_diff_stats(None, None,
+                                                                  mod, False, RiskLevel.No)
+                        ret_diff_stats[mod] = ret
                 save_to_json(ret_diff_stats, output_file)
                 logger.info(f"overall functions: {overall}")
                 logger.info(f"able to process functions: {actual_process}")

@@ -1,10 +1,29 @@
 import logging
 from colorlog import ColoredFormatter
+from enum import Enum
 
 
 class Status(object):
     SUCCESS = 0
     FAIL = 1
+
+
+class RiskLevel(Enum):
+    No = 0
+    Low = 1
+    Medium = 2
+    High = 3
+
+
+def enum_risk_to_string(risk: RiskLevel):
+    if risk == RiskLevel.No:
+        return 'No Risk'
+    if risk == RiskLevel.Low:
+        return 'Low'
+    if risk == RiskLevel.Medium:
+        return 'Medium'
+    if risk == RiskLevel.High:
+        return 'High'
 
 
 # DEFINES
@@ -33,3 +52,5 @@ def get_logger(module_name, file_name):
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
     return logger
+
+
