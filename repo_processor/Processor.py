@@ -1,16 +1,11 @@
-import json
-import os
-from pprint import pprint
 
 from pydriller import Commit, RepositoryMining
 from Comperator.Comperator import Comperator
-from Comperator.comperator_helpers import extract_method_from_file
 from ofed_classes.OfedRepository import OfedRepository
 from repo_processor.processor_helpers import *
 from utils.setting_utils import get_logger, JSON_LOC
 
 logger = get_logger('Processor', 'Processor.log')
-
 
 
 class Processor(object):
@@ -253,7 +248,7 @@ class Processor(object):
                 all_tree_info.append(commit_info_dict)
                 if "Set base code to" in ofed_commit.commit.msg:
                     block_ofed_only = False
-            self._results = verify_added_funtions_status(all_tree_info, ofed_only_set)
+            self._results = verify_added_functions_status(all_tree_info, ofed_only_set)
             save_to_json(self._results)
         except Exception as e:
             logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
@@ -352,58 +347,36 @@ class Processor(object):
                                   minimize, minimized_ofed_json):
         ret_diff_stats = {}
         overall = 0
-        able_to_process = 0
+        actual_process = 0
         try:
+            actual_ofed_functions_modified = []
             if minimize:
-                with open(JSON_LOC + minimized_ofed_json) as handle:
-                    ofed_modified_methods_dict = json.load(handle)
-                    actual_ofed_mothods_modified = set()
-                    for feature in ofed_modified_methods_dict.keys():
-                        pprint(ofed_modified_methods_dict[feature])
-                        actual_ofed_mothods_modified |= set(ofed_modified_methods_dict[feature]['kernel'])
-                        actual_ofed_mothods_modified |= set(ofed_modified_methods_dict[feature]['ofed_only'])
+                actual_ofed_functions_modified = get_actual_ofed_info(minimized_ofed_json)
             with open(JSON_LOC+kernels_modified_methods_json_path) as handle:
                 kernels_modified_methods_dict = json.load(handle)
-                for key, value in kernels_modified_methods_dict['modified'].items():
-                    if minimize and key not in actual_ofed_mothods_modified:
+                for func in kernels_modified_methods_dict.keys():
+                # for key, value in kernels_modified_methods_dict['modified'].items():
+                    if minimize and func not in actual_ofed_functions_modified:
                         continue
                     overall += 1
-                    # print(f"key: {key}, value: {value}")
-                    src_path = f"{src_kernel_path}/{value['location']}"
-                    if not os.path.exists(src_path):
-                        logger.warn(f"SRC: FIle not exist: {src_path}")
+                    if kernels_modified_methods_dict[func]['Status']== 'Remove':
+                        ret_diff_stats[func] = Comperator.get_functions_diff_stats(src_func, dst_func,
+                                                                                   func, True)
                     else:
-                        src_func = extract_method_from_file(src_path, key)
-                    # print(src_func)
-                        if src_func is None:
-                            logger.warn(f"SRC: Failed to find {key} in file {src_kernel_path}/{value['location']}")
-                    dst_path = f"{dst_kernel_path}/{value['location']}"
-                    if not os.path.exists(dst_path):
-                        logger.warn(f"DST: FIle not exist: {dst_path}")
-                    else:
-                        dest_func = extract_method_from_file(f"{dst_kernel_path}/{value['location']}", key)
-                    # print(dest_func)
-                        if dest_func is None:
-                            logger.warn(f"DST: Failed to find {key} in file {dst_kernel_path}/{value['location']}")
-                    if dest_func is None or src_func is None:
-                        continue
-                    ret_diff_stats[key] = Comperator.get_functions_diff_stats(src_func, dest_func, key, False)
-                    able_to_process += 1
-                for key in kernels_modified_methods_dict['deleted'].keys():
-                    if minimize and key not in actual_ofed_mothods_modified:
-                        continue
-                    if 'High risk' not in ret_diff_stats.keys():
-                        ret_diff_stats['High risk'] = []
-                    ret_diff_stats['High risk'].append(key)
+                        func_location = kernels_modified_methods_dict[func]['Location']
+                        func_status = kernels_modified_methods_dict[func]['Status']
 
-                # if minimize:
-                #     overall = len(actual_ofed_mothods_modified)
-                # else:
-                #     overall = len(kernels_modified_methods_dict['modified'].keys())
-                # able_to_process = len(ret_diff_stats.keys())
+                        src_func = extract_function(src_kernel_path, func_location, func, "SRC")
+                        dst_func = extract_function(dst_kernel_path, func_location, func, "DST")
+                        if src_func is None or dst_func is None:
+                            continue
+                        ret_diff_stats[func] = Comperator.get_functions_diff_stats(src_func, dst_func,
+                                                                                   func, False)
+                        actual_process += 1
+
                 save_to_json(ret_diff_stats, output_file)
                 logger.info(f"overall functions: {overall}")
-                logger.info(f"able to process functions: {able_to_process}")
-                logger.info(f"success rate {able_to_process/overall*100}%")
+                logger.info(f"able to process functions: {actual_process}")
+                logger.info(f"success rate {actual_process/overall*100}% - [{actual_process}/{overall}]")
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
