@@ -7,8 +7,7 @@ from pprint import pprint
 
 from colorlog import ColoredFormatter
 
-from Comperator.Comperator import Comperator
-from Comperator.comperator_helpers import extract_method_from_file
+from Comperator.Comperator import Comperator, extract_method_from_file
 from analyzer.Analyzer import Analyzer
 from utils.setting_utils import LOGGER_LOC, get_logger
 from verifier.verifer_arg import *

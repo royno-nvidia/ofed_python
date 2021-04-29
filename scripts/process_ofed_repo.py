@@ -7,8 +7,7 @@ from pprint import pprint
 from colorlog import ColoredFormatter
 
 from Comperator.Comperator import Comperator
-from repo_processor.Processor import Processor
-from repo_processor.processor_helpers import save_to_json
+from repo_processor.Processor import Processor, save_to_json
 from utils.setting_utils import get_logger
 from verifier.verifer_arg import *
 

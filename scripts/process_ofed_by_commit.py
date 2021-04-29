@@ -1,15 +1,12 @@
 import argparse
 import datetime
-import logging
 import time
 from pprint import pprint
 
-from colorlog import ColoredFormatter
 
 from Comperator.Comperator import Comperator
-from repo_processor.Processor import Processor
-from repo_processor.processor_helpers import save_to_json
-from utils.setting_utils import get_logger
+from repo_processor.Processor import Processor, save_to_json
+from utils.setting_utils import *
 from verifier.verifer_arg import *
 
 logger = get_logger('Processor', 'Processor.log')

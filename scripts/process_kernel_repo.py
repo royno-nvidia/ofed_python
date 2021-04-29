@@ -2,8 +2,7 @@ import argparse
 import datetime
 import time
 
-from repo_processor.Processor import Processor
-from repo_processor.processor_helpers import save_to_json
+from repo_processor.Processor import Processor, save_to_json
 from verifier.verifer_arg import *
 
 logger = get_logger('Processor', 'Processor.log')
