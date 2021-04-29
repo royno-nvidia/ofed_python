@@ -45,12 +45,14 @@ def get_actual_ofed_info(ofed_json):
 
 
 def extract_function(kernel_path, func_location, func, prefix):
-    ext_func = ""
+    ext_func = ''
     fpath = f"{kernel_path}/{func_location}"
     if not os.path.exists(fpath):
-        logger.warn(f"{prefix}: FIle not exist: {fpath}")
+        logger.warn(f"{prefix}: FIle not exist: {fpath} - miss info for {func}")
+        return None
     else:
         ext_func = extract_method_from_file(fpath, func)
-        if ext_func is None:
+        if ext_func == '':
             logger.warn(f"{prefix}: Failed to find {func} in file {fpath}")
+            return None
     return ext_func

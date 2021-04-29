@@ -17,13 +17,11 @@ def colored_condition_column(workbook, worksheet, col: chr, col_len: int):
     :param worksheet: xlsxwriter worksheet
     :param col: Excel col char (e.g 'A','B'..)
     :param col_len: number of rows in col
-    :param red_zone: number which above it row will be colored in red
-    :param green_zone: number which below it row will be colored in green
     :return:
     """
     # formatting
-    red_format = workbook.add_format({'bg_color': '#FFC7CE',
-                                      'font_color': '#FFC7CE'})
+    red_format = workbook.add_format({'bg_color': '#FF0000',
+                                      'font_color': '#FF0000'})
     yellow_format = workbook.add_format({'bg_color': '#FFEB9C',
                                          'font_color': '#FFEB9C'})
     green_format = workbook.add_format({'bg_color': '#C6EFCE',

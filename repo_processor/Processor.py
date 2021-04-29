@@ -160,7 +160,7 @@ class Processor(object):
                         logger.debug(f"self._results[{method.name}] = {self._results[method.name]}")
                     for deleted in delete_methods_in_file:
                         self._results[deleted] = {
-                            'location': mod_file_path,
+                            'Location': mod_file_path,
                             'Status': 'Delete'
                         }
                         logger.debug(f"self._results[{deleted}] = {self._results[deleted]}")
@@ -202,7 +202,6 @@ class Processor(object):
                 csubj = ofed_commit.info['subject']
                 ccid = ofed_commit.info['Change-Id']
                 cauthor = ofed_commit.commit.author.name
-
                 cfeature = ofed_commit.info['feature']
 
                 commit_info_dict = {
@@ -225,17 +224,16 @@ class Processor(object):
                     mod_file_path = mod.new_path
                     # iterate all modifications in commit
                     if len(mod.changed_methods) > 0:
-                        if block_ofed_only:
-                            # ofed repo commits are setting the base code so methods added
-                            # in those commits not ofed only but kernel methods!
-                            added_methods_in_commit = []
-                        else:
-                            methods_before_commit = [meth.name for meth in mod.methods_before]
-                            methods_after_commit = [meth.name for meth in mod.methods]
-                            added_methods_in_commit = list(set(methods_after_commit) - set(methods_before_commit))
-                            # sets algebra, methods after\methods before = method added by commit
+                        # if block_ofed_only:
+                        #     # ofed repo commits are setting the base code so methods added
+                        #     # in those commits not ofed only but kernel methods!
+                        #     added_methods_in_commit = []
+                        # else:
+                        methods_before_commit = [meth.name for meth in mod.methods_before]
+                        methods_after_commit = [meth.name for meth in mod.methods]
+                        added_methods_in_commit = list(set(methods_after_commit) - set(methods_before_commit))
+                        # sets algebra, methods after\methods before = method added by commit
 
-                        logger.debug('methods changed:')
                         for method in mod.changed_methods:
                             # add all changed methods to dict
                             commit_methods_info[method.name] = {
@@ -253,8 +251,8 @@ class Processor(object):
                         logger.debug(f'nothing to do in {ofed_commit.commit.hash}, file {mod.filename}')
                 commit_info_dict['Functions'] = commit_methods_info
                 all_tree_info.append(commit_info_dict)
-                if "Set base code to" in ofed_commit.commit.msg:
-                    block_ofed_only = False
+                # if "Set base code to" in ofed_commit.commit.msg:
+                #     block_ofed_only = False
             self._results = verify_added_functions_status(all_tree_info, ofed_only_set)
             save_to_json(self._results)
         except Exception as e:
