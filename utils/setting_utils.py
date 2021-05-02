@@ -41,6 +41,7 @@ def enum_risk_to_string(risk: RiskLevel):
 LOGGER_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/loggers/"
 JSON_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/jsons/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
+EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 
 
 

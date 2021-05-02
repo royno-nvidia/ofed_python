@@ -463,7 +463,8 @@ class Processor(object):
                     logger.warn(f"Unable to extract {func} from {location}")
                     continue
                 actual += 1
-                extracted_functions[func] = src_func
+                extracted_functions[func] = {}
+                extracted_functions[func]['View'] = src_func
         try:
             save_to_json(extracted_functions, output)
             logger.info(f"Process rate: {actual}/{overall} = {(actual/overall)*100}%")

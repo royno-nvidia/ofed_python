@@ -160,7 +160,7 @@ class Comperator(object):
         if is_removed:
             # In high risk - function cant be found over DST file (removed)
             # so we don't have stats
-            diff_stats_dict = {'Diff': 'NA',
+            diff_stats_dict = {'View': 'NA',
                                'Stats': {
                                     'Risk': 'High',
                                     'Removed': True,
@@ -178,7 +178,7 @@ class Comperator(object):
             return diff_stats_dict
 
         if risk == RiskLevel.No:
-            diff_stats_dict = {'Diff': 'NA',
+            diff_stats_dict = {'View': 'NA',
                                'Stats': {
                                    'Risk': 'No Risk',
                                    'Removed': False,
@@ -199,7 +199,7 @@ class Comperator(object):
         new_func = get_func_stats(func_b)
         diff_stats = get_diff_stats(old_func['Splited'], new_func['Splited'], func_name)
 
-        diff_stats_dict = {'Diff': diff_stats['Diff'],
+        diff_stats_dict = {'View': diff_stats['Diff'],
                            'Stats': {
                                'Risk': enum_risk_to_string(get_function_risk(is_removed, diff_stats['API'], diff_stats['Ctx'])),
                                'Removed': is_removed,

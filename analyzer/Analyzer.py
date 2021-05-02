@@ -62,15 +62,15 @@ def colored_condition_row(workbook, worksheet, col: chr, col_len: int):
 def create_diff_file_and_link(method_name: str, info_dict: str, directory: str):
     if method_name not in info_dict.keys():
         return 'NA'
-    if info_dict[method_name]['Diff'] == 'NA':
+    if info_dict[method_name]['View'] == 'NA':
         return 'NA'
-    method_diff = info_dict[method_name]['Diff']
+    method_diff = info_dict[method_name]['View']
     filename = f'{directory}/{method_name}.diff'
     if not os.path.isfile(filename):
         with open(filename, 'w') as handle:
             for line in method_diff:
                 handle.write(line+'\n')
-    hyperlink = f'=HYPERLINK("{os.path.basename(directory)}\{method_name}.diff","See Diff")'
+    hyperlink = f'=HYPERLINK("{os.path.basename(directory)}\{method_name}.diff","View")'
     print(hyperlink)
     return hyperlink
 
@@ -140,7 +140,8 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict):
         })
     return main_res
 
-def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, dir_path):
+
+def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted, dir_path, ext_path):
     is_removed = False
     if func_name in kernel_dict.keys():
         status = kernel_dict[func_name]['Status']
@@ -149,6 +150,7 @@ def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, dir_path):
         "Hash": chash[:12],
         "Function": func_name,
         "Diff": create_diff_file_and_link(func_name, diff_dict, dir_path),
+        "Last OFED version": create_diff_file_and_link(func_name, extracted, ext_path),
         "Removed": True if is_removed else get_stat_or_none(func_name, diff_dict, 'Removed'),
         "Prototype changed": get_stat_or_none(func_name, diff_dict, 'Prototype changed'),
         "Content changed": get_stat_or_none(func_name, diff_dict, 'Content changed'),
@@ -163,14 +165,19 @@ def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, dir_path):
     return ret_stats
 
 
-def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, dir_path):
-    feature_to_function = []
+def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted, dir_name):
+    dir_path = f"{EXCEL_LOC + dir_name}_diff"
+    os.mkdir(dir_path, 0o0755)
+    ext_path = f"{EXCEL_LOC + dir_name}_ext"
+    os.mkdir(ext_path, 0o0755)
+    commit_to_function = []
     for commit in ofed_list:
         for func in commit['Functions'].keys():
             if commit['Functions'][func]['Status'] == 'Add':
                 continue
-            feature_to_function.append(create_func_stats_line(func, commit['Hash'], diff_dict, kernel_dict, dir_path))
-    return feature_to_function
+            commit_to_function.append(create_func_stats_line(func, commit['Hash'], diff_dict, kernel_dict,
+                                                             extracted, dir_path, ext_path))
+    return commit_to_function
 
 
 
@@ -306,7 +313,7 @@ class Analyzer(object):
         return main_res, feature_to_function
 
     @staticmethod
-    def build_commit_dicts(kernel_json: str, ofed_json: str, diff_json: str, output: str):
+    def build_commit_dicts(kernel_json: str, ofed_json: str, diff_json: str, extracted_json: str, output: str):
         """
         Take processor Json's output and analyze result, build data for Excel display
         :return:
@@ -318,12 +325,12 @@ class Analyzer(object):
                 commit_list = json.load(o_file)
             with open(JSON_LOC + diff_json) as d_file:
                 diff_dict = json.load(d_file)
+            with open(JSON_LOC+extracted_json) as e_file:
+                extracted = json.load(e_file)
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
         main_res = create_main_dict(kernel_dict, commit_list, diff_dict)
-        dir_path = f"{EXCEL_LOC + output}"
-        os.mkdir(dir_path, 0o0755)
-        commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, kernel_dict, dir_path)
+        commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, kernel_dict, extracted, output)
         return main_res, commit_to_function
 
 

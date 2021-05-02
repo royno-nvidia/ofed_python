@@ -17,6 +17,8 @@ def parse_args():
                         help="Path for OFED Json with pre-rebase process results")
     parser.add_argument("-diff", type=str, default=None, required=True,
                         help="Path for kernel function diff with Comperator results")
+    parser.add_argument("-ofed_extracted_functions", type=str, default=None, required=True,
+                        help="Path for OFED extracted last version functions")
     parser.add_argument("-ofed_tag", type=str, default="", required=True,
                         help="OFED version tag processed")
     parser.add_argument("-kernel_start_tag", type=str, default="", required=True,
@@ -50,11 +52,12 @@ def main():
     file_list_verify.extend(args.kernel)
     file_list_verify.append(args.ofed)
     file_list_verify.append(args.diff)
+    file_list_verify.append(args.ofed_extracted_functions)
     if not checks_for_Analyzer(file_list_verify, args.output):
         logger.critical('Argument verify failed, exiting')
         exit(1)
     main_res, commit_to_function = Analyzer.build_commit_dicts(
-        args.kernel, args.ofed, args.diff, args.output)
+        args.kernel, args.ofed, args.diff, args.ofed_extracted_functions, args.output)
     Analyzer.create_colored_tree_excel(main_res, commit_to_function,
                                                 args.output, args.kernel_start_tag,
                                                 args.kernel_end_tag, args.ofed_tag)
