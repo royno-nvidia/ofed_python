@@ -104,18 +104,31 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict):
     for commit in ofed_list:
         commit_risk = 0
         for func in commit['Functions']:
+            # Added by OFED - not relevant
             if commit['Functions'][func]['Status'] == 'Add':
+                logger.debug(f'Ignore {func} - Added by OFED patch')
                 continue
+            # Able to process function - have info
             if func in diff_dict.keys():
+                logger.debug(f"{func} - Have info - risk {diff_dict[func]['Stats']['Risk']}")
                 commit_risk = max(commit_risk, string_to_enum(diff_dict[func]['Stats']['Risk']))
+            # Fail to process
             else:
+                # function changed between base codes
                 if func in kernel_dict.keys():
                     status = kernel_dict[func]['Status']
+                    # function removed from kernel - High risk
                     if status == 'Delete':
+                        logger.debug(f"{func} - Removed from kernel - risk High")
                         commit_risk = 3
+                    # function changed but not removed - Medium risk (worst case scenario) - missing change info
+                    else:
+                        logger.debug(f"{func} - Unable to process, missing info - risk Medium")
+                        commit_risk = 2
+                # function didn't changed between base codes
                 else:
                     commit_risk = max(commit_risk, 0)
-                    logger.warn(f'{func} - not in dicts, missing info (not changed?)')
+                    logger.debug(f"{func} - Not changed - No risk")
         main_res.append({
             "Hash": commit['Hash'][:12],
             "Subject": commit['Subject'],
