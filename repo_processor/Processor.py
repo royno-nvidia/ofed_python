@@ -307,7 +307,6 @@ class Processor(object):
                 # if "Set base code to" in ofed_commit.commit.msg:
                 #     block_ofed_only = False
             self._results = verify_added_functions_status(all_tree_info, ofed_only_set)
-            save_to_json(self._results)
         except Exception as e:
             logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
@@ -436,7 +435,8 @@ class Processor(object):
                 save_to_json(ret_diff_stats, output_file)
                 logger.info(f"overall functions: {overall}")
                 logger.info(f"able to process functions: {actual_process}")
-                logger.info(f"success rate {actual_process/overall*100}% - [{actual_process}/{overall}]")
+                if overall > 0:
+                    logger.info(f"success rate {actual_process/overall*100}% - [{actual_process}/{overall}]")
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
 
