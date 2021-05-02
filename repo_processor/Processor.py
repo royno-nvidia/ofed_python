@@ -415,9 +415,9 @@ class Processor(object):
                         continue
                     overall += 1
                     func_status = kernels_modified_methods_dict[func]['Status']
-                    if func_status == 'Remove':
+                    if func_status == 'Delete':
                         ret_diff_stats[func] = Comperator.get_functions_diff_stats(None, None,
-                                                                                   func, True, RiskLevel.High)
+                                                                                   func, True, HIGH)
                     else:
                         func_stats = get_function_statistics(kernels_modified_methods_dict, func,
                                                              src_kernel_path, dst_kernel_path)

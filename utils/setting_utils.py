@@ -1,41 +1,5 @@
 import logging
 from colorlog import ColoredFormatter
-from enum import Enum
-
-
-class Status(object):
-    SUCCESS = 0
-    FAIL = 1
-
-
-class RiskLevel(Enum):
-    No = 0
-    Low = 1
-    Medium = 2
-    High = 3
-
-
-def string_to_enum(risk: str):
-    if risk == 'No Risk':
-        return 0
-    if risk == 'Low':
-        return 1
-    if risk == 'Medium':
-        return 2
-    if risk == 'High':
-        return 3
-
-
-def enum_risk_to_string(risk: RiskLevel):
-    if risk == RiskLevel.No:
-        return 'No Risk'
-    if risk == RiskLevel.Low:
-        return 'Low'
-    if risk == RiskLevel.Medium:
-        return 'Medium'
-    if risk == RiskLevel.High:
-        return 'High'
-
 
 # DEFINES
 LOGGER_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/loggers/"
@@ -43,7 +7,38 @@ JSON_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/jsons/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 
+# RISK LEVELS
+HIGH = 3
+MEDIUM = 2
+LOW = 1
+NO = 0
 
+
+class Status(object):
+    SUCCESS = 0
+    FAIL = 1
+
+
+def string_to_enum(risk: str):
+    if risk == 'No Risk':
+        return NO
+    if risk == 'Low':
+        return LOW
+    if risk == 'Medium':
+        return MEDIUM
+    if risk == 'High':
+        return HIGH
+
+
+def risk_to_string(risk: int):
+    if risk == NO:
+        return 'No Risk'
+    if risk == LOW:
+        return 'Low'
+    if risk == MEDIUM:
+        return 'Medium'
+    if risk == HIGH:
+        return 'High'
 
 
 def get_logger(module_name, file_name):

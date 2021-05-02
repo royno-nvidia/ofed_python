@@ -58,13 +58,13 @@ def count_changes(diff) -> tuple:
 
 def get_function_risk(is_removed, prototype_changed, context_changed) -> str:
     if is_removed:
-        return RiskLevel.High
+        return HIGH
     elif prototype_changed:
-        return RiskLevel.Medium
+        return MEDIUM
     elif context_changed:
-        return RiskLevel.Low
+        return LOW
     else:
-        return RiskLevel.No
+        return NO
 
 
 def extract_method_from_file(filepath: str, func_name: str) -> str:
@@ -155,7 +155,7 @@ class Comperator(object):
 
     @staticmethod
     def get_functions_diff_stats(func_a: str, func_b: str, func_name: str,
-                                 is_removed: bool, risk: RiskLevel):
+                                 is_removed: bool, risk: int):
         diff_stats_dict = {}
         if is_removed:
             # In high risk - function cant be found over DST file (removed)
@@ -177,7 +177,7 @@ class Comperator(object):
                                }
             return diff_stats_dict
 
-        if risk == RiskLevel.No:
+        if risk == NO:
             diff_stats_dict = {'View': 'NA',
                                'Stats': {
                                    'Risk': 'No Risk',
@@ -201,7 +201,7 @@ class Comperator(object):
 
         diff_stats_dict = {'View': diff_stats['Diff'],
                            'Stats': {
-                               'Risk': enum_risk_to_string(get_function_risk(is_removed, diff_stats['API'], diff_stats['Ctx'])),
+                               'Risk': risk_to_string(get_function_risk(is_removed, diff_stats['API'], diff_stats['Ctx'])),
                                'Removed': is_removed,
                                'Prototype changed': diff_stats['API'],
                                'Content changed': diff_stats['Ctx'],
