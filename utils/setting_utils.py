@@ -43,6 +43,8 @@ JSON_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/jsons/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 
 
+
+
 def get_logger(module_name, file_name):
     """
     retuen logger instance for module

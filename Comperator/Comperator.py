@@ -113,8 +113,15 @@ def extract_method_from_file(filepath: str, func_name: str) -> str:
         logger.critical(f"Something went wrong: {e}")
 
 
+def make_readable_function(func):
+    if func is None:
+        return None
+    return func.replace('\t', '    ').splitlines(keepends=True)
+
+
 def get_func_stats(func):
-    splited = func.replace('\t', '    ').splitlines(keepends=True)
+    splited = make_readable_function(func)
+
     scopes = count_scopes(func)
     func_lines = len(splited)
     return {

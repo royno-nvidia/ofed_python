@@ -3,7 +3,7 @@ import json
 import os
 from pydriller import RepositoryMining
 
-from Comperator.Comperator import Comperator, extract_method_from_file
+from Comperator.Comperator import Comperator, extract_method_from_file, make_readable_function
 from ofed_classes.OfedRepository import OfedRepository
 from utils.setting_utils import *
 
@@ -411,7 +411,7 @@ class Processor(object):
             with open(JSON_LOC+kernels_json_path) as handle:
                 kernels_modified_methods_dict = json.load(handle)
                 for func in kernels_modified_methods_dict.keys():
-                # for key, value in kernels_modified_methods_dict['modified'].items():
+                    # for key, value in kernels_modified_methods_dict['modified'].items():
                     if func not in actual_ofed_functions_modified:
                         continue
                     overall += 1
@@ -439,3 +439,34 @@ class Processor(object):
                 logger.info(f"success rate {actual_process/overall*100}% - [{actual_process}/{overall}]")
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
+
+    @staticmethod
+    def extract_ofed_functions(src_ofed_path: str, ofed_json_path: str, output: str):
+        extracted_functions = {}
+        ofed_modified_dict = []
+        overall = 0
+        actual = 0
+        try:
+            with open(JSON_LOC+ofed_json_path) as handle:
+                ofed_modified_dict = json.load(handle)
+        except IOError as e:
+            logger.critical(f"failed to read json:\n{e}")
+        for commit in ofed_modified_dict:
+            for func, info in commit['Functions'].items():
+                overall += 1
+                if func in extracted_functions.keys():
+                    overall -= 1
+                    continue
+                location = info['Location']
+                src_func = make_readable_function(extract_function(src_ofed_path, location, func, "OFED"))
+                if src_func is None:
+                    logger.warn(f"Unable to extract {func} from {location}")
+                    continue
+                actual += 1
+                extracted_functions[func] = src_func
+        try:
+            save_to_json(extracted_functions, output)
+            logger.info(f"Process rate: {actual}/{overall} = {(actual/overall)*100}%")
+        except IOError as e:
+            logger.critical(f"Unable to save results to {output}:\n{e}")
+

@@ -27,7 +27,25 @@ def functions_diff_checks(args) -> bool:
         logger.critical(f'{JSON_LOC}{args.output} already exists, please change -output argument')
         return False
     if not os.path.isfile(f'{JSON_LOC}{args.ofed_methods_info}'):
-        logger.critical(f'Path {args.kernel_methods_info} is not a file')
+        logger.critical(f'Path {args.ofed_methods_info} is not a file')
+        return False
+    return True
+
+
+def extract_ofed_checks(args) -> bool:
+    """
+    Verify user arguments for 'pre_rebase_process.py' script
+    :param args: user input
+    :return:
+    """
+    if not is_git_repo(args.src):
+        logger.critical(f'Path {args.src} is not a git repo')
+        return False
+    if os.path.isfile(f'{JSON_LOC}{args.output}.json'):
+        logger.critical(f'{JSON_LOC}{args.output} already exists, please change -output argument')
+        return False
+    if not os.path.isfile(f'{JSON_LOC}{args.ofed_methods_info}'):
+        logger.critical(f'Path {args.ofed_methods_info} is not a file')
         return False
     return True
 
