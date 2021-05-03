@@ -184,6 +184,64 @@ def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted,
     return commit_to_function
 
 
+def sum_risk_commits(main_results):
+    res = [0, 0, 0, 0]
+    for commit in main_results:
+        res[commit['Risk Level']] += 1
+    return res
+
+
+def create_pie_chart(workbook, main_results):
+    headings = ['Levels', 'Number of commits']
+    risks = ['Low', 'Medium', 'High', 'Severe']
+
+    res = sum_risk_commits(main_results)
+    bold = workbook.add_format({'bold': 1})
+    chart_sheet = workbook.add_worksheet('Charts')
+    chart_sheet.write_row('A1', headings, bold)
+    chart_sheet.write_column('B1', res)
+    chart_sheet.write_column('A1', risks)
+    pie = workbook.add_chart({'type': 'pie'})
+    pie.add_series({
+        'name':       'Levels',
+        'categories': f'=Charts!$A$1:$A$4',
+        'values':     f'=Charts!$B$1:$B$4',
+        'points': [
+            {'fill': {'color': '#C6EFCE'}},
+            {'fill': {'color': '#FFEB9C'}},
+            {'fill': {'color': '#FFA500'}},
+            {'fill': {'color': '#FF0000'}},
+        ]
+    })
+    pie.set_title({'name': 'Commits Risk Division'})
+    pie.set_style(10)
+    chart_sheet.insert_chart('A2', pie, {'x_offset': 25, 'y_offset': 10})
+    return workbook
+
+
+def create_line_chatr(workbook, df_main):
+    line = workbook.add_chart({'type': 'line'})
+    line.add_series({
+        'name':       'Commit timeline risk',
+        'categories': f'=Tree!$A$3:$A${len(df_main.index)}',
+        'values':     f'=Tree!$C$3:$C${len(df_main.index)}',
+        'line':       {'none': True},
+        'marker': {'type': 'square',
+                   'size,': 2,
+                   'border': {'color': 'green'},
+                   'fill':   {'color': 'white'}
+                   },
+
+    })
+
+    line.set_title({'name': 'REABAE - Work Plane'})
+    line.set_x_axis({'name': 'Commit number'})
+    line.set_y_axis({'name': 'Risk'})
+    line.set_style(10)
+    chart_sheet = workbook.get_worksheet_by_name('Charts')
+    chart_sheet.insert_chart('A6', line, {'x_offset': 25, 'y_offset': 10})
+
+
 class Analyzer(object):
     def __init__(self):
         """
@@ -270,10 +328,10 @@ class Analyzer(object):
         df_main = pd.DataFrame(main_results[::-1])
         df_main.set_index('Hash')
         writer = pd.ExcelWriter(f"{EXCEL_LOC}{filename}/{filename}.xlsx", engine='xlsxwriter')
-        df_main.to_excel(writer, sheet_name='Analyzed_result', startrow=2, header=False, index=False)
+        df_main.to_excel(writer, sheet_name='Tree', startrow=2, header=False, index=False)
 
         workbook = writer.book
-        worksheet = writer.sheets['Analyzed_result']
+        worksheet = writer.sheets['Tree']
 
         title_format = workbook.add_format({
             'bold': True,
@@ -299,11 +357,18 @@ class Analyzer(object):
         dicts_list_from_modify = commit_to_function
         df_mod = pd.DataFrame(dicts_list_from_modify)
         df_mod.set_index('Hash')
-        df_mod.to_excel(writer, sheet_name='Feature function status', startrow=1, header=False, index=False)
-        worksheet_mod = writer.sheets['Feature function status']
+        df_mod.to_excel(writer, sheet_name='Functions to commits', startrow=1, header=False, index=False)
+        worksheet_mod = writer.sheets['Functions to commits']
         for col_num, value in enumerate(df_mod.columns.values):
             worksheet_mod.write(0, col_num, value, header_format)
 
+        # create chart_stock
+        # worksheet_chart = writer.sheets['Work plan charts']
+        # PIE chart
+        create_pie_chart(workbook, main_results)
+        # create_line_chatr(workbook, df_main)
+        
+        # save
         writer.save()
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
 

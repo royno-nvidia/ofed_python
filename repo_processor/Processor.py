@@ -64,8 +64,8 @@ def extract_function(kernel_path, func_location, func, prefix, with_backports):
 
 def get_function_statistics(kernels_dict, func_name, src_kernel_path, dst_kernel_path):
     func_location = kernels_dict[func_name]['Location']
-    src_func = extract_function(src_kernel_path, func_location, func_name, "SRC")
-    dst_func = extract_function(dst_kernel_path, func_location, func_name, "DST")
+    src_func = extract_function(src_kernel_path, func_location, func_name, "SRC", False)
+    dst_func = extract_function(dst_kernel_path, func_location, func_name, "DST", False)
     if src_func is None or dst_func is None:
         return None
     ret = Comperator.get_functions_diff_stats(src_func, dst_func,
