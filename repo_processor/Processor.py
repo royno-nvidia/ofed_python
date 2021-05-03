@@ -46,7 +46,7 @@ def get_actual_ofed_info(ofed_json):
         return actual_ofed_functions_modified
 
 
-def extract_function(kernel_path, func_location, func, prefix):
+def extract_function(kernel_path, func_location, func, prefix, with_backports):
     ext_func = ''
     fpath = f"{kernel_path}/{func_location}"
     if not os.path.exists(fpath):
@@ -441,7 +441,7 @@ class Processor(object):
             logger.critical(f"failed to read json:\n{e}")
 
     @staticmethod
-    def extract_ofed_functions(src_ofed_path: str, ofed_json_path: str, output: str):
+    def extract_ofed_functions(src_ofed_path: str, ofed_json_path: str, output: str, with_backports: bool):
         extracted_functions = {}
         ofed_modified_dict = []
         overall = 0
@@ -458,7 +458,7 @@ class Processor(object):
                     overall -= 1
                     continue
                 location = info['Location']
-                src_func = make_readable_function(extract_function(src_ofed_path, location, func, "OFED"))
+                src_func = make_readable_function(extract_function(src_ofed_path, location, func, "OFED", with_backports))
                 if src_func is None:
                     logger.warn(f"Unable to extract {func} from {location}")
                     continue

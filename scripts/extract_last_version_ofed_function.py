@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import subprocess
 import time
 from repo_processor.Processor import Processor
 from verifier.verifer_arg import *
@@ -33,6 +34,14 @@ def show_runtime(end_time, start_time):
     logger.info('-' * len(msg))
 
 
+def ofed_appliy_patches(src_path: str):
+    cwd = os.getcwd()
+    os.chdir(src_path)
+    logger.debug(f'inside {os.getcwd()}')
+    ret = subprocess.check_output(f'./ofed_scripts/ofed_patch.sh', shell=True)
+    os.chdir(cwd)
+    logger.debug(f'returned {os.getcwd()}')
+
 
 def main():
     start_time = time.time()
@@ -41,7 +50,10 @@ def main():
         logger.critical('Argument verify failed, exiting')
         exit(1)
 
-    Processor.extract_ofed_functions(args.src, args.ofed_methods_info, args.output)
+    Processor.extract_ofed_functions(args.src, args.ofed_methods_info, args.output, False)
+    # ofed_appliy_patches(args.src)
+    # Processor.extract_ofed_functions(args.src, args.ofed_methods_info, args.output, True)
+
     end_time = time.time()
     show_runtime(end_time, start_time)
 
