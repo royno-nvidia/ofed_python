@@ -81,7 +81,7 @@ def get_stat_or_none(method: str, info_dict :dict, stat: str):
         return ''
 
 
-def  get_kernel_status(method, rm_list, ch_list):
+def get_kernel_status(method, rm_list, ch_list):
     return "removed" if method in rm_list else "modified" if method in ch_list else "unchanged"
 
 
@@ -101,7 +101,7 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict):
     main_res = []
 
     for commit in ofed_list:
-        commit_risk = 0
+        commit_risk = LOW
         for func in commit['Functions']:
             # Added by OFED - not relevant
             if commit['Functions'][func]['Status'] == 'Add':
@@ -118,15 +118,14 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict):
                     status = kernel_dict[func]['Status']
                     # function removed from kernel - High risk
                     if status == 'Delete':
-                        logger.debug(f"{func} - Removed from kernel - risk High")
-                        commit_risk = 3
+                        logger.debug(f"{func} - Removed from kernel - risk Severe")
+                        commit_risk = SEVERE
                     # function changed but not removed - Medium risk (worst case scenario) - missing change info
                     else:
-                        logger.debug(f"{func} - Unable to process, missing info - risk Medium")
-                        commit_risk = 2
+                        logger.debug(f"{func} - Unable to process, missing info - risk High")
+                        commit_risk = HIGH
                 # function didn't changed between base codes
                 else:
-                    commit_risk = max(commit_risk, 0)
                     logger.debug(f"{func} - Not changed - No risk")
         main_res.append({
             "Hash": commit['Hash'][:12],
@@ -194,18 +193,17 @@ def sum_risk_commits(main_results):
 def create_pie_chart(workbook, main_results):
     headings = ['Levels', 'Number of commits']
     risks = ['Low', 'Medium', 'High', 'Severe']
-
     res = sum_risk_commits(main_results)
     bold = workbook.add_format({'bold': 1})
     chart_sheet = workbook.add_worksheet('Charts')
     chart_sheet.write_row('A1', headings, bold)
-    chart_sheet.write_column('B1', res)
-    chart_sheet.write_column('A1', risks)
+    chart_sheet.write_column('B2', res)
+    chart_sheet.write_column('A2', risks)
     pie = workbook.add_chart({'type': 'pie'})
     pie.add_series({
         'name':       'Levels',
-        'categories': f'=Charts!$A$1:$A$4',
-        'values':     f'=Charts!$B$1:$B$4',
+        'categories': f'=Charts!$A$2:$A$5',
+        'values':     f'=Charts!$B$2:$B$5',
         'points': [
             {'fill': {'color': '#C6EFCE'}},
             {'fill': {'color': '#FFEB9C'}},
@@ -215,7 +213,7 @@ def create_pie_chart(workbook, main_results):
     })
     pie.set_title({'name': 'Commits Risk Division'})
     pie.set_style(10)
-    chart_sheet.insert_chart('A2', pie, {'x_offset': 25, 'y_offset': 10})
+    chart_sheet.insert_chart('A1', pie, {'x_offset': 0, 'y_offset': 0})
     return workbook
 
 
@@ -367,7 +365,7 @@ class Analyzer(object):
         # PIE chart
         create_pie_chart(workbook, main_results)
         # create_line_chatr(workbook, df_main)
-        
+
         # save
         writer.save()
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
