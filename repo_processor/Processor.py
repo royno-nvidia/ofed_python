@@ -430,7 +430,7 @@ class Processor(object):
                     if mod not in kernels_modified_methods_dict.keys():
                         print(f'{mod}- handle no risk')
                         ret = Comperator.get_functions_diff_stats(None, None,
-                                                                  mod, False, RiskLevel.No)
+                                                                  mod, False, NO)
                         ret_diff_stats[mod] = ret
                 save_to_json(ret_diff_stats, output_file)
                 logger.info(f"overall functions: {overall}")
