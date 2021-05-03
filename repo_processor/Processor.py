@@ -54,6 +54,7 @@ def extract_function(kernel_path, func_location, func, prefix, with_backports):
         return None
     else:
         ext_func = extract_method_from_file(fpath, func)
+        ext_func = extract_method_from_file(fpath, func)
         if ext_func == '':
             logger.warn(f"{prefix}: Failed to find {func} in file {fpath}")
             return None
@@ -417,7 +418,7 @@ class Processor(object):
                     func_status = kernels_modified_methods_dict[func]['Status']
                     if func_status == 'Delete':
                         ret_diff_stats[func] = Comperator.get_functions_diff_stats(None, None,
-                                                                                   func, True, HIGH)
+                                                                                   func, True, SEVERE)
                     else:
                         func_stats = get_function_statistics(kernels_modified_methods_dict, func,
                                                              src_kernel_path, dst_kernel_path)
@@ -430,7 +431,7 @@ class Processor(object):
                     if mod not in kernels_modified_methods_dict.keys():
                         print(f'{mod}- handle no risk')
                         ret = Comperator.get_functions_diff_stats(None, None,
-                                                                  mod, False, NO)
+                                                                  mod, False, LOW)
                         ret_diff_stats[mod] = ret
                 save_to_json(ret_diff_stats, output_file)
                 logger.info(f"overall functions: {overall}")

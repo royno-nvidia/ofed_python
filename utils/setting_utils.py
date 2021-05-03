@@ -8,10 +8,10 @@ EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 
 # RISK LEVELS
-HIGH = 3
-MEDIUM = 2
-LOW = 1
-NO = 0
+SEVERE = 3
+HIGH = 2
+MEDIUM = 1
+LOW = 0
 
 
 class Status(object):
@@ -20,25 +20,26 @@ class Status(object):
 
 
 def string_to_enum(risk: str):
-    if risk == 'No Risk':
-        return NO
     if risk == 'Low':
         return LOW
     if risk == 'Medium':
         return MEDIUM
     if risk == 'High':
         return HIGH
+    if risk == 'Severe':
+        return SEVERE
 
 
 def risk_to_string(risk: int):
-    if risk == NO:
-        return 'No Risk'
     if risk == LOW:
         return 'Low'
     if risk == MEDIUM:
         return 'Medium'
     if risk == HIGH:
         return 'High'
+    if risk == SEVERE:
+        return 'Severe'
+
 
 
 def get_logger(module_name, file_name):

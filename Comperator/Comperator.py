@@ -58,13 +58,13 @@ def count_changes(diff) -> tuple:
 
 def get_function_risk(is_removed, prototype_changed, context_changed) -> str:
     if is_removed:
-        return HIGH
+        return SEVERE
     elif prototype_changed:
-        return MEDIUM
+        return HIGH
     elif context_changed:
-        return LOW
+        return MEDIUM
     else:
-        return NO
+        return LOW
 
 
 def extract_method_from_file(filepath: str, func_name: str) -> str:
@@ -162,7 +162,7 @@ class Comperator(object):
             # so we don't have stats
             diff_stats_dict = {'View': 'NA',
                                'Stats': {
-                                    'Risk': 'High',
+                                    'Risk': 'Severe',
                                     'Removed': True,
                                     'Prototype changed': 'NA',
                                     'Content changed': 'NA',
@@ -177,10 +177,10 @@ class Comperator(object):
                                }
             return diff_stats_dict
 
-        if risk == NO:
+        if risk == LOW:
             diff_stats_dict = {'View': 'NA',
                                'Stats': {
-                                   'Risk': 'No Risk',
+                                   'Risk': 'Low',
                                    'Removed': False,
                                    'Prototype changed': False,
                                    'Content changed': False,

@@ -34,11 +34,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3630">
-              <caret line="165" lean-forward="true" selection-start-line="165" selection-end-line="165" />
+            <state relative-caret-position="150">
+              <caret line="148" column="10" selection-start-line="148" selection-start-column="9" selection-end-line="148" selection-end-column="10" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -58,10 +58,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/extract_last_version_ofed_function.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="350">
+            <state relative-caret-position="746">
               <caret line="55" lean-forward="true" selection-start-line="55" selection-end-line="55" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
@@ -73,8 +73,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="55" column="32" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
+            <state relative-caret-position="1530">
+              <caret line="461" column="66" selection-start-line="461" selection-start-column="50" selection-end-line="461" selection-end-column="66" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -98,7 +98,7 @@
         <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="150">
-              <caret line="69" column="4" selection-start-line="69" selection-start-column="4" selection-end-line="69" selection-end-column="4" />
+              <caret line="62" column="19" selection-start-line="62" selection-start-column="15" selection-end-line="62" selection-end-column="19" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
               </folding>
@@ -109,8 +109,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="32" column="18" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="18" />
+            <state relative-caret-position="814">
+              <caret line="37" column="20" lean-forward="true" selection-start-line="37" selection-start-column="20" selection-end-line="37" selection-end-column="20" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -141,7 +141,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>mlx5_ib_create_flow</find>
       <find>------</find>
       <find>create_diff_file_and_link</find>
       <find>update_current_feature_methods</find>
@@ -168,9 +167,10 @@
       <find>ext_</find>
       <find>extract_function</find>
       <find>get_diff_stats</find>
-      <find>Diff</find>
       <find>save_to_json</find>
       <find>get_functions_diff_stats</find>
+      <find>Diff</find>
+      <find>HIGH</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -234,11 +234,11 @@
         <option value="$PROJECT_DIR$/scripts/process_ofed_repo.py" />
         <option value="$PROJECT_DIR$/verifier/verifer_arg.py" />
         <option value="$PROJECT_DIR$/scripts/show_risk_by_commit.py" />
-        <option value="$PROJECT_DIR$/utils/setting_utils.py" />
-        <option value="$PROJECT_DIR$/Comperator/Comperator.py" />
         <option value="$PROJECT_DIR$/analyzer/Analyzer.py" />
-        <option value="$PROJECT_DIR$/repo_processor/Processor.py" />
         <option value="$PROJECT_DIR$/scripts/extract_last_version_ofed_function.py" />
+        <option value="$PROJECT_DIR$/utils/setting_utils.py" />
+        <option value="$PROJECT_DIR$/repo_processor/Processor.py" />
+        <option value="$PROJECT_DIR$/Comperator/Comperator.py" />
       </list>
     </option>
   </component>
@@ -931,32 +931,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="32" column="18" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/create_function_diffs.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
           <caret line="53" column="30" selection-start-line="53" selection-start-column="30" selection-end-line="53" selection-end-column="30" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3630">
-          <caret line="165" lean-forward="true" selection-start-line="165" selection-end-line="165" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -978,12 +958,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
+    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="55" column="32" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
+        <state relative-caret-position="814">
+          <caret line="37" column="20" lean-forward="true" selection-start-line="37" selection-start-column="20" selection-end-line="37" selection-end-column="20" />
           <folding>
-            <element signature="e#0#29#0" expanded="true" />
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/extract_last_version_ofed_function.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="746">
+          <caret line="55" lean-forward="true" selection-start-line="55" selection-end-line="55" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -991,19 +981,29 @@
     <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
-          <caret line="69" column="4" selection-start-line="69" selection-start-column="4" selection-end-line="69" selection-end-column="4" />
+          <caret line="62" column="19" selection-start-line="62" selection-start-column="15" selection-end-line="62" selection-end-column="19" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/extract_last_version_ofed_function.py">
+    <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="55" lean-forward="true" selection-start-line="55" selection-end-line="55" />
+        <state relative-caret-position="1530">
+          <caret line="461" column="66" selection-start-line="461" selection-start-column="50" selection-end-line="461" selection-end-column="66" />
           <folding>
-            <element signature="e#0#15#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="148" column="10" selection-start-line="148" selection-start-column="9" selection-end-line="148" selection-end-column="10" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
