@@ -215,6 +215,9 @@ def create_pie_chart(workbook, main_results):
         'name':       'Levels',
         'categories': f'=Charts!$A$2:$A$5',
         'values':     f'=Charts!$B$2:$B$5',
+        'data_labels': {'value': True,
+                        'percentage': True,
+                        'separator': "\n"},
         'points': [
             {'fill': {'color': '#C6EFCE'}},
             {'fill': {'color': '#FFEB9C'}},
@@ -261,13 +264,13 @@ def chunkIt(seq, num):
 
     return out
 
-def create_color_timeline(main_results, workbook):
+def create_color_timeline(main_results, workbook, work_days):
     risks = []
     ROW = 17
     WIDTH = 0.5
     for commit in main_results:
         risks.append(commit['Risk Level'])
-    split_list = chunkIt(risks, 4)
+    split_list = chunkIt(risks, work_days)
     chart_sheet = workbook.get_worksheet_by_name('Charts')
     for li in split_list:
         for _ in range(5):
@@ -407,7 +410,7 @@ class Analyzer(object):
         # PIE chart
         create_pie_chart(workbook, main_results)
         # Create timeline
-        create_color_timeline(main_results, workbook)
+        create_color_timeline(main_results, workbook, WORK_DAYS)
         # create_line_chatr(workbook, df_main)
 
         # save
