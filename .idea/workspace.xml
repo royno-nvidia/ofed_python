@@ -8,7 +8,6 @@
       <change beforePath="$PROJECT_DIR$/analyzer/Analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/analyzer/Analyzer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repo_processor/Processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo_processor/Processor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/extract_last_version_ofed_function.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/extract_last_version_ofed_function.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/setting_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/setting_utils.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/venv/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -25,11 +24,20 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="117" column="26" selection-start-line="117" selection-start-column="20" selection-end-line="117" selection-end-column="26" />
+            <state relative-caret-position="241">
+              <caret line="273" column="25" selection-start-line="273" selection-start-column="25" selection-end-line="273" selection-end-column="25" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/xlsxwriter/worksheet.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="367">
+              <caret line="89" selection-start-line="89" selection-end-line="89" />
             </state>
           </provider>
         </entry>
@@ -109,8 +117,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="546">
-              <caret line="32" column="4" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="4" />
+            <state relative-caret-position="298">
+              <caret line="65" lean-forward="true" selection-start-line="65" selection-end-line="65" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -129,10 +137,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>create_diff_file_and_link</find>
-      <find>update_current_feature_methods</find>
-      <find>updated</find>
-      <find>ofed_only_set</find>
       <find>Remove</find>
       <find>רcommits processedl</find>
       <find>DST</find>
@@ -157,8 +161,12 @@
       <find>save_to_json</find>
       <find>get_functions_diff_stats</find>
       <find>create_main_sheet</find>
-      <find>Diff</find>
       <find>HIGH</find>
+      <find>main_results</find>
+      <find>get_work</find>
+      <find>Diff</find>
+      <find>colored_condition</find>
+      <find>colored_condition_cell</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -526,7 +534,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/show_risk_by_commit.py" />
-      <option name="PARAMETERS" value="-kernel  v5_6_rc2_To_v5_9_rc2.json -ofed ofed-5.1-2.6.2.json -diff diffs_ofed-5.1-2.6.2_2.json -ofed_tag ofed-5.1-2.6.2 -kernel_start_tag v5.6-rc2 -kernel_end_tag v5.9-rc2 -ofed_extracted_functions extraction_ofed-5.1-2.6.2.json -output ofed_5_1_2_prediction24" />
+      <option name="PARAMETERS" value="-kernel  v5_6_rc2_To_v5_9_rc2.json -ofed ofed-5.1-2.6.2.json -diff diffs_ofed-5.1-2.6.2_2.json -ofed_tag ofed-5.1-2.6.2 -kernel_start_tag v5.6-rc2 -kernel_end_tag v5.9-rc2 -ofed_extracted_functions extraction_ofed-5.1-2.6.2.json -output ofed_5_1_2_prediction31" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -620,6 +628,13 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/analyzer/Analyzer.py</url>
+          <line>18</line>
+          <option name="timeStamp" value="37" />
+        </line-breakpoint>
+      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -630,9 +645,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/jsons/kernel_v5.4_v5.11-rc6.json">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file:///usr/lib64/python3.6/pprint.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="337">
@@ -938,16 +950,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="546">
-          <caret line="32" column="4" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="462">
@@ -985,10 +987,27 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="298">
+          <caret line="65" lean-forward="true" selection-start-line="65" selection-end-line="65" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/xlsxwriter/worksheet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="367">
+          <caret line="89" selection-start-line="89" selection-end-line="89" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="117" column="26" selection-start-line="117" selection-start-column="20" selection-end-line="117" selection-end-column="26" />
+        <state relative-caret-position="241">
+          <caret line="273" column="25" selection-start-line="273" selection-start-column="25" selection-end-line="273" selection-end-column="25" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>

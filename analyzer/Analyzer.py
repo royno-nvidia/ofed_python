@@ -7,7 +7,7 @@ from utils.setting_utils import *
 logger = get_logger('Analyzer', 'Analyzer.log')
 
 
-def colored_condition_column(workbook, worksheet, col: chr, col_len: int):
+def colored_condition_cell(workbook, worksheet, col: chr, col_len: int, row: int, is_col: bool):
     """
     create 3 color condition in wanted col over worksheet
     :param workbook: xlsxlwriter workbook
@@ -16,6 +16,10 @@ def colored_condition_column(workbook, worksheet, col: chr, col_len: int):
     :param col_len: number of rows in col
     :return:
     """
+    if is_col:
+        place = f'{col}3:{col}{col_len + 2}'
+    else:
+        place = f'A{row}:GJG{row}'
     # formatting
     red_format = workbook.add_format({'bg_color': '#FF0000',
                                       'font_color': '#FF0000'})
@@ -25,26 +29,33 @@ def colored_condition_column(workbook, worksheet, col: chr, col_len: int):
                                         'font_color': '#C6EFCE'})
     orange_format = workbook.add_format({'bg_color': '#FFA500',
                                         'font_color': '#FFA500'})
-    worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+    white_format = workbook.add_format({'bg_color': '#FFFFFF',
+                                        'font_color': '#FFFFFF'})
+    worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
                                   'value': 0,
                                   'format': green_format})
-    worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+    worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
                                   'value': 1,
                                   'format': yellow_format})
-    worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+    worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
                                   'value': 2,
                                   'format': orange_format})
-    worksheet.conditional_format(f'{col}3:{col}{col_len + 2}',
+    worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
                                   'value': 3,
                                   'format': red_format})
+    worksheet.conditional_format(place,
+                                 {'type': 'cell',
+                                  'criteria': '==',
+                                  'value': -1,
+                                  'format': white_format})
 
 
 def colored_condition_row(workbook, worksheet, col: chr, col_len: int):
@@ -239,6 +250,36 @@ def create_line_chatr(workbook, df_main):
     chart_sheet = workbook.get_worksheet_by_name('Charts')
     chart_sheet.insert_chart('A6', line, {'x_offset': 25, 'y_offset': 10})
 
+def chunkIt(seq, num):
+    avg = len(seq) / float(num)
+    out = []
+    last = 0.0
+
+    while last < len(seq):
+        out.append(seq[int(last):int(last + avg)])
+        last += avg
+
+    return out
+
+def create_color_timeline(main_results, workbook):
+    risks = []
+    ROW = 17
+    WIDTH = 0.5
+    for commit in main_results:
+        risks.append(commit['Risk Level'])
+    split_list = chunkIt(risks, 4)
+    chart_sheet = workbook.get_worksheet_by_name('Charts')
+    for li in split_list:
+        for _ in range(5):
+            li.append(-1)
+        chart_sheet.write_row(f'A{ROW}', li)
+        chart_sheet.set_column(0, len(li) + 1, WIDTH)
+        colored_condition_cell(workbook, chart_sheet, '', 0, ROW, False)
+        ROW += 2
+
+
+
+
 
 class Analyzer(object):
     def __init__(self):
@@ -350,7 +391,7 @@ class Analyzer(object):
             worksheet.write(1, col_num, value, header_format)
 
         # apply conditions for modification
-        colored_condition_column(workbook, worksheet, 'C', len(df_main.index))
+        colored_condition_cell(workbook, worksheet, 'C', len(df_main.index), 0, True)
 
         dicts_list_from_modify = commit_to_function
         df_mod = pd.DataFrame(dicts_list_from_modify)
@@ -360,10 +401,13 @@ class Analyzer(object):
         for col_num, value in enumerate(df_mod.columns.values):
             worksheet_mod.write(0, col_num, value, header_format)
 
+
         # create chart_stock
         # worksheet_chart = writer.sheets['Work plan charts']
         # PIE chart
         create_pie_chart(workbook, main_results)
+        # Create timeline
+        create_color_timeline(main_results, workbook)
         # create_line_chatr(workbook, df_main)
 
         # save
