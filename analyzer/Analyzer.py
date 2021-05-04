@@ -19,7 +19,7 @@ def colored_condition_cell(workbook, worksheet, col: chr, col_len: int, row: int
     if is_col:
         place = f'{col}3:{col}{col_len + 2}'
     else:
-        place = f'A{row}:GJG{row}'
+        place = f'A{row}:{col}{row}'
     # formatting
     red_format = workbook.add_format({'bg_color': '#FF0000',
                                       'font_color': '#FF0000'})
@@ -264,21 +264,39 @@ def chunkIt(seq, num):
 
     return out
 
+
+def get_max_length(split_list):
+    return max([len(li) for li in split_list])
+
+
+def colnum_string(n):
+    string = ""
+    while n > 0:
+        n, remainder = divmod(n - 1, 26)
+        string = chr(65 + remainder) + string
+    return string
+
 def create_color_timeline(main_results, workbook, work_days):
     risks = []
-    ROW = 17
-    WIDTH = 0.5
     for commit in main_results:
         risks.append(commit['Risk Level'])
     split_list = chunkIt(risks, work_days)
+    max_length = get_max_length(split_list)
+    # col = colnum_string(max_length + 1)
     chart_sheet = workbook.get_worksheet_by_name('Charts')
+    chart_sheet.set_column(1, max_length + 1, WIDTH)
+    ROW = 17
+    end_commit = 0
+    day = 1
     for li in split_list:
-        for _ in range(5):
-            li.append(-1)
+        start_commit = end_commit + 1
+        end_commit = start_commit + len(li) - 1
+        li.insert(0, f'Day {day}: commits {start_commit}-{end_commit}')
         chart_sheet.write_row(f'A{ROW}', li)
-        chart_sheet.set_column(0, len(li) + 1, WIDTH)
-        colored_condition_cell(workbook, chart_sheet, '', 0, ROW, False)
-        ROW += 2
+        col = colnum_string(len(li) + 1)
+        colored_condition_cell(workbook, chart_sheet, col, 0, ROW, False)
+        ROW += TWO
+        day += 1
 
 
 

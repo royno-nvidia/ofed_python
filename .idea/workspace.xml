@@ -25,10 +25,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="216" column="43" selection-start-line="216" selection-start-column="43" selection-end-line="216" selection-end-column="43" />
+            <state relative-caret-position="380">
+              <caret line="297" column="18" lean-forward="true" selection-start-line="297" selection-start-column="18" selection-end-line="297" selection-end-column="18" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
+                <element signature="e#18172#20654#0" />
+                <element signature="e#16047#16062#0" />
               </folding>
             </state>
           </provider>
@@ -97,8 +99,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="462">
-              <caret line="66" column="18" selection-start-line="66" selection-start-column="15" selection-end-line="66" selection-end-column="18" />
+            <state relative-caret-position="220">
+              <caret line="73" column="44" selection-start-line="73" selection-start-column="44" selection-end-line="73" selection-end-column="44" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
               </folding>
@@ -109,8 +111,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1088">
-              <caret line="3" column="9" lean-forward="true" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
+            <state relative-caret-position="132">
+              <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -152,13 +154,13 @@
       <find>save_to_json</find>
       <find>get_functions_diff_stats</find>
       <find>create_main_sheet</find>
-      <find>HIGH</find>
       <find>main_results</find>
       <find>get_work</find>
       <find>colored_condition</find>
       <find>colored_condition_cell</find>
-      <find>create_color_timeline</find>
       <find>Diff</find>
+      <find>create_color_timeline</find>
+      <find>HIGH</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -526,7 +528,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/show_risk_by_commit.py" />
-      <option name="PARAMETERS" value="-kernel  v5_6_rc2_To_v5_9_rc2.json -ofed ofed-5.1-2.6.2.json -diff diffs_ofed-5.1-2.6.2_2.json -ofed_tag ofed-5.1-2.6.2 -kernel_start_tag v5.6-rc2 -kernel_end_tag v5.9-rc2 -ofed_extracted_functions extraction_ofed-5.1-2.6.2.json -output ofed_5_1_2_prediction33" />
+      <option name="PARAMETERS" value="-kernel  v5_6_rc2_To_v5_9_rc2.json -ofed ofed-5.1-2.6.2.json -diff diffs_ofed-5.1-2.6.2_2.json -ofed_tag ofed-5.1-2.6.2 -kernel_start_tag v5.6-rc2 -kernel_end_tag v5.9-rc2 -ofed_extracted_functions extraction_ofed-5.1-2.6.2.json -output ofed_5_1_2_prediction53" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -584,14 +586,14 @@
       <window_info id="Favorites" order="2" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32941177" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49841937" visible="true" weight="0.428877" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49789253" visible="true" weight="0.428877" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3989305" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32969433" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32969433" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32834226" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5015806" side_tool="true" weight="0.35080215" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5021075" side_tool="true" weight="0.428877" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.32941177" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -622,8 +624,8 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/analyzer/Analyzer.py</url>
-          <line>18</line>
-          <option name="timeStamp" value="37" />
+          <line>284</line>
+          <option name="timeStamp" value="39" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -941,16 +943,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="66" column="18" selection-start-line="66" selection-start-column="15" selection-end-line="66" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/xlsxwriter/workbook.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="169">
@@ -987,20 +979,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1088">
-          <caret line="3" column="9" lean-forward="true" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
+        <state relative-caret-position="132">
+          <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="73" column="44" selection-start-line="73" selection-start-column="44" selection-end-line="73" selection-end-column="44" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="216" column="43" selection-start-line="216" selection-start-column="43" selection-end-line="216" selection-end-column="43" />
+        <state relative-caret-position="380">
+          <caret line="297" column="18" lean-forward="true" selection-start-line="297" selection-start-column="18" selection-end-line="297" selection-end-column="18" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
+            <element signature="e#18172#20654#0" />
+            <element signature="e#16047#16062#0" />
           </folding>
         </state>
       </provider>

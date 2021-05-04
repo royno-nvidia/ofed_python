@@ -2,7 +2,9 @@ import logging
 from colorlog import ColoredFormatter
 
 # DEFINES
-WORK_DAYS = 11
+WORK_DAYS = 14
+WIDTH = 0.5
+TWO = 2
 LOGGER_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/loggers/"
 JSON_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/jsons/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
