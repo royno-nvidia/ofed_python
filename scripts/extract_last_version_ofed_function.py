@@ -34,13 +34,7 @@ def show_runtime(end_time, start_time):
     logger.info('-' * len(msg))
 
 
-def ofed_appliy_patches(src_path: str):
-    cwd = os.getcwd()
-    os.chdir(src_path)
-    logger.debug(f'inside {os.getcwd()}')
-    ret = subprocess.check_output(f'./ofed_scripts/ofed_patch.sh', shell=True)
-    os.chdir(cwd)
-    logger.debug(f'returned {os.getcwd()}')
+
 
 
 def main():

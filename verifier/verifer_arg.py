@@ -87,8 +87,8 @@ def checks_for_Analyzer(loc_list: list, output: str):
     if os.path.isfile(EXCEL_LOC+output+'.xlsx'):
         logger.critical(f'Path {JSON_LOC}/{output}.xlsx already exists\nPlease use another -output argument')
         return False
-    for path in loc_list:
-        if not os.path.isfile(f'{JSON_LOC}/{path}'):
-            logger.critical(f'Path {JSON_LOC}/{path} is not a File')
-            return False
+    # for path in loc_list:
+    #     if not os.path.isfile(f'{JSON_LOC}/{path}'):
+    #         logger.critical(f'Path {JSON_LOC}/{path} is not a File')
+    #         return False
     return True

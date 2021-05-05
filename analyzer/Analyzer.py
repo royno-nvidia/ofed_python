@@ -2,6 +2,8 @@ from datetime import datetime
 import json
 import pandas as pd
 import os
+
+from repo_processor.Processor import save_to_json
 from utils.setting_utils import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -110,7 +112,6 @@ def post_update_excel_dict(iter_list: list, res_dict: dict, feature: str, rm_lis
 
 def create_main_dict(kernel_dict, ofed_list, diff_dict):
     main_res = []
-
     for commit in ofed_list:
         commit_risk = LOW
         for func in commit['Functions']:
@@ -150,18 +151,14 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict):
     return main_res
 
 
-def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted, dir_path, ext_path):
-    is_removed = False
-    if func_name in kernel_dict.keys():
-        status = kernel_dict[func_name]['Status']
-        is_removed = (status == 'Delete')
+def get_info_from_diff(func_name, chash, diff_dict, dir_path, extracted, ext_path):
     ret_stats = {
         "Hash": chash[:12],
         "Function": func_name,
         "Diff": create_diff_file_and_link(func_name, diff_dict, dir_path),
         "Last OFED version": create_diff_file_and_link(func_name, extracted, ext_path),
         "Risk level": get_stat_or_none(func_name, diff_dict, 'Risk'),
-        "Removed": True if is_removed else get_stat_or_none(func_name, diff_dict, 'Removed'),
+        "Removed": get_stat_or_none(func_name, diff_dict, 'Removed'),
         "Prototype changed": get_stat_or_none(func_name, diff_dict, 'Prototype changed'),
         "Content changed": get_stat_or_none(func_name, diff_dict, 'Content changed'),
         "Old function size": get_stat_or_none(func_name, diff_dict, 'Old function size'),
@@ -173,6 +170,55 @@ def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted, 
         "New function scope": get_stat_or_none(func_name, diff_dict, 'New function scope')
     }
     return ret_stats
+
+
+def create_with_missing_info(func_name, chash, diff_dict, dir_path, extracted, ext_path, risk):
+    ret_stats = {
+        "Hash": chash[:12],
+        "Function": func_name,
+        "Diff": create_diff_file_and_link(func_name, diff_dict, dir_path),
+        "Last OFED version": create_diff_file_and_link(func_name, extracted, ext_path),
+        "Risk level": risk_to_string(risk),
+        "Removed": risk_to_string(risk) == 'Severe',
+        "Prototype changed": get_stat_or_none(func_name, diff_dict, 'Prototype changed'),
+        "Content changed": get_stat_or_none(func_name, diff_dict, 'Content changed'),
+        "Old function size": get_stat_or_none(func_name, diff_dict, 'Old function size'),
+        "New function size": get_stat_or_none(func_name, diff_dict, 'New function size'),
+        "Old function unique lines": get_stat_or_none(func_name, diff_dict, 'Old function unique lines'),
+        "New function unique lines": get_stat_or_none(func_name, diff_dict, 'New function unique lines'),
+        "Lines unchanged": get_stat_or_none(func_name, diff_dict, 'Lines unchanged'),
+        "Old function scope": get_stat_or_none(func_name, diff_dict, 'Old function scope'),
+        "New function scope": get_stat_or_none(func_name, diff_dict, 'New function scope')
+    }
+    return ret_stats
+
+
+def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted, dir_path, ext_path):
+    # Got info about function
+    if func_name in diff_dict.keys():
+        ret = get_info_from_diff(func_name, chash, diff_dict, dir_path, extracted, ext_path)
+        return ret
+    # Missing info
+    else:
+        # Known as modified
+        if func_name in kernel_dict.keys():
+            status = kernel_dict[func_name]['Status']
+            # removed
+            if status == 'Delete':
+                ret = create_with_missing_info(func_name, chash, diff_dict, dir_path,
+                                               extracted, ext_path, SEVERE)
+                return ret
+            # missing modification info
+            else:
+                ret = create_with_missing_info(func_name, chash, diff_dict, dir_path,
+                                               extracted, ext_path, HIGH)
+                return ret
+        # Didn't changed
+        else:
+            ret = create_with_missing_info(func_name, chash, diff_dict, dir_path,
+                                           extracted, ext_path, LOW)
+            return ret
+
 
 
 def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted, dir_name):
@@ -276,18 +322,15 @@ def colnum_string(n):
         string = chr(65 + remainder) + string
     return string
 
-def create_color_timeline(main_results, workbook, work_days):
-    risks = []
-    for commit in main_results:
-        risks.append(commit['Risk Level'])
-    split_list = chunkIt(risks, work_days)
-    max_length = get_max_length(split_list)
-    # col = colnum_string(max_length + 1)
-    chart_sheet = workbook.get_worksheet_by_name('Charts')
-    chart_sheet.set_column(1, max_length + 1, WIDTH)
+
+def write_data_to_sheet(workbook, split_list):
     ROW = 17
     end_commit = 0
     day = 1
+
+    max_length = get_max_length(split_list)
+    chart_sheet = workbook.get_worksheet_by_name('Charts')
+    chart_sheet.set_column(1, max_length + 1, WIDTH)
     for li in split_list:
         start_commit = end_commit + 1
         end_commit = start_commit + len(li) - 1
@@ -299,7 +342,13 @@ def create_color_timeline(main_results, workbook, work_days):
         day += 1
 
 
-
+def create_color_timeline(main_results, workbook, work_days):
+    # risks = []
+    # for commit in main_results:
+    #     risks.append(commit['Risk Level'])
+    risks = [commit['Risk Level'] for commit in main_results]
+    split_list = chunkIt(risks, work_days)
+    write_data_to_sheet(workbook, split_list)
 
 
 class Analyzer(object):
@@ -369,8 +418,10 @@ class Analyzer(object):
                 extracted = json.load(e_file)
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
-        main_res = create_main_dict(kernel_dict, commit_list, diff_dict)
         commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, kernel_dict, extracted, output)
+        main_res = create_main_dict(kernel_dict, commit_list, diff_dict)
+        save_to_json(main_res, f'{output}_main_res')
+        save_to_json(commit_to_function, f'{output}_com_to_func')
         return main_res, commit_to_function
 
 

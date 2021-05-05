@@ -1,3 +1,4 @@
+import subprocess
 from datetime import datetime
 import json
 import os
@@ -9,6 +10,13 @@ from utils.setting_utils import *
 
 logger = get_logger('Processor', 'Processor.log')
 
+def ofed_appliy_patches(src_path: str):
+    cwd = os.getcwd()
+    os.chdir(src_path)
+    logger.debug(f'inside {os.getcwd()}')
+    ret = subprocess.check_output(f'./ofed_scripts/ofed_patch.sh', shell=True)
+    os.chdir(cwd)
+    logger.debug(f'returned {os.getcwd()}')
 
 def verify_added_functions_status(all_tree_info: list, ofed_only_set: set):
     for index in range(0, len(all_tree_info)):
@@ -33,6 +41,7 @@ def save_to_json(dict_for_saving, filename=None):
     with open(JSON_LOC + filename, 'w') as handle:
         json.dump(dict_for_saving, handle, indent=4)
     logger.info(f"Results saved in Json - '{JSON_LOC + filename}'")
+    return filename
 
 
 def get_actual_ofed_info(ofed_json):
@@ -47,13 +56,11 @@ def get_actual_ofed_info(ofed_json):
 
 
 def extract_function(kernel_path, func_location, func, prefix, with_backports):
-    ext_func = ''
     fpath = f"{kernel_path}/{func_location}"
     if not os.path.exists(fpath):
         logger.warn(f"{prefix}: FIle not exist: {fpath} - miss info for {func}")
         return None
     else:
-        ext_func = extract_method_from_file(fpath, func)
         ext_func = extract_method_from_file(fpath, func)
         if ext_func == '':
             logger.warn(f"{prefix}: Failed to find {func} in file {fpath}")
@@ -433,11 +440,12 @@ class Processor(object):
                         ret = Comperator.get_functions_diff_stats(None, None,
                                                                   mod, False, LOW)
                         ret_diff_stats[mod] = ret
-                save_to_json(ret_diff_stats, output_file)
+                loc = save_to_json(ret_diff_stats, f'{output_file}_diff')
                 logger.info(f"overall functions: {overall}")
                 logger.info(f"able to process functions: {actual_process}")
                 if overall > 0:
                     logger.info(f"success rate {actual_process/overall*100}% - [{actual_process}/{overall}]")
+                return loc
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
 
@@ -467,8 +475,10 @@ class Processor(object):
                 extracted_functions[func] = {}
                 extracted_functions[func]['View'] = src_func
         try:
-            save_to_json(extracted_functions, output)
+            postfix = '_back' if with_backports else '_ext'
+            loc = save_to_json(extracted_functions, f'{output}{postfix}')
             logger.info(f"Process rate: {actual}/{overall} = {(actual/overall)*100}%")
+            return loc
         except IOError as e:
             logger.critical(f"Unable to save results to {output}:\n{e}")
 

@@ -47,6 +47,10 @@ def main():
     if not checks_for_processor(args):
         logger.critical('Argument verify failed, exiting')
         exit(1)
+    Processor.get_kernels_methods_diffs(args.src, args.dst,
+                                        args.kernel_methods_info,
+                                        args.output,
+                                        args.ofed_methods_info)
     pr = Processor(args,args.path)
     pr.process()
     res = pr.results
