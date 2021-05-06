@@ -10,13 +10,15 @@ from utils.setting_utils import *
 
 logger = get_logger('Processor', 'Processor.log')
 
-def ofed_appliy_patches(src_path: str):
+
+def run_ofed_scripts(src_path: str, script: str):
     cwd = os.getcwd()
     os.chdir(src_path)
     logger.debug(f'inside {os.getcwd()}')
-    ret = subprocess.check_output(f'./ofed_scripts/ofed_patch.sh', shell=True)
+    ret = subprocess.check_output(f'./ofed_scripts/{script}', shell=True)
     os.chdir(cwd)
     logger.debug(f'returned {os.getcwd()}')
+
 
 def verify_added_functions_status(all_tree_info: list, ofed_only_set: set):
     for index in range(0, len(all_tree_info)):

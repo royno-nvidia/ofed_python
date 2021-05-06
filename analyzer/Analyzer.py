@@ -83,11 +83,10 @@ def create_diff_file_and_link(method_name: str, info_dict: str, directory: str):
             for line in method_diff:
                 handle.write(line+'\n')
     hyperlink = f'=HYPERLINK("{os.path.basename(directory)}\{method_name}.diff","View")'
-    print(hyperlink)
     return hyperlink
 
 
-def get_stat_or_none(method: str, info_dict :dict, stat: str):
+def get_stat_or_none(method: str, info_dict: dict, stat: str):
     if method in info_dict.keys() and info_dict[method]['Stats'][stat] != 'NA':
         return info_dict[method]['Stats'][stat]
     else:

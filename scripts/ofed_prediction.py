@@ -3,7 +3,7 @@ import argparse
 import datetime
 import time
 from analyzer.Analyzer import Analyzer
-from repo_processor.Processor import Processor, ofed_appliy_patches
+from repo_processor.Processor import Processor, run_ofed_scripts
 from verifier.verifer_arg import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -71,9 +71,10 @@ def main():
 
     # Get OFED function in version end
     ext_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, False)
-    ofed_appliy_patches(args.osrc)
-    #Get OFED function in version end with backports
+    run_ofed_scripts(args.osrc, 'ofed_patch.sh')
+    # Get OFED function in version end with backports
     back_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, True)
+    run_ofed_scripts(args.osrc, 'cleanup')
 
     # Excel data analyze
     main_res, commit_to_function = Analyzer.build_commit_dicts(
