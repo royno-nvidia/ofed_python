@@ -1,4 +1,6 @@
 import logging
+from datetime import datetime
+import json
 from colorlog import ColoredFormatter
 
 # DEFINES
@@ -67,3 +69,28 @@ def get_logger(module_name, file_name):
     return logger
 
 
+def save_to_json(dict_for_saving, filename=None):
+    """
+    Output process results into timestamp json file for future analyze
+    :return:
+    """
+    if filename is None:
+        time_stamp = datetime.timestamp(datetime.now())
+        filename = f'{str(time_stamp)}.json'
+    else:
+        if not filename.endswith('.json'):
+            filename = f"{filename}.json"
+    with open(JSON_LOC + filename, 'w') as handle:
+        json.dump(dict_for_saving, handle, indent=4)
+    print(f"Results saved in Json - '{JSON_LOC + filename}'")
+    return filename
+
+
+def open_json(json_name: str):
+    try:
+        path = JSON_LOC + json_name
+        with open(JSON_LOC + json_name) as j_file:
+            data = json.load(j_file)
+            return data
+    except IOError as e:
+        print(f"failed to read json - {path}:\n{e}")

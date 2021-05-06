@@ -3,7 +3,7 @@ import argparse
 import datetime
 import time
 from analyzer.Analyzer import Analyzer
-from repo_processor.Processor import Processor
+from repo_processor.Processor import Processor, ofed_appliy_patches
 from verifier.verifer_arg import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -71,13 +71,13 @@ def main():
 
     # Get OFED function in version end
     ext_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, False)
-    #ofed_appliy_patches(args.src)
-    # Get OFED function in version end with backports
-    # Processor.extract_ofed_functions(args.src, args.ofed_methods_info, args.output, True)
+    ofed_appliy_patches(args.osrc)
+    #Get OFED function in version end with backports
+    back_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, True)
 
     # Excel data analyze
     main_res, commit_to_function = Analyzer.build_commit_dicts(
-        args.kernel_json, args.ofed_json, diff_location, ext_loc, args.output)
+        args.kernel_json, args.ofed_json, diff_location, ext_loc, back_loc, args.output)
 
     # Excel workbook creation
     Analyzer.create_colored_tree_excel(main_res, commit_to_function,

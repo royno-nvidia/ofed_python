@@ -28,22 +28,6 @@ def verify_added_functions_status(all_tree_info: list, ofed_only_set: set):
     return all_tree_info
 
 
-def save_to_json(dict_for_saving, filename=None):
-    """
-    Output process results into timestamp json file for future analyze
-    :return:
-    """
-    if filename is None:
-        time_stamp = datetime.timestamp(datetime.now())
-        filename = str(time_stamp)
-    else:
-        filename = f"{filename}.json"
-    with open(JSON_LOC + filename, 'w') as handle:
-        json.dump(dict_for_saving, handle, indent=4)
-    logger.info(f"Results saved in Json - '{JSON_LOC + filename}'")
-    return filename
-
-
 def get_actual_ofed_info(ofed_json):
     with open(JSON_LOC + ofed_json) as handle:
         ofed_modified_methods_dict = json.load(handle)
@@ -451,6 +435,7 @@ class Processor(object):
 
     @staticmethod
     def extract_ofed_functions(src_ofed_path: str, ofed_json_path: str, output: str, with_backports: bool):
+        prefix = 'OFED backports' if with_backports else 'OFED'
         extracted_functions = {}
         ofed_modified_dict = []
         overall = 0
@@ -467,7 +452,7 @@ class Processor(object):
                     overall -= 1
                     continue
                 location = info['Location']
-                src_func = make_readable_function(extract_function(src_ofed_path, location, func, "OFED", with_backports))
+                src_func = make_readable_function(extract_function(src_ofed_path, location, func, prefix, with_backports))
                 if src_func is None:
                     logger.warn(f"Unable to extract {func} from {location}")
                     continue

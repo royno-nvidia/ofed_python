@@ -151,12 +151,13 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict):
     return main_res
 
 
-def get_info_from_diff(func_name, chash, diff_dict, dir_path, extracted, ext_path):
+def get_info_from_diff(func_name, chash, diff_dict, dir_path, extracted, ext_path, backports, back_path):
     ret_stats = {
         "Hash": chash[:12],
         "Function": func_name,
         "Diff": create_diff_file_and_link(func_name, diff_dict, dir_path),
         "Last OFED version": create_diff_file_and_link(func_name, extracted, ext_path),
+        "Last backports version": create_diff_file_and_link(func_name, backports, back_path),
         "Risk level": get_stat_or_none(func_name, diff_dict, 'Risk'),
         "Removed": get_stat_or_none(func_name, diff_dict, 'Removed'),
         "Prototype changed": get_stat_or_none(func_name, diff_dict, 'Prototype changed'),
@@ -172,12 +173,14 @@ def get_info_from_diff(func_name, chash, diff_dict, dir_path, extracted, ext_pat
     return ret_stats
 
 
-def create_with_missing_info(func_name, chash, diff_dict, dir_path, extracted, ext_path, risk):
+def create_with_missing_info(func_name, chash, diff_dict, dir_path, extracted, ext_path,
+                             backports, back_path, risk):
     ret_stats = {
         "Hash": chash[:12],
         "Function": func_name,
         "Diff": create_diff_file_and_link(func_name, diff_dict, dir_path),
         "Last OFED version": create_diff_file_and_link(func_name, extracted, ext_path),
+        "Last backports version": create_diff_file_and_link(func_name, backports, back_path),
         "Risk level": risk_to_string(risk),
         "Removed": risk_to_string(risk) == 'Severe',
         "Prototype changed": get_stat_or_none(func_name, diff_dict, 'Prototype changed'),
@@ -193,10 +196,11 @@ def create_with_missing_info(func_name, chash, diff_dict, dir_path, extracted, e
     return ret_stats
 
 
-def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted, dir_path, ext_path):
+def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted,
+                           dir_path, ext_path, backports, back_path):
     # Got info about function
     if func_name in diff_dict.keys():
-        ret = get_info_from_diff(func_name, chash, diff_dict, dir_path, extracted, ext_path)
+        ret = get_info_from_diff(func_name, chash, diff_dict, dir_path, extracted, ext_path, backports, back_path)
         return ret
     # Missing info
     else:
@@ -206,22 +210,22 @@ def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted, 
             # removed
             if status == 'Delete':
                 ret = create_with_missing_info(func_name, chash, diff_dict, dir_path,
-                                               extracted, ext_path, SEVERE)
+                                               extracted, ext_path, backports, back_path, SEVERE)
                 return ret
             # missing modification info
             else:
                 ret = create_with_missing_info(func_name, chash, diff_dict, dir_path,
-                                               extracted, ext_path, HIGH)
+                                               extracted, ext_path, backports, back_path, HIGH)
                 return ret
         # Didn't changed
         else:
             ret = create_with_missing_info(func_name, chash, diff_dict, dir_path,
-                                           extracted, ext_path, LOW)
+                                           extracted, ext_path, backports, back_path, LOW)
             return ret
 
 
 
-def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted, dir_name):
+def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted, backports, dir_name):
     root_path = f"{EXCEL_LOC + dir_name}"
     os.mkdir(root_path, 0o0755)
     dir_path = f"{root_path + '/' +dir_name}_diff"
@@ -236,7 +240,8 @@ def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted,
             if commit['Functions'][func]['Status'] == 'Add':
                 continue
             commit_to_function.append(create_func_stats_line(func, commit['Hash'], diff_dict, kernel_dict,
-                                                             extracted, dir_path, ext_path))
+                                                             extracted, dir_path, ext_path,
+                                                             backports, back_path))
     return commit_to_function
 
 
@@ -402,23 +407,19 @@ class Analyzer(object):
             json.dump(res_dict, handle, indent=4)
 
     @staticmethod
-    def build_commit_dicts(kernel_json: str, ofed_json: str, diff_json: str, extracted_json: str, output: str):
+    def build_commit_dicts(kernel_json: str, ofed_json: str, diff_json: str,
+                           extracted_json: str, backports_json: str, output: str):
         """
         Take processor Json's output and analyze result, build data for Excel display
         :return:
         """
         kernel_dict = Analyzer.combine_kernel_dicts(kernel_json)
-        commit_list = []
-        try:
-            with open(JSON_LOC + ofed_json) as o_file:
-                commit_list = json.load(o_file)
-            with open(JSON_LOC + diff_json) as d_file:
-                diff_dict = json.load(d_file)
-            with open(JSON_LOC+extracted_json) as e_file:
-                extracted = json.load(e_file)
-        except IOError as e:
-            logger.critical(f"failed to read json:\n{e}")
-        commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, kernel_dict, extracted, output)
+        commit_list = open_json(ofed_json)
+        diff_dict = open_json(diff_json)
+        extracted = open_json(extracted_json)
+        backports = open_json(backports_json)
+        commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, kernel_dict,
+                                                            extracted, backports,output)
         main_res = create_main_dict(kernel_dict, commit_list, diff_dict)
         save_to_json(main_res, f'{output}_main_res')
         save_to_json(commit_to_function, f'{output}_com_to_func')
