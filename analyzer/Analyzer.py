@@ -1,5 +1,8 @@
 from datetime import datetime
 import json
+from pprint import pprint
+
+import numpy as np
 import pandas as pd
 import os
 
@@ -303,17 +306,6 @@ def create_line_chatr(workbook, df_main):
     chart_sheet = workbook.get_worksheet_by_name('Charts')
     chart_sheet.insert_chart('A6', line, {'x_offset': 25, 'y_offset': 10})
 
-def chunkIt(seq, num):
-    avg = len(seq) / float(num)
-    out = []
-    last = 0.0
-
-    while last < len(seq):
-        out.append(seq[int(last):int(last + avg)])
-        last += avg
-
-    return out
-
 
 def get_max_length(split_list):
     return max([len(li) for li in split_list])
@@ -336,6 +328,7 @@ def write_data_to_sheet(workbook, split_list):
     chart_sheet = workbook.get_worksheet_by_name('Charts')
     chart_sheet.set_column(1, max_length + 1, WIDTH)
     for li in split_list:
+        li = list(li)
         start_commit = end_commit + 1
         end_commit = start_commit + len(li) - 1
         li.insert(0, f'Day {day}: commits {start_commit}-{end_commit}')
@@ -347,11 +340,9 @@ def write_data_to_sheet(workbook, split_list):
 
 
 def create_color_timeline(main_results, workbook, work_days):
-    # risks = []
-    # for commit in main_results:
-    #     risks.append(commit['Risk Level'])
     risks = [commit['Risk Level'] for commit in main_results]
-    split_list = chunkIt(risks, work_days)
+    split_list = np.array_split(risks, work_days)
+    pprint(split_list)
     write_data_to_sheet(workbook, split_list)
 
 
@@ -371,11 +362,10 @@ class Analyzer(object):
         res_dict = {}
         try:
             for j_file in kernel_jsons:
-                with open(JSON_LOC+j_file) as k_file:
-                    kernel_dict = json.load(k_file)
-                    for func, info in kernel_dict.items():
-                        if func not in res_dict.keys():
-                            res_dict[func] = info
+                kernel_dict = open_json(j_file)
+                for func, info in kernel_dict.items():
+                    if func not in res_dict.keys():
+                        res_dict[func] = info
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
         return res_dict
