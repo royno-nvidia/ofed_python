@@ -10,14 +10,11 @@ logger = get_logger('Analyzer', 'Analyzer.log')
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="OFED pre-rebase analyzer\n"
-                                                 "E.G: -kernel_json_path /swgwork/royno/Full/Python_work_place/OfedProject/jsons/kernel_v5.9-rc2_v5.11-rc5.json -ofed_json_path /swgwork/royno/Full/Python_work_place/OfedProject/jsons/ofed5_2_2_for_demo.json -ofed_tag vmlnx-ofed-5.2-2.1.8 -kernel_start_tag v5.9-rc2 -kernel_end_tag v5.11-rc5 -output_filename analyzed_for_demo")
+    parser = argparse.ArgumentParser(description="OFED pre-rebase prediction scrip\n")
     parser.add_argument("-kernel_json", type=str, default=None, required=True,
                         help="Path for KERNEL Json with pre-rebase process results")
     parser.add_argument("-ofed_json", type=str, default=None, required=True,
                         help="Path for OFED Json with pre-rebase process results")
-    # parser.add_argument("-diff", type=str, default=None, required=True,
-    #                     help="Path for kernel function diff with Comperator results")
     parser.add_argument("-osrc", type=str, default="", required=True,
                         help="Linus repository checkout at source version")
     parser.add_argument("-ksrc", type=str, default="", required=True,
@@ -63,16 +60,17 @@ def main():
     if not checks_for_Analyzer(file_list_verify, args.output):
         logger.critical('Argument verify failed, exiting')
         exit(1)
+
     # create methods diff stats
     diff_location = Processor.get_kernels_methods_diffs(args.ksrc, args.kdst,
                                         args.kernel_json,
                                         args.output,
                                         args.ofed_json)
 
-    # Get OFED function in version end
+    # # Get OFED function in version end
     ext_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, False)
     run_ofed_scripts(args.osrc, 'ofed_patch.sh')
-    # Get OFED function in version end with backports
+    # # Get OFED function in version end with backports
     back_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, True)
     run_ofed_scripts(args.osrc, 'cleanup')
 

@@ -247,17 +247,10 @@ def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted,
     return commit_to_function
 
 
-def sum_risk_commits(main_results):
-    res = [0, 0, 0, 0]
-    for commit in main_results:
-        res[commit['Risk Level']] += 1
-    return res
-
-
 def create_pie_chart(workbook, main_results):
     headings = ['Levels', 'Number of commits']
     risks = ['Low', 'Medium', 'High', 'Severe']
-    res = sum_risk_commits(main_results)
+    res = [f'=COUNTIF(Tree!C3:C{len(main_results) + 2},{risk})' for risk in range(4)]
     bold = workbook.add_format({'bold': 1})
     chart_sheet = workbook.add_worksheet('Charts')
     chart_sheet.write_row('A1', headings, bold)
@@ -342,7 +335,6 @@ def write_data_to_sheet(workbook, split_list):
 def create_color_timeline(main_results, workbook, work_days):
     risks = [commit['Risk Level'] for commit in main_results]
     split_list = np.array_split(risks, work_days)
-    pprint(split_list)
     write_data_to_sheet(workbook, split_list)
 
 
@@ -402,7 +394,8 @@ class Analyzer(object):
         Take processor Json's output and analyze result, build data for Excel display
         :return:
         """
-        kernel_dict = Analyzer.combine_kernel_dicts(kernel_json)
+        #kernel_dict = Analyzer.combine_kernel_dicts(kernel_json)
+        kernel_dict = open_json(kernel_json)
         commit_list = open_json(ofed_json)
         diff_dict = open_json(diff_json)
         extracted = open_json(extracted_json)

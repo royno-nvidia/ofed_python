@@ -355,18 +355,18 @@ class Processor(object):
                             # add all changed methods to dict
                             if feature in self._results.keys():
                                 # if feature exist add relevant method
-                                self._results[feature]['kernel'][method.name] = {'location': mod_file_path}
+                                self._results[feature]['kernel'][method.name] = {'Location': mod_file_path}
                                 logger.debug(f'feature {feature} exist, adding: {method.name} in file {method.filename}')
                             else:
                                 # first feature appearance, create key in dict and append
                                 self._results[feature] = {'kernel': {},
                                                           'ofed_only': {}}
-                                self._results[feature]['kernel'][method.name] = {'location': mod_file_path}
+                                self._results[feature]['kernel'][method.name] = {'Location': mod_file_path}
                                 logger.debug(
                                     f'feature {feature} first appearence, adding: {method.name} in file {method.filename}')
                         for ofed_method in added_methods:
                             # add all added methods to dict
-                            self._results[feature]['ofed_only'][ofed_method] = {'location': mod_file_path}
+                            self._results[feature]['ofed_only'][ofed_method] = {'Location': mod_file_path}
                             ofed_only_set.add(ofed_method)
                             # iterate new methods added by ofed
                             logger.debug(f'{ofed_method} added by ofed in commit {ofed_commit.commit.hash}')
