@@ -31,14 +31,23 @@ def verify_added_functions_status(all_tree_info: list, ofed_only_set: set):
 
 
 def get_actual_ofed_info(ofed_json):
-    with open(JSON_LOC + ofed_json) as handle:
-        ofed_modified_methods_dict = json.load(handle)
-        actual_ofed_functions_modified = set()
-        for commit in ofed_modified_methods_dict:
-            actual_ofed_functions_modified |= set(
-                [func for func in commit['Functions'].keys() if commit['Functions'][func]['Status'] != 'Add']
-            )
-        return actual_ofed_functions_modified
+    ofed_modified_methods_dict = open_json(ofed_json)
+    actual_ofed_functions_modified = set()
+    for commit in ofed_modified_methods_dict:
+        actual_ofed_functions_modified |= set(
+            [func for func in commit['Functions'].keys() if commit['Functions'][func]['Status'] != 'Add']
+        )
+    return actual_ofed_functions_modified
+
+def get_ofed_functions_info(ofed_json):
+    ofed_modified_methods_dict = open_json(ofed_json)
+    ret = {}
+    for commit in ofed_modified_methods_dict:
+        for func, info in commit['Functions'].items():
+            if info['Status'] == 'Add':
+                continue
+            ret[func] = info
+    return ret
 
 
 def extract_function(kernel_path, func_location, func, prefix, with_backports):
@@ -468,4 +477,3 @@ class Processor(object):
             return loc
         except IOError as e:
             logger.critical(f"Unable to save results to {output}:\n{e}")
-

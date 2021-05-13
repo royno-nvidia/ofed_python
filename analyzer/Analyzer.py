@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import os
 
-from repo_processor.Processor import save_to_json
+from repo_processor.Processor import save_to_json, get_actual_ofed_info, get_ofed_functions_info, extract_function
 from utils.setting_utils import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -527,6 +527,17 @@ class Analyzer(object):
 
         writer.save()
         logger.info(f"Excel was created in {EXCEL_LOC+filename}.xlsx")
+
+
+    @staticmethod
+    def get_extraction_for_all_ofed_functions(args):
+        ofed_modified_function = get_ofed_functions_info(args.ofed_json)
+        # pprint(ofed_modified_function)
+        # print('len', len(ofed_modified_function.keys()))
+        for func, info in ofed_modified_function.items():
+            ext_last = extract_function(args.ofed_repo, info['Location'], func, "Lasted OFED", False)
+            ext_curr = extract_function(args.rebase_repo, info['Location'], func, "Lasted OFED", False)
+            print(ext_curr)
 
 
 # @staticmethod
