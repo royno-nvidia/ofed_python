@@ -15,7 +15,11 @@ def parse_args():
     parser.add_argument("-ofed_json", type=str, default=None, required=True,
                         help="Path for OFED Json with pre-rebase process results")
     parser.add_argument("-rebase_repo", type=str, default=None, required=True,
-                        help="Path for OFED Json with pre-rebase process results")
+                        help="Path for current rebase repo")
+    parser.add_argument("-kernel_src", type=str, default=None, required=True,
+                        help="Path for upstream repo checkout on base tag of lase ofed")
+    parser.add_argument("-kernel_dst", type=str, default=None, required=True,
+                        help="Path for upstream repo checkout on current rebase base")
     # parser.add_argument("-diff", type=str, default=None, required=True,
     #                     help="Path for kernel function diff with Comperator results")
     # parser.add_argument("-ofed_extracted_functions", type=str, default=None, required=True,

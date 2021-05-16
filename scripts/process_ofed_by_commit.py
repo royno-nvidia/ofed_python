@@ -35,7 +35,7 @@ def show_runtime(end_time, start_time):
     :return:
     """
     runtime = end_time - start_time
-    msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime//1))}"
+    msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime // 1))}"
     logger.info('-' * len(msg))
     logger.info(msg)
     logger.info('-' * len(msg))
