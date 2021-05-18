@@ -1,7 +1,9 @@
 import argparse
 import datetime
 import time
+
 from analyzer.Analyzer import Analyzer
+from repo_processor.Processor import Processor
 from verifier.verifer_arg import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -61,7 +63,8 @@ def main():
     # if not checks_for_Analyzer(file_list_verify, args.output):
     #     logger.critical('Argument verify failed, exiting')
     #     exit(1)
-    Analyzer.get_extraction_for_all_ofed_functions(args)
+    ext_loc = Processor.get_extraction_for_all_ofed_functions(args)
+    Analyzer.create_diffs_from_extracted(ext_loc)
     end_time = time.time()
     show_runtime(end_time, start_time)
 

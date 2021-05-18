@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import os
 
+from Comperator.Comperator import Comperator, get_func_stats
 from repo_processor.Processor import save_to_json, get_actual_ofed_info, get_ofed_functions_info, extract_function
 from utils.setting_utils import *
 
@@ -528,36 +529,63 @@ class Analyzer(object):
         writer.save()
         logger.info(f"Excel was created in {EXCEL_LOC+filename}.xlsx")
 
-
     @staticmethod
-    def get_extraction_for_all_ofed_functions(args):
-        ofed_modified_function = get_ofed_functions_info(args.ofed_json)
-        error_list = []
-        function_ext_dict = {}
-        # pprint(ofed_modified_function)
-        # print('len', len(ofed_modified_function.keys()))
-        for func, info in ofed_modified_function.items():
-            last_ext = extract_function(args.ofed_repo, info['Location'], func, "Last OFED", False)
-            curr_ext = extract_function(args.rebase_repo, info['Location'], func, "Rebase", False)
-            src_ext = extract_function(args.kernel_src, info['Location'], func, "SRC", False)
-            dst_ext = extract_function(args.kernel_dst, info['Location'], func, "DST", False)
-            function_ext_dict[func] = {
-                'Last': last_ext,
-                'Rebase': curr_ext,
-                'Src': src_ext,
-                'Dst': dst_ext
+    def create_diffs_from_extracted(ext_loc: str):
+        stats_dict = {}
+        ext_info = open_json(ext_loc)
+        good, scope_bad , line_bad, processed = 0, 0 , 0, 0
+        for func, info in ext_info.items():
+            if func == 'Missing info':
+                continue
+            if not info['Last'] or not info['Rebase'] or not info['Src'] or not info['Dst']:
+                logger.warn(f"{func} - Missing info.. skipped")
+                continue
+            processed += 1
+            last_stats = get_func_stats(info['Last'])
+            rebase_stats = get_func_stats(info['Rebase'])
+            src_stats = get_func_stats(info['Src'])
+            dst_stats = get_func_stats(info['Dst'])
+            stats_dict[func] = {
+                'Last': last_stats['Splited'],
+                'Rebase': rebase_stats['Splited'],
+                'Src': src_stats['Splited'],
+                'Dst': dst_stats['Splited']
             }
-            if not last_ext or not curr_ext or not src_ext or not dst_ext:
-                error_list.append(func)
-                logger.warn(f"Function {func} - Failed to process")
-        save_to_json(function_ext_dict, 'check_post1')
-        overall = len(ofed_modified_function.keys())
-        able = overall - len(error_list)
-        logger.info(f'Success process rate: {(able/overall)*100:.2f}% [{able}/{overall}]')
-        print('error list: ')
-        pprint(error_list)
+            line_diff = last_stats['Lines'] - src_stats['Lines']
+            expected_lines = dst_stats['Lines'] + line_diff
+            scope_diff = last_stats['Scopes'] - src_stats['Scopes']
+            expected_scopes = dst_stats['Scopes'] + scope_diff
+            if expected_lines != rebase_stats['Lines']:
+                line_bad += 1
+                logger.info(f"\nFunction {func} - Review Lines\n")
+            if expected_scopes != rebase_stats['Scopes']:
+                scope_bad += 1 if expected_lines == rebase_stats['Lines'] else 0
+                logger.info(f"\nFunction {func} - Review Scopes\n")
+            if expected_lines == rebase_stats['Lines'] and expected_scopes == rebase_stats['Scopes']:
+                good += 1
 
-
+            stats_dict[func]['Lines'] = {
+                'Last': last_stats['Lines'],
+                'Rebase': rebase_stats['Lines'],
+                'Src': src_stats['Lines'],
+                'Dst': dst_stats['Lines'],
+                'Kernell diff': line_diff,
+                'Expected': expected_lines,
+                'Need Review': expected_lines != rebase_stats['Lines'],
+            }
+            stats_dict[func]['Scopes'] = {
+                'Last': last_stats['Scopes'],
+                'Rebase': rebase_stats['Scopes'],
+                'Src': src_stats['Scopes'],
+                'Dst': dst_stats['Scopes'],
+                'Kernell diff': scope_diff,
+                'Expected': expected_scopes,
+                'Need Review': expected_scopes != rebase_stats['Scopes'],
+            }
+        save_to_json(stats_dict, 'stats_dict_post1')
+        print(f'overall processed: {processed}\n need review: {scope_bad+ line_bad}\n'
+              f'scope bad: {scope_bad}\nline bad: {line_bad}\n as expected: {good}')
+        # pprint(stats_dict)
 
 # @staticmethod
 # def pre_analyze_changed_method(kernel_json: str, ofed_json: str, diff_json: str, output: str):

@@ -477,3 +477,32 @@ class Processor(object):
             return loc
         except IOError as e:
             logger.critical(f"Unable to save results to {output}:\n{e}")
+
+
+    @staticmethod
+    def get_extraction_for_all_ofed_functions(args):
+        ofed_modified_function = get_ofed_functions_info(args.ofed_json)
+        error_list = []
+        function_ext_dict = {}
+        # pprint(ofed_modified_function)
+        # print('len', len(ofed_modified_function.keys()))
+        for func, info in ofed_modified_function.items():
+            last_ext = extract_function(args.ofed_repo, info['Location'], func, "Last OFED", False)
+            curr_ext = extract_function(args.rebase_repo, info['Location'], func, "Rebase", False)
+            src_ext = extract_function(args.kernel_src, info['Location'], func, "SRC", False)
+            dst_ext = extract_function(args.kernel_dst, info['Location'], func, "DST", False)
+            function_ext_dict[func] = {
+                'Last': last_ext,
+                'Rebase': curr_ext,
+                'Src': src_ext,
+                'Dst': dst_ext
+            }
+            if not last_ext or not curr_ext or not src_ext or not dst_ext:
+                error_list.append(func)
+                logger.warn(f"Function {func} - Failed to process")
+        function_ext_dict['Missing info'] = error_list
+        location = save_to_json(function_ext_dict, 'check_post1')
+        overall = len(ofed_modified_function.keys())
+        able = overall - len(error_list)
+        logger.info(f'Success process rate: {(able/overall)*100:.2f}% [{able}/{overall}]')
+        return location
