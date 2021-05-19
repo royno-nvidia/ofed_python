@@ -339,6 +339,33 @@ def create_color_timeline(main_results, workbook, work_days):
     write_data_to_sheet(workbook, split_list)
 
 
+def need_review(func, stat, src_info, dst_info, last_info, rebase_info):
+    diff = last_info[stat] - src_info[stat]
+    expected = dst_info[stat] + diff
+    ret = {
+        'Src': src_info[stat],
+        'Dst': dst_info[stat],
+        'Last': last_info[stat],
+        'Rebase': rebase_info[stat],
+        'Diff': diff,
+        'Expected': expected,
+        'Review': expected != rebase_info[stat]
+    }
+    return ret
+
+
+def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info):
+    ret_dict = {
+        'Last': last_info['Splited'],
+        'Rebase': rebase_info['Splited'],
+        'Src': src_info['Splited'],
+        'Dst': dst_info['Splited'],
+        'Lines': need_review(func, 'Lines', src_info, dst_info, last_info, rebase_info),
+        'Scopes': need_review(func, 'Scopes', src_info, dst_info, last_info, rebase_info)
+    }
+    return ret_dict
+
+
 class Analyzer(object):
     def __init__(self):
         """
@@ -533,58 +560,20 @@ class Analyzer(object):
     def create_diffs_from_extracted(ext_loc: str):
         stats_dict = {}
         ext_info = open_json(ext_loc)
-        good, scope_bad , line_bad, processed = 0, 0 , 0, 0
         for func, info in ext_info.items():
             if func == 'Missing info':
                 continue
             if not info['Last'] or not info['Rebase'] or not info['Src'] or not info['Dst']:
                 logger.warn(f"{func} - Missing info.. skipped")
                 continue
-            processed += 1
-            last_stats = get_func_stats(info['Last'])
-            rebase_stats = get_func_stats(info['Rebase'])
             src_stats = get_func_stats(info['Src'])
             dst_stats = get_func_stats(info['Dst'])
-            stats_dict[func] = {
-                'Last': last_stats['Splited'],
-                'Rebase': rebase_stats['Splited'],
-                'Src': src_stats['Splited'],
-                'Dst': dst_stats['Splited']
-            }
-            line_diff = last_stats['Lines'] - src_stats['Lines']
-            expected_lines = dst_stats['Lines'] + line_diff
-            scope_diff = last_stats['Scopes'] - src_stats['Scopes']
-            expected_scopes = dst_stats['Scopes'] + scope_diff
-            if expected_lines != rebase_stats['Lines']:
-                line_bad += 1
-                logger.info(f"\nFunction {func} - Review Lines\n")
-            if expected_scopes != rebase_stats['Scopes']:
-                scope_bad += 1 if expected_lines == rebase_stats['Lines'] else 0
-                logger.info(f"\nFunction {func} - Review Scopes\n")
-            if expected_lines == rebase_stats['Lines'] and expected_scopes == rebase_stats['Scopes']:
-                good += 1
+            last_stats = get_func_stats(info['Last'])
+            rebase_stats = get_func_stats(info['Rebase'])
 
-            stats_dict[func]['Lines'] = {
-                'Last': last_stats['Lines'],
-                'Rebase': rebase_stats['Lines'],
-                'Src': src_stats['Lines'],
-                'Dst': dst_stats['Lines'],
-                'Kernell diff': line_diff,
-                'Expected': expected_lines,
-                'Need Review': expected_lines != rebase_stats['Lines'],
-            }
-            stats_dict[func]['Scopes'] = {
-                'Last': last_stats['Scopes'],
-                'Rebase': rebase_stats['Scopes'],
-                'Src': src_stats['Scopes'],
-                'Dst': dst_stats['Scopes'],
-                'Kernell diff': scope_diff,
-                'Expected': expected_scopes,
-                'Need Review': expected_scopes != rebase_stats['Scopes'],
-            }
+            stats_dict[func] = check_stat_and_create_dict(func, src_stats, dst_stats, last_stats, rebase_stats)
+
         save_to_json(stats_dict, 'stats_dict_post1')
-        print(f'overall processed: {processed}\n need review: {scope_bad+ line_bad}\n'
-              f'scope bad: {scope_bad}\nline bad: {line_bad}\n as expected: {good}')
         # pprint(stats_dict)
 
 # @staticmethod
