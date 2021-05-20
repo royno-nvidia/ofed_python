@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import os
 
-from Comperator.Comperator import Comperator, get_func_stats
+from Comperator.Comperator import Comperator, get_func_stats, get_diff_stats
 from repo_processor.Processor import save_to_json, get_actual_ofed_info, get_ofed_functions_info, extract_function
 from utils.setting_utils import *
 
@@ -349,7 +349,7 @@ def need_review(func, stat, src_info, dst_info, last_info, rebase_info):
         'Rebase': rebase_info[stat],
         'Diff': diff,
         'Expected': expected,
-        'Review': expected != rebase_info[stat]
+        f'{stat} Review': expected != rebase_info[stat]
     }
     return ret
 
@@ -360,6 +360,8 @@ def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info)
         'Rebase': rebase_info['Splited'],
         'Src': src_info['Splited'],
         'Dst': dst_info['Splited'],
+        'Bases diff': get_diff_stats(src_info['Splited'], dst_info['Splited'], func)['Diff'],
+        'Apply diff': get_diff_stats(last_info['Splited'], rebase_info['Splited'], func)['Diff'],
         'Lines': need_review(func, 'Lines', src_info, dst_info, last_info, rebase_info),
         'Scopes': need_review(func, 'Scopes', src_info, dst_info, last_info, rebase_info)
     }

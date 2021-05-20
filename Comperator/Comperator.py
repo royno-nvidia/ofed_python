@@ -1,6 +1,7 @@
 from difflib import Differ
 from pprint import pprint
 from utils.setting_utils import *
+import re
 
 logger = get_logger('Comperator', 'Comperator.log')
 
@@ -34,7 +35,7 @@ def count_scopes(func: str):
     cnt = 0
     split_func = func.replace('\t', '    ').splitlines(keepends=True)
     for line in split_func:
-        if "{" in line:
+        if re.match("^ *}\\n$", line):
             cnt += 1
     return cnt
 
@@ -119,11 +120,18 @@ def make_readable_function(func):
     return func.replace('\t', '    ').splitlines(keepends=True)
 
 
+def count_lines(func):
+    cnt = 0
+    split_func = func.replace('\t', '    ').splitlines(keepends=True)
+    for line in split_func:
+        if not re.match("^ *\\n$", line):
+            cnt += 1
+    return cnt
+
 def get_func_stats(func):
     splited = make_readable_function(func)
-
     scopes = count_scopes(func)
-    func_lines = len(splited)
+    func_lines = count_lines(func)
     return {
         'Splited': splited,
         'Scopes': scopes,

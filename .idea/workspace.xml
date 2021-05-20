@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="3d4ad855-7f94-4963-9d83-e566622cc23e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Comperator/Comperator.py" beforeDir="false" afterPath="$PROJECT_DIR$/Comperator/Comperator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analyzer/Analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/analyzer/Analyzer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repo_processor/Processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo_processor/Processor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py" afterDir="false" />
@@ -46,11 +47,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
-              <caret line="575" column="52" selection-start-line="575" selection-start-column="52" selection-end-line="575" selection-end-column="52" />
+            <state relative-caret-position="150">
+              <caret line="570" column="34" selection-start-line="570" selection-start-column="34" selection-end-line="570" selection-end-column="34" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
                 <element signature="e#14052#14650#0" />
@@ -63,11 +64,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="160">
-              <caret line="93" selection-start-line="93" selection-end-line="93" />
+            <state relative-caret-position="238">
+              <caret line="131" column="11" selection-start-line="131" selection-start-column="4" selection-end-line="131" selection-end-column="11" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
               </folding>
@@ -103,7 +104,7 @@
         <entry file="file://$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="352">
-              <caret line="66" column="27" lean-forward="true" selection-start-line="66" selection-start-column="27" selection-end-line="66" selection-end-column="27" />
+              <caret line="66" column="28" selection-start-line="66" selection-start-column="28" selection-end-line="66" selection-end-column="28" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -155,7 +156,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get_diff_stats</find>
       <find>save_to_json</find>
       <find>get_functions_diff_stats</find>
       <find>create_main_sheet</find>
@@ -184,6 +184,7 @@
       <find>nvmet_rdma_device_removal</find>
       <find>Diff</find>
       <find>post</find>
+      <find>get_diff_stats</find>
       <find>check_stat_and_create_dict</find>
     </findStrings>
     <replaceStrings>
@@ -242,7 +243,6 @@
         <option value="$PROJECT_DIR$/scripts/process_kernel_repo.py" />
         <option value="$PROJECT_DIR$/scripts/pre_rebasae_analyzer.py" />
         <option value="$PROJECT_DIR$/scripts/show_risk_by_commit.py" />
-        <option value="$PROJECT_DIR$/Comperator/Comperator.py" />
         <option value="$PROJECT_DIR$/scripts/process_ofed_repo.py" />
         <option value="$PROJECT_DIR$/scripts/extract_last_version_ofed_function.py" />
         <option value="$PROJECT_DIR$/verifier/verifer_arg.py" />
@@ -253,6 +253,7 @@
         <option value="$PROJECT_DIR$/repo_processor/Processor.py" />
         <option value="$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py" />
         <option value="$PROJECT_DIR$/analyzer/Analyzer.py" />
+        <option value="$PROJECT_DIR$/Comperator/Comperator.py" />
       </list>
     </option>
   </component>
@@ -643,7 +644,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="-3" width="1920" height="1060" extended-state="6" />
+    <frame x="0" y="-3" width="1920" height="1060" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.25131717" />
@@ -999,32 +1000,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/show_risk_by_commit.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="154">
-          <caret line="58" column="49" selection-start-line="58" selection-start-column="49" selection-end-line="58" selection-end-column="49" />
-          <folding>
-            <element signature="e#1#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="152">
           <caret line="71" column="4" selection-start-line="71" selection-start-column="4" selection-end-line="71" selection-end-column="4" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="93" selection-start-line="93" selection-end-line="93" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1039,16 +1020,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="66" column="27" lean-forward="true" selection-start-line="66" selection-start-column="27" selection-end-line="66" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/ofed_prediction.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
@@ -1059,10 +1030,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/show_risk_by_commit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="58" column="49" selection-start-line="58" selection-start-column="49" selection-end-line="58" selection-end-column="49" />
+          <folding>
+            <element signature="e#1#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="66" column="28" selection-start-line="66" selection-start-column="28" selection-end-line="66" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="575" column="52" selection-start-line="575" selection-start-column="52" selection-end-line="575" selection-end-column="52" />
+        <state relative-caret-position="150">
+          <caret line="570" column="34" selection-start-line="570" selection-start-column="34" selection-end-line="570" selection-end-column="34" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
             <element signature="e#14052#14650#0" />
@@ -1070,6 +1061,16 @@
             <element signature="e#15763#16768#0" />
             <element signature="e#17975#20110#0" />
             <element signature="e#20312#22766#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="131" column="11" selection-start-line="131" selection-start-column="4" selection-end-line="131" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
