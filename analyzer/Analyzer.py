@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 import json
 from pprint import pprint
@@ -339,7 +340,7 @@ def create_color_timeline(main_results, workbook, work_days):
     write_data_to_sheet(workbook, split_list)
 
 
-def need_review(func, stat, src_info, dst_info, last_info, rebase_info):
+def need_review(func, stat, src_info, dst_info, last_info, rebase_info, same_final):
     diff = last_info[stat] - src_info[stat]
     expected = dst_info[stat] + diff
     ret = {
@@ -349,23 +350,58 @@ def need_review(func, stat, src_info, dst_info, last_info, rebase_info):
         'Rebase': rebase_info[stat],
         'Diff': diff,
         'Expected': expected,
-        f'{stat} Review': expected != rebase_info[stat]
+        f'{stat} Review': (expected != rebase_info[stat]) and not same_final
     }
     return ret
 
 
+def is_diff_exist(function_diff):
+    return function_diff['+'] != 0 or function_diff['-'] != 0
+
+def get_modificatins_only(mod_list):
+    # return [line.replace('+', '').replace('-', '') for line in mod_list if line.startswith('-') or line.startswith('+')]
+    return [line.replace('+', '').replace('-', '') for line in mod_list
+            if re.match("^[+|-]", line) and not re.match("^[+|-] +\\n$", line)]
+
+def get_modifications_diff_stats(func, last_mod, new_mod):
+    last_only_mod = get_modificatins_only(last_mod)
+    new_only_mod = get_modificatins_only(new_mod)
+    return get_diff_stats(last_only_mod, new_only_mod, func)
+
+def get_partial_diff_stats(mod_stas):
+    ret = {}
+    for key in ['+', '-', 'X']:
+        ret[key] = mod_stas[key]
+    return ret
+
 def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info):
-    ret_dict = {
+    final_function_diff = get_diff_stats(last_info['Splited'], rebase_info['Splited'], func)
+    same_final_function = is_diff_exist(final_function_diff)
+    if same_final_function:
+        logger.info(f'{func} - Same End Version')
+    last_modifications = get_diff_stats(src_info['Splited'], last_info['Splited'], func)
+    rebase_modifications = get_diff_stats(dst_info['Splited'], rebase_info['Splited'], func)
+    modifications_diff = get_modifications_diff_stats(func, last_modifications['Diff newline'],
+                                                      rebase_modifications['Diff newline'])
+    return {
         'Last': last_info['Splited'],
         'Rebase': rebase_info['Splited'],
         'Src': src_info['Splited'],
         'Dst': dst_info['Splited'],
         'Bases diff': get_diff_stats(src_info['Splited'], dst_info['Splited'], func)['Diff'],
-        'Apply diff': get_diff_stats(last_info['Splited'], rebase_info['Splited'], func)['Diff'],
-        'Lines': need_review(func, 'Lines', src_info, dst_info, last_info, rebase_info),
-        'Scopes': need_review(func, 'Scopes', src_info, dst_info, last_info, rebase_info)
+        'Apply diff': final_function_diff['Diff'],
+        'Last modifications': last_modifications['Diff'],
+        'Rebase modifications': rebase_modifications['Diff'],
+        'Modifications diff': modifications_diff['Diff'],
+        'Modification diff exist': is_diff_exist(modifications_diff),
+        'Modifications': {
+            'Last': get_partial_diff_stats(last_modifications),
+            'Rebase': get_partial_diff_stats(rebase_modifications),
+            'Diff': get_partial_diff_stats(modifications_diff)
+        },
+        'Lines': need_review(func, 'Lines', src_info, dst_info, last_info, rebase_info, False),
+        'Scopes': need_review(func, 'Scopes', src_info, dst_info, last_info, rebase_info, False),
     }
-    return ret_dict
 
 
 class Analyzer(object):
@@ -575,8 +611,7 @@ class Analyzer(object):
 
             stats_dict[func] = check_stat_and_create_dict(func, src_stats, dst_stats, last_stats, rebase_stats)
 
-        save_to_json(stats_dict, 'stats_dict_post1')
-        # pprint(stats_dict)
+        return save_to_json(stats_dict, 'stats_dict_post1')
 
 # @staticmethod
 # def pre_analyze_changed_method(kernel_json: str, ofed_json: str, diff_json: str, output: str):

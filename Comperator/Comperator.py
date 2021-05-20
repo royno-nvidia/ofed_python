@@ -146,6 +146,7 @@ def get_diff_stats(old_func, new_func, func_name):
     plus, minus, unchanged = count_changes(diff)
     diff_strip = [line.replace('\n', '') for line in diff if not line.startswith('?')]
     return {
+        'Diff newline': diff,
         'Diff': diff_strip,
         'API': prototype_changed,
         'Ctx': context_changed,
