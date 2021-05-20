@@ -13,6 +13,17 @@ from utils.setting_utils import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
 
+def color_cell_if_equal(workbook, sheet_name, col: chr, col_len: int, value):
+    red_format = workbook.add_format({'bg_color': '#FF0000',
+                                      'font_color': '#000000'})
+    place = f'{col}2:{col}{col_len + 1}'
+    worksheet = workbook.get_worksheet_by_name(sheet_name)
+    worksheet.conditional_format(place,
+                             {'type': 'cell',
+                              'criteria': '==',
+                              'value': value,
+                              'format': red_format})
+
 
 def colored_condition_cell(workbook, worksheet, col: chr, col_len: int, row: int, is_col: bool):
     """
@@ -75,6 +86,14 @@ def colored_condition_row(workbook, worksheet, col: chr, col_len: int):
                                   'criteria': '=AND($G3+H3=0,$E3+FC3>0)',
                                   'format': red_format})
 
+def write_and_link(name, diff, dir):
+    filename = f'{dir}/{name}.diff'
+    if not os.path.isfile(filename):
+        with open(filename, 'w') as handle:
+            for line in diff:
+                handle.write(line+'\n')
+    hyperlink = f'=HYPERLINK("{os.path.basename(dir)}\{name}.diff","View")'
+    return hyperlink
 
 def create_diff_file_and_link(method_name: str, info_dict: str, directory: str):
     if method_name not in info_dict.keys():
@@ -82,13 +101,7 @@ def create_diff_file_and_link(method_name: str, info_dict: str, directory: str):
     if info_dict[method_name]['View'] == 'NA':
         return 'NA'
     method_diff = info_dict[method_name]['View']
-    filename = f'{directory}/{method_name}.diff'
-    if not os.path.isfile(filename):
-        with open(filename, 'w') as handle:
-            for line in method_diff:
-                handle.write(line+'\n')
-    hyperlink = f'=HYPERLINK("{os.path.basename(directory)}\{method_name}.diff","View")'
-    return hyperlink
+    return write_and_link(method_name, method_diff, directory)
 
 
 def get_stat_or_none(method: str, info_dict: dict, stat: str):
@@ -404,6 +417,40 @@ def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info)
     }
 
 
+def genarate_results_for_excel(stats_info, dir_name):
+    root_path = f"{EXCEL_LOC + dir_name}"
+    os.mkdir(root_path, 0o0755)
+    last_path = f"{root_path + '/' +dir_name}_last"
+    os.mkdir(last_path, 0o0755)
+    rebase_path = f"{root_path + '/' + dir_name}_rebase"
+    os.mkdir(rebase_path, 0o0755)
+    src_path = f"{root_path + '/' +dir_name}_src"
+    os.mkdir(src_path, 0o0755)
+    dst_path = f"{root_path + '/' +dir_name}_dst"
+    os.mkdir(dst_path, 0o0755)
+    ofed_mod_path = f"{root_path + '/' +dir_name}_ofed_mod"
+    os.mkdir(ofed_mod_path, 0o0755)
+    rebase_mod_path = f"{root_path + '/' +dir_name}_rebase_mod"
+    os.mkdir(rebase_mod_path, 0o0755)
+    mod_diff_path = f"{root_path + '/' +dir_name}_mod_diff"
+    os.mkdir(mod_diff_path, 0o0755)
+    data_frame_info = []
+    for func, info in stats_info.items():
+        data_frame_info.append({
+            'Function': func,
+            'Need Review': info['Modification diff exist'],
+            'Modification diffs': write_and_link(func, info['Modifications diff'], ofed_mod_path),
+            'Rebase modifications': write_and_link(func, info['Rebase modifications'], rebase_mod_path),
+            'OFED modifications': write_and_link(func, info['Last modifications'], mod_diff_path),
+            'Src': write_and_link(func, info['Src'], src_path),
+            'Dst': write_and_link(func, info['Dst'], dst_path),
+            'Last': write_and_link(func, info['Last'], last_path),
+            'Rebase': write_and_link(func, info['Rebase'], rebase_path),
+        })
+    return data_frame_info
+
+
+
 class Analyzer(object):
     def __init__(self):
         """
@@ -613,6 +660,51 @@ class Analyzer(object):
 
         return save_to_json(stats_dict, 'stats_dict_post1')
 
+    @staticmethod
+    def create_rebase_reviews_excel(info_json, output):
+        stats_info = open_json(info_json)
+        results = genarate_results_for_excel(stats_info, output)
+
+        title = f"Review After Rebase"
+        df_main = pd.DataFrame(results)
+        df_main.set_index('Function')
+        writer = pd.ExcelWriter(f"{EXCEL_LOC}{output}/{output}.xlsx", engine='xlsxwriter')
+        df_main.to_excel(writer, sheet_name='Review', startrow=2, header=False, index=False)
+
+        workbook = writer.book
+        worksheet = writer.sheets['Review']
+
+        title_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#00E4BC',
+            'border': 1})
+        worksheet.merge_range(f'A1:{chr(ord("A") + len(df_main.columns) - 1)}1', title, title_format)
+
+        # header
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        for col_num, value in enumerate(df_main.columns.values):
+            worksheet.write(1, col_num, value, header_format)
+        color_cell_if_equal(workbook, 'Review', 'B', len(df_main.index), True)
+        # save
+        writer.save()
+        logger.info(f"Excel {output} was created in {os.path.abspath(output)}")
+        # apply conditions for modification
+        # colored_condition_cell(workbook, worksheet, 'C', len(df_main.index), 0, True)
+
+        # dicts_list_from_modify = commit_to_function
+        # df_mod = pd.DataFrame(dicts_list_from_modify)
+        # df_mod.set_index('Hash')
+        # df_mod.to_excel(writer, sheet_name='Functions to commits', startrow=1, header=False, index=False)
+        # worksheet_mod = writer.sheets['Functions to commits']
+        # for col_num, value in enumerate(df_mod.columns.values):
+        #     worksheet_mod.write(0, col_num, value, header_format)
 # @staticmethod
 # def pre_analyze_changed_method(kernel_json: str, ofed_json: str, diff_json: str, output: str):
 #     """

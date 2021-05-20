@@ -32,8 +32,8 @@ def parse_args():
     #                     help="Kernel version start tag processed")
     # parser.add_argument("-kernel_end_tag", type=str, default="", required=True,
     #                     help="Kernel version end tag processed")
-    # parser.add_argument("-output", type=str, default=None, required=True,
-    #                     help="Result Excel name")
+    parser.add_argument("-output", type=str, default=None, required=True,
+                        help="Result Excel name")
     options = parser.parse_args()
     return options
 
@@ -64,7 +64,8 @@ def main():
     #     logger.critical('Argument verify failed, exiting')
     #     exit(1)
     ext_loc = Processor.get_extraction_for_all_ofed_functions(args)
-    Analyzer.create_diffs_from_extracted(ext_loc)
+    location = Analyzer.create_diffs_from_extracted(ext_loc)
+    Analyzer.create_rebase_reviews_excel(location, args.output)
     end_time = time.time()
     show_runtime(end_time, start_time)
 
