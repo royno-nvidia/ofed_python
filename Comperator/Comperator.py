@@ -117,7 +117,10 @@ def extract_method_from_file(filepath: str, func_name: str) -> str:
 def make_readable_function(func):
     if func is None:
         return None
-    return func.replace('\t', '    ').splitlines(keepends=True)
+    read_func = func.replace('\t', '    ').splitlines(keepends=True)
+    # remvoe empty lines
+    rej = re.compile("^ _*$")
+    return [line for line in read_func if not rej.match(line)]
 
 
 def count_lines(func):

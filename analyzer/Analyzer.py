@@ -375,7 +375,7 @@ def is_diff_exist(function_diff):
 
 def get_modificatins_only(mod_list):
     # return [line.replace('+', '').replace('-', '') for line in mod_list if line.startswith('-') or line.startswith('+')]
-    return [line.replace('+', '').replace('-', '') for line in mod_list
+    return [line.replace(line[0], '', 1) for line in mod_list
             if re.match("^[+|-]", line) and not re.match("^[+|-] +\\n$", line)]
 
 def get_modifications_diff_stats(func, last_mod, new_mod):
@@ -389,14 +389,18 @@ def get_partial_diff_stats(mod_stas):
         ret[key] = mod_stas[key]
     return ret
 
-def get_review_urgency(bases_diff, apply_diff):
+def get_review_urgency(bases_diff, apply_diff, mod_diff):
     # function didn't changed during kernel versions
-    is_kernel_function_equal = bases_diff['+'] == 0 and bases_diff['-'] == 0
-    # function similar in both OFED versios
-    is_ofed_function_equal = apply_diff['+'] == 0 and apply_diff['-'] == 0
-
+    is_kernel_function_equal = not is_diff_exist(bases_diff)
+    # function similar in both OFED versions
+    is_ofed_function_equal = not is_diff_exist(apply_diff)
+    # modifiacations similar in both OFED versions
+    is_mod_equal = not is_diff_exist(mod_diff)
     # same base, same end version
     if is_kernel_function_equal and is_ofed_function_equal:
+        return LOW
+    # same modifications
+    elif is_mod_equal:
         return LOW
     # same base, different end version
     elif is_kernel_function_equal and not is_ofed_function_equal:
@@ -420,7 +424,7 @@ def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info)
     modifications_diff = get_modifications_diff_stats(func, last_modifications['Diff newline'],
                                                       rebase_modifications['Diff newline'])
     return {
-        'Review Need Level': get_review_urgency(bases_diff, apply_diff),
+        'Review Need Level': get_review_urgency(bases_diff, apply_diff, modifications_diff),
         'Src': src_info,
         'Dst': dst_info,
         'Last': last_info,
