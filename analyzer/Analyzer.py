@@ -13,27 +13,29 @@ from utils.setting_utils import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
 
-def color_cell_if_equal(workbook, sheet_name, col: chr, col_len: int, value):
-    red_format = workbook.add_format({'bg_color': '#FF0000',
-                                      'font_color': '#000000'})
-    place = f'{col}2:{col}{col_len + 1}'
-    worksheet = workbook.get_worksheet_by_name(sheet_name)
-    worksheet.conditional_format(place,
-                             {'type': 'cell',
-                              'criteria': '==',
-                              'value': value,
-                              'format': red_format})
+# def color_cell_if_equal(workbook, sheet_name, col: chr, col_len: int, value):
+#     red_format = workbook.add_format({'bg_color': '#FF0000',
+#                                       'font_color': '#000000'})
+#     place = f'{col}2:{col}{col_len + 1}'
+#     worksheet = workbook.get_worksheet_by_name(sheet_name)
+#     worksheet.conditional_format(place,
+#                              {'type': 'cell',
+#                               'criteria': '==',
+#                               'value': value,
+#                               'format': red_format})
 
 
-def colored_condition_cell(workbook, worksheet, col: chr, col_len: int, row: int, is_col: bool):
+def colored_condition_cell(workbook, sheet_name, col: chr, col_len: int, row: int, is_col: bool):
     """
     create 3 color condition in wanted col over worksheet
     :param workbook: xlsxlwriter workbook
-    :param worksheet: xlsxwriter worksheet
+    :param sheet_name: xlsxwriter worksheet name
     :param col: Excel col char (e.g 'A','B'..)
     :param col_len: number of rows in col
     :return:
     """
+
+    worksheet = workbook.get_worksheet_by_name(sheet_name)
     if is_col:
         place = f'{col}3:{col}{col_len + 2}'
     else:
@@ -342,7 +344,7 @@ def write_data_to_sheet(workbook, split_list):
         li.insert(0, f'Day {day}: commits {start_commit}-{end_commit}')
         chart_sheet.write_row(f'A{ROW}', li)
         col = colnum_string(len(li) + 1)
-        colored_condition_cell(workbook, chart_sheet, col, 0, ROW, False)
+        colored_condition_cell(workbook, 'Charts', col, 0, ROW, False)
         ROW += TWO
         day += 1
 
@@ -387,33 +389,64 @@ def get_partial_diff_stats(mod_stas):
         ret[key] = mod_stas[key]
     return ret
 
+def get_review_urgency(bases_diff, apply_diff):
+    # function didn't changed during kernel versions
+    is_kernel_function_equal = bases_diff['+'] == 0 and bases_diff['-'] == 0
+    # function similar in both OFED versios
+    is_ofed_function_equal = apply_diff['+'] == 0 and apply_diff['-'] == 0
+
+    # same base, same end version
+    if is_kernel_function_equal and is_ofed_function_equal:
+        return LOW
+    # same base, different end version
+    elif is_kernel_function_equal and not is_ofed_function_equal:
+        return SEVERE
+    # different base, same end version
+    elif not is_kernel_function_equal and is_ofed_function_equal:
+        return SEVERE
+    # different base, different end version
+    else:
+        return MEDIUM
+
+
 def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info):
-    final_function_diff = get_diff_stats(last_info['Splited'], rebase_info['Splited'], func)
-    same_final_function = is_diff_exist(final_function_diff)
-    if same_final_function:
-        logger.info(f'{func} - Same End Version')
+    # same_final_function = is_diff_exist(apply_diff)
+    # if same_final_function:
+    #     logger.info(f'{func} - Same End Version')
+    bases_diff = get_diff_stats(src_info['Splited'], dst_info['Splited'], func)
+    apply_diff = get_diff_stats(last_info['Splited'], rebase_info['Splited'], func)
     last_modifications = get_diff_stats(src_info['Splited'], last_info['Splited'], func)
     rebase_modifications = get_diff_stats(dst_info['Splited'], rebase_info['Splited'], func)
     modifications_diff = get_modifications_diff_stats(func, last_modifications['Diff newline'],
                                                       rebase_modifications['Diff newline'])
     return {
-        'Last': last_info['Splited'],
-        'Rebase': rebase_info['Splited'],
-        'Src': src_info['Splited'],
-        'Dst': dst_info['Splited'],
-        'Bases diff': get_diff_stats(src_info['Splited'], dst_info['Splited'], func)['Diff'],
-        'Apply diff': final_function_diff['Diff'],
-        'Last modifications': last_modifications['Diff'],
-        'Rebase modifications': rebase_modifications['Diff'],
-        'Modifications diff': modifications_diff['Diff'],
-        'Modification diff exist': is_diff_exist(modifications_diff),
-        'Modifications': {
-            'Last': get_partial_diff_stats(last_modifications),
-            'Rebase': get_partial_diff_stats(rebase_modifications),
-            'Diff': get_partial_diff_stats(modifications_diff)
-        },
-        'Lines': need_review(func, 'Lines', src_info, dst_info, last_info, rebase_info, False),
-        'Scopes': need_review(func, 'Scopes', src_info, dst_info, last_info, rebase_info, False),
+        'Review Need Level': get_review_urgency(bases_diff, apply_diff),
+        'Src': src_info,
+        'Dst': dst_info,
+        'Last': last_info,
+        'Rebase': rebase_info,
+        'Bases diff': bases_diff,
+        'Apply diff': apply_diff,
+        'Last modifications': last_modifications,
+        'Rebase modifications': rebase_modifications,
+        'Modifications diff': modifications_diff,
+        # 'Src': src_info,
+        # 'Dst': dst_info,
+        # 'Last': last_info,
+        # 'Rebase': rebase_info,
+        # 'Bases diff': bases_diff,
+        # 'Apply diff': apply_diff,
+        # 'Last modifications': last_modifications,
+        # 'Rebase modifications': rebase_modifications,
+        # 'Modifications diff': modifications_diff,
+        # 'Modification diff exist': is_diff_exist(modifications_diff),
+        # 'Modifications': {
+        #     'Last': get_partial_diff_stats(last_modifications),
+        #     'Rebase': get_partial_diff_stats(rebase_modifications),
+        #     'Diff': get_partial_diff_stats(modifications_diff)
+        # },
+        # 'Lines': need_review(func, 'Lines', src_info, dst_info, last_info, rebase_info, False),
+        # 'Scopes': need_review(func, 'Scopes', src_info, dst_info, last_info, rebase_info, False),
     }
 
 
@@ -434,18 +467,24 @@ def genarate_results_for_excel(stats_info, dir_name):
     os.mkdir(rebase_mod_path, 0o0755)
     mod_diff_path = f"{root_path + '/' +dir_name}_mod_diff"
     os.mkdir(mod_diff_path, 0o0755)
+    bases_diff_path = f"{root_path + '/' +dir_name}_bases_diff"
+    os.mkdir(bases_diff_path, 0o0755)
+    apply_diff_path = f"{root_path + '/' +dir_name}_apply_diff"
+    os.mkdir(apply_diff_path, 0o0755)
     data_frame_info = []
     for func, info in stats_info.items():
         data_frame_info.append({
             'Function': func,
-            'Need Review': info['Modification diff exist'],
-            'Modification diffs': write_and_link(func, info['Modifications diff'], ofed_mod_path),
-            'Rebase modifications': write_and_link(func, info['Rebase modifications'], rebase_mod_path),
-            'OFED modifications': write_and_link(func, info['Last modifications'], mod_diff_path),
-            'Src': write_and_link(func, info['Src'], src_path),
-            'Dst': write_and_link(func, info['Dst'], dst_path),
-            'Last': write_and_link(func, info['Last'], last_path),
-            'Rebase': write_and_link(func, info['Rebase'], rebase_path),
+            'Need Review Level': info['Review Need Level'],
+            'Modification diffs': write_and_link(func, info['Modifications diff']['Diff'], ofed_mod_path),
+            'Rebase modifications': write_and_link(func, info['Rebase modifications']['Diff'], rebase_mod_path),
+            'OFED modifications': write_and_link(func, info['Last modifications']['Diff'], mod_diff_path),
+            'Bases diff':  write_and_link(func, info['Bases diff']['Diff'], bases_diff_path),
+            'Apply diff':  write_and_link(func, info['Apply diff']['Diff'], apply_diff_path),
+            'Src': write_and_link(func, info['Src']['Splited'], src_path),
+            'Dst': write_and_link(func, info['Dst']['Splited'], dst_path),
+            'Last': write_and_link(func, info['Last']['Splited'], last_path),
+            'Rebase': write_and_link(func, info['Rebase']['Splited'], rebase_path),
         })
     return data_frame_info
 
@@ -559,7 +598,7 @@ class Analyzer(object):
             worksheet.write(1, col_num, value, header_format)
 
         # apply conditions for modification
-        colored_condition_cell(workbook, worksheet, 'C', len(df_main.index), 0, True)
+        colored_condition_cell(workbook, 'Tree', 'C', len(df_main.index), 0, True)
 
         dicts_list_from_modify = commit_to_function
         df_mod = pd.DataFrame(dicts_list_from_modify)
@@ -616,7 +655,7 @@ class Analyzer(object):
         red_format = workbook.add_format({'bg_color': '#FFC7CE',
                                           'font_color': '#9C0006'})
         worksheet.merge_range(f'A1:{chr(ord("A") + len(df_main.columns) - 1)}1', title, title_format)
-        colored_condition_row(workbook, worksheet, 'H', len(df_main.index))
+        colored_condition_row(workbook, 'Analyzed_result', 'H', len(df_main.index))
         # header
         header_format = workbook.add_format({
             'bold': True,
@@ -691,7 +730,9 @@ class Analyzer(object):
             'border': 1})
         for col_num, value in enumerate(df_main.columns.values):
             worksheet.write(1, col_num, value, header_format)
-        color_cell_if_equal(workbook, 'Review', 'B', len(df_main.index), True)
+
+        colored_condition_cell(workbook, 'Review', 'B', len(df_main.index), '', True)
+        # color_cell_if_equal(workbook, 'Review', 'B', len(df_main.index), True)
         # save
         writer.save()
         logger.info(f"Excel {output} was created in {os.path.abspath(output)}")

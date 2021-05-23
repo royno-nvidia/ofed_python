@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/analyzer/Analyzer.py" line="392" mnemonic="3" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="3d4ad855-7f94-4963-9d83-e566622cc23e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Comperator/Comperator.py" beforeDir="false" afterPath="$PROJECT_DIR$/Comperator/Comperator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analyzer/Analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/analyzer/Analyzer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repo_processor/Processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo_processor/Processor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/post_rebase_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/post_rebase_analyzer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/process_ofed_by_commit.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/process_ofed_by_commit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/setting_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/setting_utils.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/venv/" />
@@ -50,8 +50,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="254">
-              <caret line="443" column="98" selection-start-line="443" selection-start-column="98" selection-end-line="443" selection-end-column="98" />
+            <state relative-caret-position="-510">
+              <caret line="702" column="8" selection-start-line="702" selection-start-column="8" selection-end-line="702" selection-end-column="8" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
                 <element signature="e#11850#12945#0" />
@@ -61,8 +61,10 @@
                 <element signature="e#15113#15673#0" />
                 <element signature="e#15763#16768#0" />
                 <element signature="e#16956#17783#0" />
+                <element signature="e#22467#24602#0" />
                 <element signature="e#20312#22766#0" />
                 <element signature="e#23599#25086#0" />
+                <marker date="1621769971757" expanded="true" signature="18392:18672" ph="..." />
               </folding>
             </state>
           </provider>
@@ -71,8 +73,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="40">
-              <caret line="142" selection-start-line="142" selection-end-line="142" />
+            <state relative-caret-position="94">
+              <caret line="141" column="4" selection-start-line="141" selection-start-column="4" selection-end-line="141" selection-end-column="4" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
               </folding>
@@ -95,8 +97,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="152">
-              <caret line="71" column="4" selection-start-line="71" selection-start-column="4" selection-end-line="71" selection-end-column="4" />
+            <state relative-caret-position="160">
+              <caret line="18" selection-start-line="18" selection-end-line="18" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -107,8 +109,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="196">
-              <caret line="67" column="38" lean-forward="true" selection-start-line="67" selection-start-column="38" selection-end-line="67" selection-end-column="38" />
+            <state relative-caret-position="328">
+              <caret line="67" column="27" selection-start-line="67" selection-start-column="27" selection-end-line="67" selection-end-column="27" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -157,9 +159,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get_functions_diff_stats</find>
-      <find>create_main_sheet</find>
-      <find>main_results</find>
       <find>get_work</find>
       <find>colored_condition</find>
       <find>colored_condition_cell</find>
@@ -184,9 +183,12 @@
       <find>nvmet_rdma_device_removal</find>
       <find>Diff</find>
       <find>post</find>
-      <find>check_stat_and_create_dict</find>
-      <find>get_diff_stats</find>
       <find>get_worksheet_by_name</find>
+      <find>check_stat_and_create_dict</find>
+      <find>color_</find>
+      <find>colored_co</find>
+      <find>get_diff_stats</find>
+      <find>get_review_urgency</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -366,7 +368,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py" />
-      <option name="PARAMETERS" value="-ofed_json post_rebase_5_2_2.json -rebase_repo $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_2/mlnx-ofa_kernel-4.0 -ofed_repo $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_1_2/mlnx-ofa_kernel-4.0 -kernel_src /var/tmp/linux_src/linux -kernel_dst /var/tmp/linux_dst/linux -output review_after_rebase9" />
+      <option name="PARAMETERS" value="-ofed_json post_rebase_5_2_2.json -rebase_repo $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_2/mlnx-ofa_kernel-4.0 -ofed_repo $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_1_2/mlnx-ofa_kernel-4.0 -kernel_src /var/tmp/linux_src/linux -kernel_dst /var/tmp/linux_dst/linux -output review_after_rebase15" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -679,6 +681,21 @@
           <line>86</line>
           <option name="timeStamp" value="41" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/analyzer/Analyzer.py</url>
+          <line>565</line>
+          <option name="timeStamp" value="50" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/analyzer/Analyzer.py</url>
+          <line>683</line>
+          <option name="timeStamp" value="51" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/analyzer/Analyzer.py</url>
+          <line>393</line>
+          <option name="timeStamp" value="52" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -979,16 +996,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="71" column="4" selection-start-line="71" selection-start-column="4" selection-end-line="71" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-962">
@@ -1019,16 +1026,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="67" column="38" lean-forward="true" selection-start-line="67" selection-start-column="38" selection-end-line="67" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/lib64/python3.6/site-packages/pandas/core/frame.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="169">
@@ -1036,20 +1033,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="40">
-          <caret line="142" selection-start-line="142" selection-end-line="142" />
+        <state relative-caret-position="94">
+          <caret line="141" column="4" selection-start-line="141" selection-start-column="4" selection-end-line="141" selection-end-column="4" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/catch_rebase_apply_issues.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="328">
+          <caret line="67" column="27" selection-start-line="67" selection-start-column="27" selection-end-line="67" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="254">
-          <caret line="443" column="98" selection-start-line="443" selection-start-column="98" selection-end-line="443" selection-end-column="98" />
+        <state relative-caret-position="-510">
+          <caret line="702" column="8" selection-start-line="702" selection-start-column="8" selection-end-line="702" selection-end-column="8" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
             <element signature="e#11850#12945#0" />
@@ -1059,8 +1076,10 @@
             <element signature="e#15113#15673#0" />
             <element signature="e#15763#16768#0" />
             <element signature="e#16956#17783#0" />
+            <element signature="e#22467#24602#0" />
             <element signature="e#20312#22766#0" />
             <element signature="e#23599#25086#0" />
+            <marker date="1621769971757" expanded="true" signature="18392:18672" ph="..." />
           </folding>
         </state>
       </provider>
