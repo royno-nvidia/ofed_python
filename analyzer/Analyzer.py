@@ -49,33 +49,33 @@ def colored_condition_cell(workbook, sheet_name, col: chr, col_len: int, row: in
                                         'font_color': '#C6EFCE'})
     orange_format = workbook.add_format({'bg_color': '#FFA500',
                                         'font_color': '#FFA500'})
-    white_format = workbook.add_format({'bg_color': '#FFFFFF',
-                                        'font_color': '#FFFFFF'})
+    aqua_format = workbook.add_format({'bg_color': '#41DFEB',
+                                        'font_color': '#41DFEB'})
     worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
-                                  'value': 0,
+                                  'value': LOW,
                                   'format': green_format})
     worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
-                                  'value': 1,
+                                  'value': MEDIUM,
                                   'format': yellow_format})
     worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
-                                  'value': 2,
+                                  'value': HIGH,
                                   'format': orange_format})
     worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
-                                  'value': 3,
+                                  'value': SEVERE,
                                   'format': red_format})
     worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
-                                  'value': -1,
-                                  'format': white_format})
+                                  'value': REDESIGN,
+                                  'format': aqua_format})
 
 
 def colored_condition_row(workbook, worksheet, col: chr, col_len: int):
@@ -266,8 +266,9 @@ def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted,
 
 def create_pie_chart(workbook, main_results):
     headings = ['Levels', 'Number of commits']
-    risks = ['Low', 'Medium', 'High', 'Severe']
-    res = [f'=COUNTIF(Tree!C3:C{len(main_results) + 2},{risk})' for risk in range(4)]
+    risks = ['Low', 'Medium', 'High', 'Severe', 'Redesign']
+    res = [f'=COUNTIF(Tree!C3:C{len(main_results) + 2},{risk})' for risk in range(5)]
+    # res.append(f'=COUNTIF(Tree!C3:C{len(main_results) + 2}, {REDESIGN})')
     bold = workbook.add_format({'bold': 1})
     chart_sheet = workbook.add_worksheet('Charts')
     chart_sheet.write_row('A1', headings, bold)
@@ -276,8 +277,8 @@ def create_pie_chart(workbook, main_results):
     pie = workbook.add_chart({'type': 'pie'})
     pie.add_series({
         'name':       'Levels',
-        'categories': f'=Charts!$A$2:$A$5',
-        'values':     f'=Charts!$B$2:$B$5',
+        'categories': f'=Charts!$A$2:$A$6',
+        'values':     f'=Charts!$B$2:$B$6',
         'data_labels': {'value': True,
                         'percentage': True,
                         'separator': "\n"},
@@ -286,6 +287,7 @@ def create_pie_chart(workbook, main_results):
             {'fill': {'color': '#FFEB9C'}},
             {'fill': {'color': '#FFA500'}},
             {'fill': {'color': '#FF0000'}},
+            {'fill': {'color': '#41DFEB'}},
         ]
     })
     pie.set_title({'name': 'Commits Risk Division'})
@@ -349,8 +351,10 @@ def write_data_to_sheet(workbook, split_list):
         day += 1
 
 
-def create_color_timeline(main_results, workbook, work_days):
-    risks = [commit['Risk Level'] for commit in main_results]
+def create_color_timeline(main_results, workbook, work_days, df_main):
+    col_num = len(df_main)
+    risks = [f'=Tree!C{col_num - index + TWO}' for index in range(col_num)]
+    # risks = [commit['Risk Level'] for commit in main_results]
     split_list = np.array_split(risks, work_days)
     write_data_to_sheet(workbook, split_list)
 
@@ -618,7 +622,7 @@ class Analyzer(object):
         # PIE chart
         create_pie_chart(workbook, main_results)
         # Create timeline
-        create_color_timeline(main_results, workbook, WORK_DAYS)
+        create_color_timeline(main_results, workbook, WORK_DAYS, df_main)
         # create_line_chatr(workbook, df_main)
 
         # save

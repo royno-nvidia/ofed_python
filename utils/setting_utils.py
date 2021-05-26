@@ -13,11 +13,11 @@ EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 
 # RISK LEVELS
+REDESIGN = 4
 SEVERE = 3
 HIGH = 2
 MEDIUM = 1
 LOW = 0
-
 
 class Status(object):
     SUCCESS = 0
