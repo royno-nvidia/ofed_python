@@ -131,7 +131,9 @@ def post_update_excel_dict(iter_list: list, res_dict: dict, feature: str, rm_lis
 
 def create_main_dict(kernel_dict, ofed_list, diff_dict):
     main_res = []
+    patch_number = 0
     for commit in ofed_list:
+        patch_number += 1
         commit_risk = LOW
         for func in commit['Functions']:
             # Added by OFED - not relevant
@@ -165,6 +167,7 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict):
             "Feature": commit['Feature'],
             "Status": commit['Status'],
             "Author": commit['Author'],
+            "Patch Number": patch_number,
             "Change-Id": commit['Change-Id'],
         })
     return main_res

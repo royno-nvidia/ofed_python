@@ -6,28 +6,68 @@ import re
 logger = get_logger('Comperator', 'Comperator.log')
 
 
+def split_api_and_content(diff):
+    api_lines = []
+    ctx_lines = []
+    first_curly_found = False
+    try:
+        for line in diff:
+            if '{' in line:
+                first_curly_found = True
+            api_lines.append(line) if not first_curly_found else ctx_lines.append(line)
+    except Exception as e:
+        logger.critical(f'failed in line {line}, {e}')
+    return {
+        'API': api_lines,
+        'Content': ctx_lines
+    }
+
+def process_api_diff(diff, func_name):
+    proto_changed = False
+    try:
+        for line in diff:
+            if line.startswith('+') or line.startswith('-') or line.startswith('?'):
+                proto_changed = True
+        return proto_changed
+    except Exception as e:
+        logger.critical(f'failed in line {line}, {e}')
+
+def process_ctx_diff(diff, func_name):
+    ctx_changed = False
+    try:
+        for line in diff:
+            if line.startswith('+') or line.startswith('-') or line.startswith('?'):
+                ctx_changed = True
+        return ctx_changed
+    except Exception as e:
+        logger.critical(f'failed in line {line}, {e}')
+
+
 def is_prototype_changed(diff: list, func_name: str) -> tuple:
     """Check if function prototype and context has changed"""
     proto = False
     ctx = False
     inside_proto = False
     inside_ctx = False
+    splited = split_api_and_content(diff)
+    api_ret = process_api_diff(splited['API'], func_name)
+    ctx_ret = process_ctx_diff(splited['Content'], func_name)
+    # for line in diff:
+    #     try:
+    #
+    #         if f"{func_name}(" in line and not inside_ctx:
+    #             inside_proto = True
+    #         if '{' in line and inside_proto:
+    #             inside_proto = False
+    #             inside_ctx = True
+    #         if (line.startswith('+') or line.startswith('-') or line.startswith('?')) and inside_proto:
+    #             proto = True
+    #         if (line.startswith('+') or line.startswith('-') or line.startswith('?')) and inside_ctx:
+    #             ctx = True
+    #     except Exception as e:
+    #         logger.critical(f'failed in line {line}, {e}')
 
-    for line in diff:
-        try:
-            if f"{func_name}(" in line and not inside_ctx:
-                inside_proto = True
-            if '{' in line and inside_proto:
-                inside_proto = False
-                inside_ctx = True
-            if (line.startswith('+') or line.startswith('-') or line.startswith('?')) and inside_proto:
-                proto = True
-            if (line.startswith('+') or line.startswith('-') or line.startswith('?')) and inside_ctx:
-                ctx = True
-        except Exception as e:
-            logger.critical(f'failed in line {line}, {e}')
-
-    return proto, ctx
+    return api_ret, ctx_ret
 
 
 def count_scopes(func: str):
