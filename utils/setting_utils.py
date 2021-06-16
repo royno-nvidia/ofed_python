@@ -13,6 +13,7 @@ EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 
 # RISK LEVELS
+NA = 5
 REDESIGN = 4
 SEVERE = 3
 HIGH = 2
@@ -33,6 +34,8 @@ def string_to_enum(risk: str):
         return HIGH
     if risk == 'Severe':
         return SEVERE
+    if risk == 'NA':
+        return NA
 
 
 def risk_to_string(risk: int):
@@ -44,6 +47,9 @@ def risk_to_string(risk: int):
         return 'High'
     if risk == SEVERE:
         return 'Severe'
+    if risk == NA:
+        return 'NA'
+
 
 
 

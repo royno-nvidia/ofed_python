@@ -51,6 +51,8 @@ def colored_condition_cell(workbook, sheet_name, col: chr, col_len: int, row: in
                                         'font_color': '#FFA500'})
     aqua_format = workbook.add_format({'bg_color': '#41DFEB',
                                         'font_color': '#41DFEB'})
+    purple_format = workbook.add_format({'bg_color': '#8A2BE2',
+                                        'font_color': '#8A2BE2'})
     worksheet.conditional_format(place,
                                  {'type': 'cell',
                                   'criteria': '==',
@@ -76,6 +78,11 @@ def colored_condition_cell(workbook, sheet_name, col: chr, col_len: int, row: in
                                   'criteria': '==',
                                   'value': REDESIGN,
                                   'format': aqua_format})
+    worksheet.conditional_format(place,
+                                 {'type': 'cell',
+                                  'criteria': '==',
+                                  'value': NA,
+                                  'format': purple_format})
 
 
 def colored_condition_row(workbook, worksheet, col: chr, col_len: int):
@@ -410,9 +417,6 @@ def get_review_urgency(bases_diff, apply_diff, mod_diff):
     # same base, same end version
     if is_kernel_function_equal and is_ofed_function_equal:
         return LOW
-    # same modifications
-    elif is_mod_equal:
-        return LOW
     # same base, different end version
     elif is_kernel_function_equal and not is_ofed_function_equal:
         return SEVERE
@@ -420,6 +424,7 @@ def get_review_urgency(bases_diff, apply_diff, mod_diff):
     elif not is_kernel_function_equal and is_ofed_function_equal:
         return SEVERE
     # different base, different end version
+    # same modifications
     else:
         return MEDIUM
 
@@ -488,18 +493,28 @@ def genarate_results_for_excel(stats_info, dir_name):
     os.mkdir(apply_diff_path, 0o0755)
     data_frame_info = []
     for func, info in stats_info.items():
+        review = info['Review Need Level']
         data_frame_info.append({
             'Function': func,
-            'Need Review Level': info['Review Need Level'],
-            'Modification diffs': write_and_link(func, info['Modifications diff']['Diff'], ofed_mod_path),
-            'Rebase modifications': write_and_link(func, info['Rebase modifications']['Diff'], rebase_mod_path),
-            'OFED modifications': write_and_link(func, info['Last modifications']['Diff'], mod_diff_path),
-            'Bases diff':  write_and_link(func, info['Bases diff']['Diff'], bases_diff_path),
-            'Apply diff':  write_and_link(func, info['Apply diff']['Diff'], apply_diff_path),
-            'Src': write_and_link(func, info['Src']['Splited'], src_path),
-            'Dst': write_and_link(func, info['Dst']['Splited'], dst_path),
-            'Last': write_and_link(func, info['Last']['Splited'], last_path),
-            'Rebase': write_and_link(func, info['Rebase']['Splited'], rebase_path),
+            'Need Review Level': review,
+            'Modification diffs': write_and_link(func, info['Modifications diff']['Diff'], ofed_mod_path)
+            if not review == NA else '',
+            'Rebase modifications': write_and_link(func, info['Rebase modifications']['Diff'], rebase_mod_path)
+            if not review == NA else '',
+            'OFED modifications': write_and_link(func, info['Last modifications']['Diff'], mod_diff_path)
+            if not review == NA else '',
+            'Bases diff':  write_and_link(func, info['Bases diff']['Diff'], bases_diff_path)
+            if not review == NA else '',
+            'Apply diff':  write_and_link(func, info['Apply diff']['Diff'], apply_diff_path)
+            if not review == NA else '',
+            'Src': write_and_link(func, info['Src']['Splited'], src_path)
+            if not review == NA else '',
+            'Dst': write_and_link(func, info['Dst']['Splited'], dst_path)
+            if not review == NA else '',
+            'Last': write_and_link(func, info['Last']['Splited'], last_path)
+            if not review == NA else '',
+            'Rebase': write_and_link(func, info['Rebase']['Splited'], rebase_path)
+            if not review == NA else '',
         })
     return data_frame_info
 
@@ -698,12 +713,14 @@ class Analyzer(object):
     @staticmethod
     def create_diffs_from_extracted(ext_loc: str):
         stats_dict = {}
+        missing_func_list = []
         ext_info = open_json(ext_loc)
         for func, info in ext_info.items():
             if func == 'Missing info':
                 continue
             if not info['Last'] or not info['Rebase'] or not info['Src'] or not info['Dst']:
                 logger.warn(f"{func} - Missing info.. skipped")
+                missing_func_list.append(func)
                 continue
             src_stats = get_func_stats(info['Src'])
             dst_stats = get_func_stats(info['Dst'])
@@ -712,6 +729,19 @@ class Analyzer(object):
 
             stats_dict[func] = check_stat_and_create_dict(func, src_stats, dst_stats, last_stats, rebase_stats)
 
+        for func in missing_func_list:
+            stats_dict[func] = {
+                'Review Need Level': NA,
+                'Src': '',
+                'Dst': '',
+                'Last': '',
+                'Rebase': '',
+                'Bases diff': '',
+                'Apply diff': '',
+                'Last modifications': '',
+                'Rebase modifications': '',
+                'Modifications diff': '',
+            }
         return save_to_json(stats_dict, 'stats_dict_post1')
 
     @staticmethod
