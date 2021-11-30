@@ -407,11 +407,14 @@ def get_partial_diff_stats(mod_stas):
         ret[key] = mod_stas[key]
     return ret
 
-def get_review_urgency(bases_diff, apply_diff, mod_diff):
-    # function didn't changed during kernel versions
-    is_kernel_function_equal = not is_diff_exist(bases_diff)
+def get_review_urgency(bases_diff, apply_diff, mod_diff, ofed_only):
     # function similar in both OFED versions
     is_ofed_function_equal = not is_diff_exist(apply_diff)
+    # if function is ofed only make sure the final version is equal
+    if ofed_only:
+        return LOW if is_ofed_function_equal else SEVERE
+    # function didn't changed during kernel versions
+    is_kernel_function_equal = not is_diff_exist(bases_diff)
     # modifiacations similar in both OFED versions
     is_mod_equal = not is_diff_exist(mod_diff)
     # same base, same end version
@@ -433,14 +436,19 @@ def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info)
     # same_final_function = is_diff_exist(apply_diff)
     # if same_final_function:
     #     logger.info(f'{func} - Same End Version')
-    bases_diff = get_diff_stats(src_info['Splited'], dst_info['Splited'], func)
-    apply_diff = get_diff_stats(last_info['Splited'], rebase_info['Splited'], func)
-    last_modifications = get_diff_stats(src_info['Splited'], last_info['Splited'], func)
-    rebase_modifications = get_diff_stats(dst_info['Splited'], rebase_info['Splited'], func)
-    modifications_diff = get_modifications_diff_stats(func, last_modifications['Diff newline'],
+    last_modifications, rebase_modifications, modifications_diff, bases_diff = '', '', '', ''
+    ofed_only = False
+    if src_info and dst_info:
+        bases_diff = get_diff_stats(src_info['Splited'], dst_info['Splited'], func)
+        last_modifications = get_diff_stats(src_info['Splited'], last_info['Splited'], func)
+        rebase_modifications = get_diff_stats(dst_info['Splited'], rebase_info['Splited'], func)
+        modifications_diff = get_modifications_diff_stats(func, last_modifications['Diff newline'],
                                                       rebase_modifications['Diff newline'])
+    else:
+        ofed_only = True
+    apply_diff = get_diff_stats(last_info['Splited'], rebase_info['Splited'], func)
     return {
-        'Review Need Level': get_review_urgency(bases_diff, apply_diff, modifications_diff),
+        'Review Need Level': get_review_urgency(bases_diff, apply_diff, modifications_diff, ofed_only),
         'Src': src_info,
         'Dst': dst_info,
         'Last': last_info,
@@ -450,23 +458,6 @@ def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info)
         'Last modifications': last_modifications,
         'Rebase modifications': rebase_modifications,
         'Modifications diff': modifications_diff,
-        # 'Src': src_info,
-        # 'Dst': dst_info,
-        # 'Last': last_info,
-        # 'Rebase': rebase_info,
-        # 'Bases diff': bases_diff,
-        # 'Apply diff': apply_diff,
-        # 'Last modifications': last_modifications,
-        # 'Rebase modifications': rebase_modifications,
-        # 'Modifications diff': modifications_diff,
-        # 'Modification diff exist': is_diff_exist(modifications_diff),
-        # 'Modifications': {
-        #     'Last': get_partial_diff_stats(last_modifications),
-        #     'Rebase': get_partial_diff_stats(rebase_modifications),
-        #     'Diff': get_partial_diff_stats(modifications_diff)
-        # },
-        # 'Lines': need_review(func, 'Lines', src_info, dst_info, last_info, rebase_info, False),
-        # 'Scopes': need_review(func, 'Scopes', src_info, dst_info, last_info, rebase_info, False),
     }
 
 
@@ -493,28 +484,33 @@ def genarate_results_for_excel(stats_info, dir_name):
     os.mkdir(apply_diff_path, 0o0755)
     data_frame_info = []
     for func, info in stats_info.items():
+        print(f'func: {func}')
+        if func == 'mlx5e_put_page':
+            print('abbb')
         review = info['Review Need Level']
         data_frame_info.append({
             'Function': func,
             'Need Review Level': review,
-            'Modification diffs': write_and_link(func, info['Modifications diff']['Diff'], ofed_mod_path)
-            if not review == NA else '',
-            'Rebase modifications': write_and_link(func, info['Rebase modifications']['Diff'], rebase_mod_path)
-            if not review == NA else '',
-            'OFED modifications': write_and_link(func, info['Last modifications']['Diff'], mod_diff_path)
-            if not review == NA else '',
-            'Bases diff':  write_and_link(func, info['Bases diff']['Diff'], bases_diff_path)
-            if not review == NA else '',
-            'Apply diff':  write_and_link(func, info['Apply diff']['Diff'], apply_diff_path)
-            if not review == NA else '',
+            'OFED2 Diff OFED1': write_and_link(func, info['Apply diff']['Diff'], apply_diff_path)
+            if info['Apply diff'] else '',
+            'Korg2 Diff Korg1': write_and_link(func, info['Bases diff']['Diff'], bases_diff_path)
+            if info['Bases diff'] else '',
+            'OFED1 Diff Korg1': write_and_link(func, info['Last modifications']['Diff'], mod_diff_path)
+            if info['Last modifications'] else '' ,
+            'OFED2 Diff Korg2': write_and_link(func, info['Rebase modifications']['Diff'], rebase_mod_path)
+            if info['Rebase modifications'] else '',
+            'Rebase2 Diff Rebase1': write_and_link(func, info['Modifications diff']['Diff'], ofed_mod_path)
+            if info['Modifications diff'] else '',
+            'Review notes': '',
+            'Sign-off by': '',
             'Src': write_and_link(func, info['Src']['Splited'], src_path)
-            if not review == NA else '',
+            if info['Src'] else '',
             'Dst': write_and_link(func, info['Dst']['Splited'], dst_path)
-            if not review == NA else '',
+            if info['Dst'] else '',
             'Last': write_and_link(func, info['Last']['Splited'], last_path)
-            if not review == NA else '',
+            if info['Last'] else '',
             'Rebase': write_and_link(func, info['Rebase']['Splited'], rebase_path)
-            if not review == NA else '',
+            if info['Rebase'] else '',
         })
     return data_frame_info
 
@@ -717,16 +713,19 @@ class Analyzer(object):
         ext_info = open_json(ext_loc)
         for func, info in ext_info.items():
             if func == 'Missing info':
+                for f in ext_info['Missing info']:
+                    missing_func_list.append(f)
                 continue
-            if not info['Last'] or not info['Rebase'] or not info['Src'] or not info['Dst']:
-                logger.warn(f"{func} - Missing info.. skipped")
-                missing_func_list.append(func)
-                continue
-            src_stats = get_func_stats(info['Src'])
-            dst_stats = get_func_stats(info['Dst'])
+            # if not info['Last'] or not info['Rebase'] or not info['Src'] or not info['Dst']:
+            #     logger.warn(f"{func} - Missing info.. skipped")
+            #     missing_func_list.append(func)
+            #     continue
+            src_stats, dst_stats = '', ''
+            if info['Src'] and info['Dst']:
+                src_stats = get_func_stats(info['Src'])
+                dst_stats = get_func_stats(info['Dst'])
             last_stats = get_func_stats(info['Last'])
             rebase_stats = get_func_stats(info['Rebase'])
-
             stats_dict[func] = check_stat_and_create_dict(func, src_stats, dst_stats, last_stats, rebase_stats)
 
         for func in missing_func_list:

@@ -2,7 +2,7 @@ import subprocess
 from datetime import datetime
 import json
 import os
-from pydriller import RepositoryMining
+from pydriller import Repository
 
 from Comperator.Comperator import Comperator, extract_method_from_file, make_readable_function
 from ofed_classes.OfedRepository import OfedRepository
@@ -41,25 +41,23 @@ def get_actual_ofed_info(ofed_json):
 
 def get_ofed_functions_info(ofed_json):
     ofed_modified_methods_dict = open_json(ofed_json)
-    ret = {}
+    ofed_funcs = {}
     for commit in ofed_modified_methods_dict:
         for func, info in commit['Functions'].items():
-            if info['Status'] == 'Add':
-                continue
-            ret[func] = info
-    return ret
+            ofed_funcs[func] = info
+    return ofed_funcs
 
 
 def extract_function(kernel_path, func_location, func, prefix, with_backports):
     fpath = f"{kernel_path}/{func_location}"
     if not os.path.exists(fpath):
         logger.warn(f"{prefix}: FIle not exist: {fpath} - miss info for {func}")
-        return None
+        return ''
     else:
         ext_func = extract_method_from_file(fpath, func)
         if ext_func == '':
             logger.warn(f"{prefix}: Failed to find {func} in file {fpath}")
-            return None
+            return ''
     return ext_func
 
 
@@ -187,7 +185,7 @@ class Processor(object):
         :return:
         """
         try:
-            self._repo = RepositoryMining(self._repo_path,
+            self._repo = Repository(self._repo_path,
                                           from_tag=self._args.start_tag, to_tag=self._args.end_tag)
             self.set_overall_commits(self._repo)
             self._results = {}
@@ -199,7 +197,7 @@ class Processor(object):
                 logger.debug(f'Processing commit {commit.hash}:')
                 # iterate all commit in repo
                 self.up()
-                for mod in commit.modifications:
+                for mod in commit.modified_files:
                     mod_file_path = mod.new_path
                     before_methods = set([meth.name for meth in mod.methods_before])
                     after_methods = set([meth.name for meth in mod.methods])
@@ -481,28 +479,34 @@ class Processor(object):
 
     @staticmethod
     def get_extraction_for_all_ofed_functions(args):
-        ofed_modified_function = get_ofed_functions_info(args.ofed_json)
+        ofed_functions = get_ofed_functions_info(args.ofed_json)
         error_list = []
         function_ext_dict = {}
+
         # pprint(ofed_modified_function)
         # print('len', len(ofed_modified_function.keys()))
-        for func, info in ofed_modified_function.items():
+        for func, info in ofed_functions.items():
+            src_ext, dst_ext = '', ''
             last_ext = extract_function(args.ofed_repo, info['Location'], func, "Last OFED", False)
             curr_ext = extract_function(args.rebase_repo, info['Location'], func, "Rebase", False)
-            src_ext = extract_function(args.kernel_src, info['Location'], func, "SRC", False)
-            dst_ext = extract_function(args.kernel_dst, info['Location'], func, "DST", False)
+            if info['Status'] == 'Modify':
+                src_ext = extract_function(args.kernel_src, info['Location'], func, "SRC", False)
+                dst_ext = extract_function(args.kernel_dst, info['Location'], func, "DST", False)
+            if not last_ext or not curr_ext or (info['Status'] == 'Modify' and (not src_ext or not dst_ext)):
+                error_list.append(func)
+                logger.warn(f"Function {func} - Failed to process")
+                continue
+
             function_ext_dict[func] = {
                 'Last': last_ext,
                 'Rebase': curr_ext,
                 'Src': src_ext,
                 'Dst': dst_ext
             }
-            if not last_ext or not curr_ext or not src_ext or not dst_ext:
-                error_list.append(func)
-                logger.warn(f"Function {func} - Failed to process")
+
         function_ext_dict['Missing info'] = error_list
         location = save_to_json(function_ext_dict, 'check_post1')
-        overall = len(ofed_modified_function.keys())
+        overall = len(ofed_functions.keys())
         able = overall - len(error_list)
         logger.info(f'Success process rate: {(able/overall)*100:.2f}% [{able}/{overall}]')
         return location

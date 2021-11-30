@@ -172,6 +172,8 @@ def count_lines(func):
     return cnt
 
 def get_func_stats(func):
+    if not func:
+        return ''
     splited = make_readable_function(func)
     scopes = count_scopes(func)
     func_lines = count_lines(func)

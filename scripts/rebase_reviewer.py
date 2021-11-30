@@ -63,6 +63,7 @@ def main():
     # if not checks_for_Analyzer(file_list_verify, args.output):
     #     logger.critical('Argument verify failed, exiting')
     #     exit(1)
+
     ext_loc = Processor.get_extraction_for_all_ofed_functions(args)
     location = Analyzer.create_diffs_from_extracted(ext_loc)
     Analyzer.create_rebase_reviews_excel(location, args.output)
