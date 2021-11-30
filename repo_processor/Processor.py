@@ -52,12 +52,12 @@ def extract_function(kernel_path, func_location, func, prefix, with_backports):
     fpath = f"{kernel_path}/{func_location}"
     if not os.path.exists(fpath):
         logger.warn(f"{prefix}: FIle not exist: {fpath} - miss info for {func}")
-        return ''
+        return None
     else:
         ext_func = extract_method_from_file(fpath, func)
         if ext_func == '':
             logger.warn(f"{prefix}: Failed to find {func} in file {fpath}")
-            return ''
+            return None
     return ext_func
 
 
@@ -274,7 +274,7 @@ class Processor(object):
                     # skip accepted
                     logger.debug(f"skipped {chash} due to accepted status")
                     continue
-                for mod in ofed_commit.commit.modifications:
+                for mod in ofed_commit.commit.modified_files:
                     mod_file_path = mod.new_path
                     # iterate all modifications in commit
                     if len(mod.changed_methods) > 0:

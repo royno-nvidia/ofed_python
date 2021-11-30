@@ -4,7 +4,7 @@ import re
 from typing import Generator
 
 from colorlog import ColoredFormatter
-from pydriller import RepositoryMining, Commit
+from pydriller import Repository, Commit
 from ofed_classes.Metadata import Metadata
 from ofed_classes.OfedCommit import OfedCommit
 from utils.setting_utils import get_logger
@@ -24,7 +24,7 @@ class OfedRepository(object):
         :param path: absolute path for rep
         """
         absolute_path = path if not path.endswith('/') else path[:-1]
-        self._repository = RepositoryMining(absolute_path, from_commit=from_commit,
+        self._repository = Repository(absolute_path, from_commit=from_commit,
                                             to_commit=to_commit, from_tag=from_tag, to_tag=to_tag)
         self._metadata = Metadata(absolute_path)
         logger.debug(json.dumps(self._metadata.info, indent=4))
