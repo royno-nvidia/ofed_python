@@ -1,8 +1,8 @@
 import argparse
-import datetime
 import time
 
 from repo_processor.Processor import Processor, save_to_json
+from utils.setting_utils import show_runtime
 from verifier.verifer_arg import *
 
 logger = get_logger('Processor', 'Processor.log')
@@ -21,18 +21,7 @@ def parse_args():
     return options
 
 
-def show_runtime(end_time, start_time):
-    """
-    display script runtime in logger
-    :param end_time:
-    :param start_time:
-    :return:
-    """
-    runtime = end_time - start_time
-    msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime//1))}"
-    logger.info('-' * len(msg))
-    logger.info(msg)
-    logger.info('-' * len(msg))
+
 
 
 def main():
@@ -46,7 +35,7 @@ def main():
     res = pr.results
     save_to_json(res, args.output)
     end_time = time.time()
-    show_runtime(end_time, start_time)
+    show_runtime(end_time, start_time, logger)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+import datetime
 import json
 from colorlog import ColoredFormatter
 
@@ -100,3 +100,17 @@ def open_json(json_name: str):
             return data
     except IOError as e:
         print(f"failed to read json - {path}:\n{e}")
+
+
+def show_runtime(end_time, start_time, logger):
+    """
+    display script runtime in logger
+    :param end_time:
+    :param start_time:
+    :return:
+    """
+    runtime = end_time - start_time
+    msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime//1))}"
+    logger.info('-' * len(msg))
+    logger.info(msg)
+    logger.info('-' * len(msg))

@@ -1,5 +1,5 @@
 import argparse
-from datetime import datetime, timedelta
+import datetime
 import time
 from pprint import pprint
 
@@ -27,20 +27,6 @@ def parse_args():
     return options
 
 
-def show_runtime(end_time, start_time):
-    """
-    display script runtime in logger
-    :param end_time:
-    :param start_time:
-    :return:
-    """
-    runtime = end_time - start_time
-    msg = f"Script run time:  {str(datetime.timedelta(seconds=runtime // 1))}"
-    logger.info('-' * len(msg))
-    logger.info(msg)
-    logger.info('-' * len(msg))
-
-
 def main():
     start_time = time.time()
     args = parse_args()
@@ -52,7 +38,7 @@ def main():
     res = pr.results
     save_to_json(res, args.output)
     end_time = time.time()
-    show_runtime(end_time, start_time)
+    show_runtime(end_time, start_time, logger)
 
 
 if __name__ == '__main__':
