@@ -4,7 +4,7 @@ import json
 import os
 from pydriller import RepositoryMining as Repository
 
-from Comperator.Comperator import Comperator, extract_method_from_file, make_readable_function
+from Comperator.Comperator import extract_method_from_file, make_readable_function, get_functions_diff_stats
 from ofed_classes.OfedRepository import OfedRepository
 from utils.setting_utils import *
 
@@ -68,7 +68,7 @@ def get_function_statistics(kernels_dict, func_name, src_kernel_path, dst_kernel
     dst_func = extract_function(dst_kernel_path, func_location, func_name, "DST", False)
     if src_func is None or dst_func is None:
         return None
-    ret = Comperator.get_functions_diff_stats(src_func, dst_func,
+    ret = get_functions_diff_stats(src_func, dst_func,
                                               func_name, False, None)
     return ret
 
@@ -327,7 +327,7 @@ class Processor(object):
                     overall += 1
                     func_status = kernels_modified_methods_dict[func]['Status']
                     if func_status == 'Delete':
-                        ret_diff_stats[func] = Comperator.get_functions_diff_stats(None, None,
+                        ret_diff_stats[func] = get_functions_diff_stats(None, None,
                                                                                    func, True, SEVERE)
                     else:
                         func_stats = get_function_statistics(kernels_modified_methods_dict, func,
@@ -340,8 +340,8 @@ class Processor(object):
                 for mod in actual_ofed_functions_modified:
                     if mod not in kernels_modified_methods_dict.keys():
                         print(f'{mod}- handle no risk')
-                        ret = Comperator.get_functions_diff_stats(None, None,
-                                                                  mod, False, LOW)
+                        ret = get_functions_diff_stats(None, None,
+                                                       mod, False, LOW)
                         ret_diff_stats[mod] = ret
                 loc = save_to_json(ret_diff_stats, f'{output_file}_diff')
                 logger.info(f"overall functions: {overall}")

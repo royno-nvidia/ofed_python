@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import os
 
-from Comperator.Comperator import Comperator, get_func_stats, get_diff_stats
+from Comperator.Comperator import get_func_stats, get_diff_stats
 from repo_processor.Processor import save_to_json, get_actual_ofed_info, get_ofed_functions_info, extract_function
 from utils.setting_utils import *
 
