@@ -4,7 +4,7 @@ import re
 from typing import Generator
 
 from colorlog import ColoredFormatter
-from pydriller import Repository, Commit
+from pydriller import RepositoryMining as Repository, Commit
 from ofed_classes.Metadata import Metadata
 from ofed_classes.OfedCommit import OfedCommit
 from utils.setting_utils import get_logger

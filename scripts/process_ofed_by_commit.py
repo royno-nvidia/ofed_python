@@ -19,8 +19,6 @@ def parse_args():
                         help="Script will process only commits from tag and above [must be valid tag in -path repo]")
     parser.add_argument("-end_tag", type=str, default=None,
                         help="Script will process only commits up to tag [must be valid tag in -path repo]")
-    parser.add_argument("-by_commit", default=False, action='store_true',
-                        help="Process tree by commit not by feature")
     parser.add_argument("-output", type=str, default=None,
                         help="Name for Json result file")
     options = parser.parse_args()

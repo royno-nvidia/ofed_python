@@ -2,7 +2,9 @@
 
 # this script will install modules required for scripts run
 sys_py_ver="$(ls  /usr/bin/  | grep -oE "python[0-9]\.*[0-9]*" | sort -r | uniq |head -1)"
+DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 
+export PYTHONPATH="${PYTHONPATH}:$DIR"
 sudo /usr/bin/${sys_py_ver} -m  pip install pydriller
 sudo /usr/bin/${sys_py_ver} -m  pip install pandas
 sudo /usr/bin/${sys_py_ver} -m  pip install xlsxwriter

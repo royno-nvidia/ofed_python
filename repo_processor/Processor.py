@@ -2,7 +2,7 @@ import subprocess
 from datetime import datetime
 import json
 import os
-from pydriller import Repository
+from pydriller import RepositoryMining as Repository
 
 from Comperator.Comperator import Comperator, extract_method_from_file, make_readable_function
 from ofed_classes.OfedRepository import OfedRepository
@@ -171,9 +171,6 @@ class Processor(object):
         :return:
         """
         if self._is_ofed:
-            if self._args.by_commit:
-                self.ofed_process_by_commit()
-            else:
                 self.ofed_repo_processor()
         else:
             self.kernel_repo_processor()
@@ -197,7 +194,7 @@ class Processor(object):
                 logger.debug(f'Processing commit {commit.hash}:')
                 # iterate all commit in repo
                 self.up()
-                for mod in commit.modified_files:
+                for mod in commit.modifications:
                     mod_file_path = mod.new_path
                     before_methods = set([meth.name for meth in mod.methods_before])
                     after_methods = set([meth.name for meth in mod.methods])
@@ -226,7 +223,7 @@ class Processor(object):
             logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
 
-    def ofed_process_by_commit(self):
+    def ofed_repo_processor(self):
         """
         Process self._repo_for_process in case of OFED repo
         when iterate all commits in repo and create dict {'commit': [method changed by feature list]}
@@ -274,7 +271,7 @@ class Processor(object):
                     # skip accepted
                     logger.debug(f"skipped {chash} due to accepted status")
                     continue
-                for mod in ofed_commit.commit.modified_files:
+                for mod in ofed_commit.commit.modifications:
                     mod_file_path = mod.new_path
                     # iterate all modifications in commit
                     if len(mod.changed_methods) > 0:
@@ -311,93 +308,6 @@ class Processor(object):
         except Exception as e:
             logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
-
-    def ofed_repo_processor(self):
-        """
-        Process self._repo_for_process in case of OFED repo
-        when iterate all commits in repo and create dict {'feature': [method changed by feature list]}
-        :return:
-        """
-        try:
-            self._repo = OfedRepository(self._repo_path,
-                                        None if not self._args.start_tag else self._args.start_tag,
-                                        None if not self._args.start_tag else self._args.end_tag)
-            self.set_overall_commits(self._repo)
-        except Exception as e:
-            logger.critical(f"Fail to process OfedRepository: '{self._repo_path}',\n{e}")
-        block_ofed_only = True
-        try:
-            # cnt = 0
-            ofed_only_set = set()
-            for ofed_commit in self._repo.traverse_commits():
-                if ofed_commit.info is None:
-                    logger.warn(f"Could not get metadata info - hash: {ofed_commit.commit.hash[:12]}")
-                    continue
-                # if cnt > 10:
-                #     break
-                # cnt += 1
-                feature = ofed_commit.info['feature']
-                # iterate all repo commit
-                logger.debug(f"process hash: {ofed_commit.commit.hash[:12]}, feature: {feature}")
-                self.up()
-                if ofed_commit.info['upstream_status'] == 'accepted':
-                    # skip accepted
-                    logger.debug(f"skipped due to accepted status")
-                    continue
-                for mod in ofed_commit.commit.modifications:
-                    mod_file_path = mod.new_path
-                    # iterate all modifications in commit
-                    if len(mod.changed_methods) > 0:
-                        if block_ofed_only:
-                            # ofed repo commits are setting the base code so methods added
-                            # in those commits not ofed only but kernel methods!
-                            added_methods = []
-                        else:
-                            methods_before = [meth.name for meth in mod.methods_before]
-                            methods_after = [meth.name for meth in mod.methods]
-                            added_methods = list(set(methods_after) - set(methods_before))
-                            # sets algebra, methods after\methods before = method added by commit
-                        logger.debug('methods changed:')
-                        for method in mod.changed_methods:
-                            # add all changed methods to dict
-                            if feature in self._results.keys():
-                                # if feature exist add relevant method
-                                self._results[feature]['kernel'][method.name] = {'Location': mod_file_path}
-                                logger.debug(f'feature {feature} exist, adding: {method.name} in file {method.filename}')
-                            else:
-                                # first feature appearance, create key in dict and append
-                                self._results[feature] = {'kernel': {},
-                                                          'ofed_only': {}}
-                                self._results[feature]['kernel'][method.name] = {'Location': mod_file_path}
-                                logger.debug(
-                                    f'feature {feature} first appearence, adding: {method.name} in file {method.filename}')
-                        for ofed_method in added_methods:
-                            # add all added methods to dict
-                            self._results[feature]['ofed_only'][ofed_method] = {'Location': mod_file_path}
-                            ofed_only_set.add(ofed_method)
-                            # iterate new methods added by ofed
-                            logger.debug(f'{ofed_method} added by ofed in commit {ofed_commit.commit.hash}')
-                            # self._results[feature]['ofed_only'].append(ofed_method)
-                    else:
-                        logger.debug(f'nothing to do in {ofed_commit.commit.hash}, file {mod.filename}')
-                if "Set base code to" in ofed_commit.commit.msg:
-                    block_ofed_only = False
-
-            # create ofed_only
-            for feature in self._results.keys():
-                # itarate all featurs in dict
-                for ofed_func in ofed_only_set:
-                    ret = self._results[feature]['kernel'].pop(ofed_func, None) # throw ofed only duplicates in 'kernel'
-                    if ret is None:
-                        logger.debug(f"could not find {ofed_func} in result[{feature}]['kernel']")
-                    else:
-                        logger.debug(f"{ofed_func} is ofed only, removed from result[{feature}]['kernel']")
-            save_to_json(self._results)
-        except Exception as e:
-            logger.critical(f"Fail to process commit: '{ofed_commit.commit.hash}',\n{e}")
-        logger.info(f"over all commits processed: {self._commits_processed}")
-
-
 
     @staticmethod
     def get_kernels_methods_diffs(src_kernel_path: str, dst_kernel_path: str,

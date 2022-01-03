@@ -10,7 +10,7 @@ logger = get_logger('Verifier', 'Verifier.log')
 
 def functions_diff_checks(args) -> bool:
     """
-    Verify user arguments for 'pre_rebase_process.py' script
+    Verify user arguments for script
     :param args: user input
     :return:
     """
@@ -34,7 +34,7 @@ def functions_diff_checks(args) -> bool:
 
 def extract_ofed_checks(args) -> bool:
     """
-    Verify user arguments for 'pre_rebase_process.py' script
+    Verify user arguments for script
     :param args: user input
     :return:
     """
@@ -52,7 +52,7 @@ def extract_ofed_checks(args) -> bool:
 
 def checks_for_processor(args) -> bool:
     """
-    Verify user arguments for 'pre_rebase_process.py' script
+    Verify user arguments for script
     :param args: user input
     :return:
     """
