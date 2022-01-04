@@ -1,10 +1,5 @@
 import argparse
-import datetime
 import time
-from pprint import pprint
-
-
-from Comperator.Comperator import Comperator
 from repo_processor.Processor import Processor, save_to_json
 from utils.setting_utils import *
 from verifier.verifer_arg import *

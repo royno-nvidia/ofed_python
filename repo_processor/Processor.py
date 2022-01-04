@@ -247,13 +247,20 @@ class Processor(object):
                     logger.warn(f"Could not get metadata info - hash: {ofed_commit.commit.hash[:12]}")
                     continue
                 cstatus = ofed_commit.info['upstream_status']
-                if cstatus == 'accepted' or cstatus == 'ignore':
-                    continue
                 chash = ofed_commit.commit.hash
                 csubj = ofed_commit.info['subject']
                 ccid = ofed_commit.info['Change-Id']
                 cauthor = ofed_commit.commit.author.name
                 cfeature = ofed_commit.info['feature']
+                if cfeature == 'rebase_upstream_fixes':
+                    logger.warn(f'Skip commit {ofed_commit.commit.hash[0:12]} - Feature: {cfeature} with status {cstatus}')
+                    continue
+                if cstatus == 'ignore':
+                    logger.warn(f'Skip commit {ofed_commit.commit.hash[0:12]} - upstreamm status: {cstatus}')
+                    continue
+
+                # if cstatus == 'accepted':
+                #TODO: How to handle accepted? ignore from statistics
 
                 commit_info_dict = {
                     'Hash': chash,
@@ -267,10 +274,10 @@ class Processor(object):
                 # iterate all repo commit
                 logger.debug(f"process hash: {ofed_commit.commit.hash[:12]}, feature: {cfeature}")
                 self.up()
-                if cfeature == 'accepted':
-                    # skip accepted
-                    logger.debug(f"skipped {chash} due to accepted status")
-                    continue
+                # if cfeature == 'accepted':
+                #     # skip accepted
+                #     logger.debug(f"skipped {chash} due to accepted status")
+                #     continue
                 for mod in ofed_commit.commit.modifications:
                     mod_file_path = mod.new_path
                     # iterate all modifications in commit
@@ -328,7 +335,7 @@ class Processor(object):
                     func_status = kernels_modified_methods_dict[func]['Status']
                     if func_status == 'Delete':
                         ret_diff_stats[func] = get_functions_diff_stats(None, None,
-                                                                                   func, True, SEVERE)
+                                                                        func, True, SEVERE)
                     else:
                         func_stats = get_function_statistics(kernels_modified_methods_dict, func,
                                                              src_kernel_path, dst_kernel_path)
