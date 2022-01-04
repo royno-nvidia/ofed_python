@@ -4,7 +4,8 @@ import json
 import os
 from pydriller import RepositoryMining as Repository
 
-from Comperator.Comperator import extract_method_from_file, make_readable_function, get_functions_diff_stats
+from Comperator.Comperator import extract_method_from_file, make_readable_function, get_functions_diff_stats, \
+    get_diff_stats
 from ofed_classes.OfedRepository import OfedRepository
 from utils.setting_utils import *
 
@@ -48,8 +49,8 @@ def get_ofed_functions_info(ofed_json):
     return ofed_funcs
 
 
-def extract_function(kernel_path, func_location, func, prefix, with_backports):
-    fpath = f"{kernel_path}/{func_location}"
+def extract_function(dir_path, func_location, func, prefix, with_backports):
+    fpath = f"{dir_path}/{func_location}"
     if not os.path.exists(fpath):
         logger.warn(f"{prefix}: FIle not exist: {fpath} - miss info for {func}")
         return None
@@ -61,15 +62,19 @@ def extract_function(kernel_path, func_location, func, prefix, with_backports):
     return ext_func
 
 
+def extract_from_sources(args, func, file):
+    src_kernel_path = args.ksrc
+    dst_kernel_path = args.kdst
+    ofed_src_path = args.osrc
 
-def get_function_statistics(kernels_dict, func_name, src_kernel_path, dst_kernel_path):
-    func_location = kernels_dict[func_name]['Location']
-    src_func = extract_function(src_kernel_path, func_location, func_name, "SRC", False)
-    dst_func = extract_function(dst_kernel_path, func_location, func_name, "DST", False)
-    if src_func is None or dst_func is None:
-        return None
-    ret = get_functions_diff_stats(src_func, dst_func,
-                                              func_name, False, None)
+    ret = {
+        'src': extract_function(src_kernel_path,
+                                      file, func, "SRC", False),
+        'dst': extract_function(dst_kernel_path,
+                                      file, func, "DST", False),
+        'ofed': extract_function(ofed_src_path,
+                                       file, func, "OFED", False)
+    }
     return ret
 
 
@@ -255,12 +260,9 @@ class Processor(object):
                 if cfeature == 'rebase_upstream_fixes':
                     logger.warn(f'Skip commit {ofed_commit.commit.hash[0:12]} - Feature: {cfeature} with status {cstatus}')
                     continue
-                if cstatus == 'ignore':
+                if cstatus == 'ignore' or cstatus == 'accepted':
                     logger.warn(f'Skip commit {ofed_commit.commit.hash[0:12]} - upstreamm status: {cstatus}')
                     continue
-
-                # if cstatus == 'accepted':
-                #TODO: How to handle accepted? ignore from statistics
 
                 commit_info_dict = {
                     'Hash': chash,
@@ -317,40 +319,60 @@ class Processor(object):
         logger.info(f"over all commits processed: {self._commits_processed}")
 
     @staticmethod
-    def get_kernels_methods_diffs(src_kernel_path: str, dst_kernel_path: str,
-                                  kernels_json_path, output_file: str,
-                                  ofed_json_path):
+    def get_kernels_methods_diffs(args):
+
+        kernels_json_path = args.kernel_json
+        output_file = args.output
+        ofed_json_path = args.ofed_json
         ret_diff_stats = {}
+        extracted_functions = {}
         overall = 0
         actual_process = 0
+
         try:
             actual_ofed_functions_modified = get_actual_ofed_info(ofed_json_path)
             with open(JSON_LOC+kernels_json_path) as handle:
                 kernels_modified_methods_dict = json.load(handle)
-                for func in kernels_modified_methods_dict.keys():
-                    # for key, value in kernels_modified_methods_dict['modified'].items():
-                    if func not in actual_ofed_functions_modified:
-                        continue
+                for func in actual_ofed_functions_modified:
                     overall += 1
+                    if func not in kernels_modified_methods_dict.keys():
+                        # handle no risk (not changed)functions
+                        print(f'{func}- handle no risk')
+                        ret = get_functions_diff_stats(None, None, func, False, LOW)
+                        ret_diff_stats[func] = ret
+                        continue
                     func_status = kernels_modified_methods_dict[func]['Status']
+                    file = kernels_modified_methods_dict[func]['Location']
                     if func_status == 'Delete':
+                        # handle removed function - SEVERE risk
                         ret_diff_stats[func] = get_functions_diff_stats(None, None,
                                                                         func, True, SEVERE)
+
                     else:
-                        func_stats = get_function_statistics(kernels_modified_methods_dict, func,
-                                                             src_kernel_path, dst_kernel_path)
-                        if func_stats is None:
+                        # handle all other risks
+                        if func in extracted_functions.keys():
                             continue
-                        ret_diff_stats[func] = func_stats
+                        ext = extract_from_sources(args, func, file)
+                        extracted_functions[func] = ext
+                        if ext['src'] is None or ext['dst'] is None:
+                            continue
+                        ret_diff_stats[func] = get_functions_diff_stats(ext['src'], ext['dst'],
+                                                                        func, False, None)
                         actual_process += 1
-                # handle no risk functions
-                for mod in actual_ofed_functions_modified:
-                    if mod not in kernels_modified_methods_dict.keys():
-                        print(f'{mod}- handle no risk')
-                        ret = get_functions_diff_stats(None, None,
-                                                       mod, False, LOW)
-                        ret_diff_stats[mod] = ret
-                loc = save_to_json(ret_diff_stats, f'{output_file}_diff')
+                readable_extracted = {}
+                for func, value in extracted_functions.items():
+                    readable_extracted[func] = {
+                        'src': make_readable_function(value['src']),
+                        'dst': make_readable_function(value['dst']),
+                        'ofed': make_readable_function(value['ofed']),
+                    }
+                    diff = get_diff_stats(readable_extracted[func]['dst'],
+                                          readable_extracted[func]['ofed'], func)
+                    readable_extracted[func]['Aligned'] = diff['Aligned'] if diff else None
+                loc = {
+                    'ext': save_to_json(readable_extracted, f'{output_file}_ext_sources'),
+                    'stats': save_to_json(ret_diff_stats, f'{output_file}_diff')
+                }
                 logger.info(f"overall functions: {overall}")
                 logger.info(f"able to process functions: {actual_process}")
                 if overall > 0:
@@ -363,14 +385,10 @@ class Processor(object):
     def extract_ofed_functions(src_ofed_path: str, ofed_json_path: str, output: str, with_backports: bool):
         prefix = 'OFED backports' if with_backports else 'OFED'
         extracted_functions = {}
-        ofed_modified_dict = []
         overall = 0
         actual = 0
-        try:
-            with open(JSON_LOC+ofed_json_path) as handle:
-                ofed_modified_dict = json.load(handle)
-        except IOError as e:
-            logger.critical(f"failed to read json:\n{e}")
+
+        ofed_modified_dict = open_json(ofed_json_path)
         for commit in ofed_modified_dict:
             for func, info in commit['Functions'].items():
                 overall += 1

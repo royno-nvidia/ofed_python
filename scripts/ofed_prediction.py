@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument("-ksrc", type=str, default="", required=True,
                         help="Linus repository checkout at source version")
     parser.add_argument("-kdst", type=str, default=None, required=True,
-                    help="Linus repository checkout at source version")
+                        help="Linus repository checkout at destination version")
     # parser.add_argument("-ofed_extracted_functions", type=str, default=None, required=True,
     #                     help="Path for OFED extracted last version functions")
     parser.add_argument("-ofed_tag", type=str, default="", required=True,
@@ -48,10 +48,7 @@ def main():
         exit(1)
 
     # create methods diff stats
-    diff_location = Processor.get_kernels_methods_diffs(args.ksrc, args.kdst,
-                                        args.kernel_json,
-                                        args.output,
-                                        args.ofed_json)
+    loc = Processor.get_kernels_methods_diffs(args)
 
     # # Get OFED function in version end
     ext_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, False)
@@ -62,7 +59,7 @@ def main():
 
     # Excel data analyze
     main_res, commit_to_function = Analyzer.build_commit_dicts(
-        args.kernel_json, args.ofed_json, diff_location, ext_loc, back_loc, args.output)
+        args.kernel_json, args.ofed_json, loc, ext_loc, back_loc, args.output)
 
     # Excel workbook creation
     Analyzer.create_colored_tree_excel(main_res, commit_to_function,

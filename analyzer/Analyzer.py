@@ -137,15 +137,19 @@ def post_update_excel_dict(iter_list: list, res_dict: dict, feature: str, rm_lis
     return res_dict
 
 
-def create_main_dict(kernel_dict, ofed_list, diff_dict):
+def create_main_dict(kernel_dict, ofed_list, diff_dict, sources):
     main_res = []
     patch_number = 0
     for commit in ofed_list:
         patch_number += 1
         commit_risk = LOW
+        upstream_aligned_functions = []
         # In case status is 'accepted' - risk always LOW
         if commit['Status'] != 'accepted':
             for func in commit['Functions']:
+                if func in sources.keys():
+                    if sources[func]['Aligned']:
+                        upstream_aligned_functions.append(func)
                 # Added by OFED - not relevant
                 if commit['Functions'][func]['Status'] == 'Add':
                     logger.debug(f'Ignore {func} - Added by OFED patch')
@@ -178,6 +182,7 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict):
             "Action": '',
             "Compilation status": '',
             "CI status": '',
+            "Aligned to upstream functions": '||'.join(upstream_aligned_functions),
             "Feature": commit['Feature'],
             "Status": commit['Status'],
             "Author": commit['Author'],
@@ -572,7 +577,7 @@ class Analyzer(object):
             json.dump(res_dict, handle, indent=4)
 
     @staticmethod
-    def build_commit_dicts(kernel_json: str, ofed_json: str, diff_json: str,
+    def build_commit_dicts(kernel_json: str, ofed_json: str, loc: str,
                            extracted_json: str, backports_json: str, output: str):
         """
         Take processor Json's output and analyze result, build data for Excel display
@@ -581,12 +586,13 @@ class Analyzer(object):
         #kernel_dict = Analyzer.combine_kernel_dicts(kernel_json)
         kernel_dict = open_json(kernel_json)
         commit_list = open_json(ofed_json)
-        diff_dict = open_json(diff_json)
+        diff_dict = open_json(loc['stats'])
         extracted = open_json(extracted_json)
+        sources = open_json(loc['ext'])
         backports = open_json(backports_json)
         commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, kernel_dict,
-                                                            extracted, backports,output)
-        main_res = create_main_dict(kernel_dict, commit_list, diff_dict)
+                                                            extracted, backports, output)
+        main_res = create_main_dict(kernel_dict, commit_list, diff_dict, sources)
         save_to_json(main_res, f'{output}_main_res')
         save_to_json(commit_to_function, f'{output}_com_to_func')
         return main_res, commit_to_function

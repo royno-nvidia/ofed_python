@@ -113,7 +113,8 @@ def what_was_changed(old_func, new_func, func_name: str) -> dict:
 
     return {
         'API': api_ret,
-        'CTX': ctx_ret
+        'CTX': ctx_ret,
+        'Same': api_ret['proto_changed'] and ctx_ret
     }
 
 
@@ -237,6 +238,8 @@ def get_func_stats(func):
 
 
 def get_diff_stats(old_func, new_func, func_name):
+    if not old_func or not new_func:
+        return None
     d = Differ()
     diff = list(d.compare(old_func, new_func))
 
@@ -244,6 +247,7 @@ def get_diff_stats(old_func, new_func, func_name):
     counter = count_changes(diff)
     diff_strip = [line.replace('\n', '') for line in diff if not line.startswith('?')]
     return {
+        'Aligned': changes['Same'],
         'Diff newline': diff,
         'Diff': diff_strip,
         'API': changes['API'],
