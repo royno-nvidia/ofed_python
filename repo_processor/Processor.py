@@ -226,7 +226,7 @@ class Processor(object):
                     for added in added_methods_in_file:
                         self._results[added] = {
                             'Location': mod_file_path,
-                            'Status': 'Added'
+                            'Status': 'New'
                         }
                         logger.debug(f"self._results[{added}] = {self._results[added]}")
         #     create _results dict, make sure deleted method don't appear also in modified

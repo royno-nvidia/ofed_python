@@ -526,6 +526,32 @@ def genarate_results_for_excel(stats_info, dir_name):
     return data_frame_info
 
 
+def which_commits_has_aligned_functions(commits_dict):
+    have_aligned=[]
+    for index, commit in enumerate(commits_dict):
+        if commit['Aligned to upstream functions'] != "":
+            have_aligned.append(index-1) # -1 case enumerates start from 1 not 0
+    return have_aligned
+
+
+
+def write_data(workbook, worksheet, data):
+    cell_format = workbook.add_format({'bold': True, 'font_color': 'red'})
+    row = 2
+    for row_dict in data:
+        col = 0
+        need_alert = False
+        if row_dict['Aligned to upstream functions'] != "":
+            need_alert = True
+        for key, value in row_dict.items():
+            if need_alert and (key == 'Subject' or key == 'Hash'):
+                worksheet.write(row, col, value, cell_format)
+            else:
+                worksheet.write(row, col, value)
+            col += 1
+        row += 1
+
+
 
 class Analyzer(object):
     def __init__(self):
@@ -608,21 +634,22 @@ class Analyzer(object):
         :return:
         """
 
-        title = f"MSR Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
         df_main = pd.DataFrame(main_results[::-1])
         df_main.set_index('Hash')
         writer = pd.ExcelWriter(f"{EXCEL_LOC}{filename}/{filename}.xlsx", engine='xlsxwriter')
-        df_main.to_excel(writer, sheet_name='Tree', startrow=2, header=False, index=False)
-
+        # df_main.to_excel(writer, sheet_name='Tree', startrow=2, header=False, index=False)
         workbook = writer.book
-        worksheet = writer.sheets['Tree']
+        worksheet = workbook.add_worksheet('Tree')
+        #worksheet = writer.sheets['Tree']
 
+        # title
         title_format = workbook.add_format({
             'bold': True,
             'text_wrap': True,
             'valign': 'top',
             'fg_color': '#00E4BC',
             'border': 1})
+        title = f"MSR Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
         worksheet.merge_range(f'A1:{chr(ord("A") + len(df_main.columns) - 1)}1', title, title_format)
 
         # header
@@ -634,7 +661,10 @@ class Analyzer(object):
             'border': 1})
         for col_num, value in enumerate(df_main.columns.values):
             worksheet.write(1, col_num, value, header_format)
+        alerts = which_commits_has_aligned_functions(main_results[::-1])
+        # color_alerts_lines(workbook, worksheet, alerts)
 
+        write_data(workbook, worksheet, main_results[::-1])
         # apply conditions for modification
         colored_condition_cell(workbook, 'Tree', 'C', len(df_main.index), 0, True)
 
@@ -646,14 +676,10 @@ class Analyzer(object):
         for col_num, value in enumerate(df_mod.columns.values):
             worksheet_mod.write(0, col_num, value, header_format)
 
-
-        # create chart_stock
-        # worksheet_chart = writer.sheets['Work plan charts']
         # PIE chart
         create_pie_chart(workbook, main_results)
         # Create timeline
         create_color_timeline(main_results, workbook, WORK_DAYS, df_main)
-        # create_line_chatr(workbook, df_main)
 
         # save
         writer.save()
