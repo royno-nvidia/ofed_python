@@ -300,7 +300,7 @@ def column_string(n):
     return string
 
 
-def write_data_to_sheet(workbook, split_list):
+def draw_on_sheet(workbook, split_list):
     ROW = 17
     end_commit = 0
     day = 1
@@ -320,11 +320,11 @@ def write_data_to_sheet(workbook, split_list):
         day += 1
 
 
-def create_color_timeline(main_results, workbook, work_days, df_main):
-    col_num = len(df_main)
+def create_color_timeline(main_results, workbook, work_days):
+    col_num = len(main_results)
     risks = [f'=Tree!C{col_num - index + TWO}' for index in range(col_num)]
     split_list = np.array_split(risks, work_days)
-    write_data_to_sheet(workbook, split_list)
+    draw_on_sheet(workbook, split_list)
 
 
 def is_diff_exist(function_diff):
@@ -446,14 +446,17 @@ def genarate_results_for_excel(stats_info, dir_name):
     return data_frame_info
 
 
-def write_data(workbook, worksheet, data):
+def check_alert(dict):
+    if 'Aligned to upstream functions' in dict.keys():
+        return True if dict['Aligned to upstream functions'] != "" else False
+
+
+def write_data(workbook, worksheet, data, startline):
     cell_format = workbook.add_format({'bold': True, 'font_color': 'red'})
-    row = 2
+    row = startline
     for row_dict in data:
         col = 0
-        need_alert = False
-        if row_dict['Aligned to upstream functions'] != "":
-            need_alert = True
+        need_alert = check_alert(row_dict)
         for key, value in row_dict.items():
             if need_alert and (key == 'Subject' or key == 'Hash'):
                 worksheet.write(row, col, value, cell_format)
@@ -462,6 +465,45 @@ def write_data(workbook, worksheet, data):
             col += 1
         row += 1
 
+
+def add_title(workbook, worksheet, ofed, src, dst, col_num):
+    title_format = workbook.add_format({
+        'bold': True,
+        'text_wrap': True,
+        'valign': 'top',
+        'fg_color': '#00E4BC',
+        'border': 1})
+    title = f"MSR Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
+    worksheet.merge_range(f'A1:{chr(ord("A") + col_num - 1)}1', title, title_format)
+
+
+def add_headers(workbook, worksheet, keys, line):
+    header_format = workbook.add_format({
+        'bold': True,
+        'text_wrap': True,
+        'valign': 'top',
+        'fg_color': '#D7E4BC',
+        'border': 1})
+    for col_num, value in enumerate(keys):
+        worksheet.write(line, col_num, value, header_format)
+
+
+def crate_main_sheet(workbook, main_results, src, dst, ofed):
+    worksheet = workbook.add_worksheet('Tree')
+    keys = main_results[0].keys()
+    # title
+    add_title(workbook, worksheet, ofed, src, dst, len(keys))
+    # header
+    add_headers(workbook, worksheet, keys, 1)
+    write_data(workbook, worksheet, main_results[::-1], 2)
+    # apply conditions for modification
+    colored_condition_cell(workbook, 'Tree', 'C', len(main_results), 0, True)
+
+
+def create_commit_to_function(workbook, dicts_list_from_modify):
+    worksheet_mod = workbook.add_worksheet('Functions to commits')
+    add_headers(workbook, worksheet_mod, dicts_list_from_modify[0].keys(), 0)
+    write_data(workbook, worksheet_mod, dicts_list_from_modify, 1)
 
 
 class Analyzer(object):
@@ -543,51 +585,13 @@ class Analyzer(object):
         :return:
         """
 
-        df_main = pd.DataFrame(main_results[::-1])
-        df_main.set_index('Hash')
         writer = pd.ExcelWriter(f"{EXCEL_LOC}{filename}/{filename}.xlsx", engine='xlsxwriter')
-        # df_main.to_excel(writer, sheet_name='Tree', startrow=2, header=False, index=False)
         workbook = writer.book
-        worksheet = workbook.add_worksheet('Tree')
-        #worksheet = writer.sheets['Tree']
-
-        # title
-        title_format = workbook.add_format({
-            'bold': True,
-            'text_wrap': True,
-            'valign': 'top',
-            'fg_color': '#00E4BC',
-            'border': 1})
-        title = f"MSR Analyze [OFED: {ofed} | Kernel src: {src} | kernel dst: {dst}]"
-        worksheet.merge_range(f'A1:{chr(ord("A") + len(df_main.columns) - 1)}1', title, title_format)
-
-        # header
-        header_format = workbook.add_format({
-            'bold': True,
-            'text_wrap': True,
-            'valign': 'top',
-            'fg_color': '#D7E4BC',
-            'border': 1})
-        for col_num, value in enumerate(df_main.columns.values):
-            worksheet.write(1, col_num, value, header_format)
-        # color_alerts_lines(workbook, worksheet, alerts)
-
-        write_data(workbook, worksheet, main_results[::-1])
-        # apply conditions for modification
-        colored_condition_cell(workbook, 'Tree', 'C', len(df_main.index), 0, True)
-
+        crate_main_sheet(workbook, main_results, src, dst, ofed)
         dicts_list_from_modify = commit_to_function
-        df_mod = pd.DataFrame(dicts_list_from_modify)
-        df_mod.set_index('Hash')
-        df_mod.to_excel(writer, sheet_name='Functions to commits', startrow=1, header=False, index=False)
-        worksheet_mod = writer.sheets['Functions to commits']
-        for col_num, value in enumerate(df_mod.columns.values):
-            worksheet_mod.write(0, col_num, value, header_format)
-
-        # PIE chart
+        create_commit_to_function(workbook, dicts_list_from_modify)
         create_pie_chart(workbook, main_results)
-        # Create timeline
-        create_color_timeline(main_results, workbook, WORK_DAYS, df_main)
+        create_color_timeline(main_results, workbook, WORK_DAYS)
 
         # save
         writer.save()

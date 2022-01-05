@@ -43,7 +43,7 @@ def main():
     file_list_verify.append(args.ofed_json)
     # file_list_verify.append(args.diff)
     # file_list_verify.append(args.ofed_extracted_functions)
-    if not checks_for_Analyzer(file_list_verify, args.output):
+    if not checks_for_analyzer(file_list_verify, args.output):
         logger.critical('Argument verify failed, exiting')
         exit(1)
 

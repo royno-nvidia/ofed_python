@@ -8,6 +8,7 @@
       <change beforePath="$PROJECT_DIR$/repo_processor/Processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo_processor/Processor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/ofed_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/ofed_prediction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/setting_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/setting_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/verifier/verifer_arg.py" beforeDir="false" afterPath="$PROJECT_DIR$/verifier/verifer_arg.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/venv/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,16 +22,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/ofed_prediction.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1978">
-              <caret line="416" column="52" selection-start-line="416" selection-start-column="52" selection-end-line="416" selection-end-column="52" />
+            <state relative-caret-position="239">
+              <caret line="64" column="31" lean-forward="true" selection-start-line="64" selection-start-column="31" selection-end-line="64" selection-end-column="31" />
               <folding>
-                <element signature="e#0#17#0" expanded="true" />
-                <element signature="e#752#1086#0" />
-                <element signature="e#1130#1473#0" />
-                <element signature="e#18464#19956#0" />
+                <element signature="e#1#16#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-882">
+              <caret line="621" column="37" selection-start-line="621" selection-start-column="20" selection-end-line="621" selection-end-column="37" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/rebase_reviewer.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="283">
+              <caret line="67" column="24" selection-start-line="67" selection-start-column="24" selection-end-line="67" selection-end-column="24" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -47,7 +69,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>_modifications</find>
       <find>progress</find>
       <find>status</find>
       <find>%</find>
@@ -77,6 +98,7 @@
       <find>alertws</find>
       <find>dst_kernel_path</find>
       <find>kdst</find>
+      <find>df_main</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -137,18 +159,18 @@
         <option value="$PROJECT_DIR$/rebase_tools/utils/setting_utils.py" />
         <option value="$PROJECT_DIR$/rebase_tools/scripts/process_ofed_by_commit.py" />
         <option value="$PROJECT_DIR$/rebase_tools/repo_processor/Processor.py" />
-        <option value="$PROJECT_DIR$/verifier/verifer_arg.py" />
         <option value="$PROJECT_DIR$/scripts/process_ofed_by_commit.py" />
-        <option value="$PROJECT_DIR$/analyzer/Analyzer.py" />
         <option value="$PROJECT_DIR$/Comperator/Comperator.py" />
         <option value="$PROJECT_DIR$/ofed_classes/OfedRepository.py" />
-        <option value="$PROJECT_DIR$/utils/setting_utils.py" />
-        <option value="$PROJECT_DIR$/scripts/ofed_prediction.py" />
         <option value="$PROJECT_DIR$/repo_processor/Processor.py" />
+        <option value="$PROJECT_DIR$/utils/setting_utils.py" />
+        <option value="$PROJECT_DIR$/verifier/verifer_arg.py" />
+        <option value="$PROJECT_DIR$/scripts/ofed_prediction.py" />
+        <option value="$PROJECT_DIR$/analyzer/Analyzer.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="335" />
     <option name="y" value="105" />
     <option name="width" value="1380" />
@@ -170,22 +192,7 @@
             <path>
               <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
               <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
-              <item name="Comperator" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
-              <item name="repo_processor" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
-              <item name="scripts" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="OfedProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="OfedProject" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
+              <item name="analyzer" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -257,7 +264,7 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/rebase_tools/scripts" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -374,12 +381,12 @@
     <frame x="0" y="32" width="1920" height="1052" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.2507903" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4991511" visible="true" weight="0.2507903" />
       <window_info id="Structure" order="1" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info id="Favorites" order="2" sideWeight="0.5008489" side_tool="true" weight="0.119324185" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32901832" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49789253" visible="true" weight="0.42826322" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49789253" visible="true" weight="0.42826322" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39805827" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -643,13 +650,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/verifier/verifer_arg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1022">
-          <caret line="19" column="32" selection-start-line="19" selection-start-column="32" selection-end-line="19" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/pydriller/git_repository.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="939">
@@ -689,43 +689,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="167">
           <caret line="603" selection-start-line="603" selection-end-line="603" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1140">
-          <caret line="322" column="70" selection-start-line="322" selection-start-column="70" selection-end-line="322" selection-end-column="70" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-            <element signature="e#1067#3791#0" />
-            <element signature="e#3870#4364#0" />
-            <element signature="e#4407#4686#0" />
-            <element signature="e#4773#5011#0" />
-            <element signature="e#5081#5232#0" />
-            <element signature="e#5996#8488#0" />
-            <element signature="e#8311#9644#0" />
-            <element signature="e#9798#11088#0" />
-            <element signature="e#11245#12367#0" />
-            <element signature="e#12478#13445#0" />
-            <element signature="e#13498#14725#0" />
-            <element signature="e#15645#15778#0" />
-            <element signature="e#15832#16427#0" />
-            <element signature="e#16505#16763#0" />
-            <element signature="e#17266#17323#0" />
-            <element signature="e#17366#17626#0" />
-            <element signature="e#17691#17849#0" />
-            <element signature="e#18056#18978#0" />
-            <element signature="e#19067#20382#0" />
-            <element signature="e#20443#22970#0" />
-            <element signature="e#23600#24071#0" />
-            <element signature="e#23212#23772#0" />
-            <element signature="e#23862#24867#0" />
-            <element signature="e#25055#25882#0" />
-            <element signature="e#26410#28431#0" />
-            <element signature="e#30958#32404#0" />
-            <element signature="e#32488#34466#0" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -774,16 +737,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/rebase_reviewer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="68" column="13" selection-start-line="68" selection-start-column="13" selection-end-line="68" selection-end-column="13" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/process_ofed_by_commit.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="178">
@@ -819,23 +772,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/ofed_prediction.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="54" column="58" lean-forward="true" selection-start-line="54" selection-start-column="58" selection-end-line="54" selection-end-column="58" />
-          <folding>
-            <element signature="e#1#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="118">
-          <caret line="106" column="7" lean-forward="true" selection-start-line="106" selection-start-column="7" selection-end-line="106" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1978">
@@ -845,6 +781,61 @@
             <element signature="e#752#1086#0" />
             <element signature="e#1130#1473#0" />
             <element signature="e#18464#19956#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="76" column="12" lean-forward="true" selection-start-line="76" selection-start-column="12" selection-end-line="76" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+            <element signature="e#607#819#0" />
+            <element signature="e#857#1069#0" />
+            <element signature="e#1118#1838#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/verifier/verifer_arg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="19" column="20" lean-forward="true" selection-start-line="19" selection-start-column="20" selection-end-line="19" selection-end-column="20" />
+          <folding>
+            <element signature="e#1712#2058#0" />
+            <element signature="e#2101#2322#0" />
+            <element signature="e#2383#2863#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/rebase_reviewer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="283">
+          <caret line="67" column="24" selection-start-line="67" selection-start-column="24" selection-end-line="67" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/ofed_prediction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="239">
+          <caret line="64" column="31" lean-forward="true" selection-start-line="64" selection-start-column="31" selection-end-line="64" selection-end-column="31" />
+          <folding>
+            <element signature="e#1#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/analyzer/Analyzer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-882">
+          <caret line="621" column="37" selection-start-line="621" selection-start-column="20" selection-end-line="621" selection-end-column="37" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
