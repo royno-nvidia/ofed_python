@@ -234,8 +234,8 @@ class Processor(object):
                 # Verify all removed methods status is 'Delete'
                 self._results[rem]['Status'] = 'Delete'
             for add in all_added_methods_set:
-                # Verify all removed methods status is 'Delete'
-                self._results[add]['Status'] = 'Delete'
+                # Verify all Added methods status is 'New'
+                self._results[add]['Status'] = 'New'
         except Exception as e:
             logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
