@@ -195,6 +195,7 @@ class Processor(object):
             logger.critical(f"Fail to process kernel: '{self._repo_path}',\n{e}")
         try:
             all_deleted_methods_set = set()
+            all_added_methods_set = set()
             for commit in self._repo.traverse_commits():
                 logger.debug(f'Processing commit {commit.hash}:')
                 # iterate all commit in repo
@@ -204,9 +205,11 @@ class Processor(object):
                     before_methods = set([meth.name for meth in mod.methods_before])
                     after_methods = set([meth.name for meth in mod.methods])
                     delete_methods_in_file = before_methods - after_methods
+                    added_methods_in_file = after_methods - before_methods
                     # if method name was in file before commit and missing after means function
                     # deleted/moved/renamed any way handled as deleted
                     all_deleted_methods_set |= delete_methods_in_file
+                    all_added_methods_set |= added_methods_in_file
                     for method in mod.changed_methods:
                         # iterate all changed methods in file
                         self._results[method.name] = {
@@ -220,10 +223,19 @@ class Processor(object):
                             'Status': 'Delete'
                         }
                         logger.debug(f"self._results[{deleted}] = {self._results[deleted]}")
+                    for added in added_methods_in_file:
+                        self._results[added] = {
+                            'Location': mod_file_path,
+                            'Status': 'Added'
+                        }
+                        logger.debug(f"self._results[{added}] = {self._results[added]}")
         #     create _results dict, make sure deleted method don't appear also in modified
             for rem in all_deleted_methods_set:
                 # Verify all removed methods status is 'Delete'
                 self._results[rem]['Status'] = 'Delete'
+            for add in all_added_methods_set:
+                # Verify all removed methods status is 'Delete'
+                self._results[add]['Status'] = 'Delete'
         except Exception as e:
             logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
         logger.info(f"over all commits processed: {self._commits_processed}")
