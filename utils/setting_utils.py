@@ -3,7 +3,6 @@ import datetime
 import json
 import os
 import subprocess
-
 from colorlog import ColoredFormatter
 
 # DEFINES
@@ -22,10 +21,6 @@ SEVERE = 3
 HIGH = 2
 MEDIUM = 1
 LOW = 0
-
-class Status(object):
-    SUCCESS = 0
-    FAIL = 1
 
 
 def string_to_enum(risk: str):
@@ -52,8 +47,6 @@ def risk_to_string(risk: int):
         return 'Severe'
     if risk == NA:
         return 'NA'
-
-
 
 
 def get_logger(module_name, file_name):

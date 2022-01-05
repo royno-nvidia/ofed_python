@@ -8,6 +8,7 @@ from utils.setting_utils import get_logger, JSON_LOC, EXCEL_LOC
 
 logger = get_logger('Verifier', 'Verifier.log')
 
+
 def functions_diff_checks(args) -> bool:
     """
     Verify user arguments for script
@@ -78,7 +79,7 @@ def is_git_repo(path: str) -> bool:
         return False
 
 
-def checks_for_Analyzer(loc_list: list, output: str):
+def checks_for_analyzer(loc_list: list, output: str):
     """
     Verify user arguments for 'pre_rebase_analyzer.py' script
     :param args:
@@ -87,8 +88,4 @@ def checks_for_Analyzer(loc_list: list, output: str):
     if os.path.isfile(EXCEL_LOC+output+'.xlsx'):
         logger.critical(f'Path {JSON_LOC}/{output}.xlsx already exists\nPlease use another -output argument')
         return False
-    # for path in loc_list:
-    #     if not os.path.isfile(f'{JSON_LOC}/{path}'):
-    #         logger.critical(f'Path {JSON_LOC}/{path} is not a File')
-    #         return False
     return True
