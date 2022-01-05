@@ -1,24 +1,12 @@
 import subprocess
-from datetime import datetime
-import json
 import os
 from pydriller import RepositoryMining as Repository
-
 from Comperator.Comperator import extract_method_from_file, make_readable_function, get_functions_diff_stats, \
     get_diff_stats
 from ofed_classes.OfedRepository import OfedRepository
 from utils.setting_utils import *
 
 logger = get_logger('Processor', 'Processor.log')
-
-
-def run_ofed_scripts(src_path: str, script: str):
-    cwd = os.getcwd()
-    os.chdir(src_path)
-    logger.debug(f'inside {os.getcwd()}')
-    ret = subprocess.check_output(f'./ofed_scripts/{script}', shell=True)
-    os.chdir(cwd)
-    logger.debug(f'returned {os.getcwd()}')
 
 
 def verify_added_functions_status(all_tree_info: list, ofed_only_set: set):
@@ -39,6 +27,7 @@ def get_actual_ofed_info(ofed_json):
             [func for func in commit['Functions'].keys() if commit['Functions'][func]['Status'] != 'Add']
         )
     return actual_ofed_functions_modified
+
 
 def get_ofed_functions_info(ofed_json):
     ofed_modified_methods_dict = open_json(ofed_json)
@@ -430,8 +419,6 @@ class Processor(object):
         error_list = []
         function_ext_dict = {}
 
-        # pprint(ofed_modified_function)
-        # print('len', len(ofed_modified_function.keys()))
         for func, info in ofed_functions.items():
             src_ext, dst_ext = '', ''
             last_ext = extract_function(args.ofed_repo, info['Location'], func, "Last OFED", False)

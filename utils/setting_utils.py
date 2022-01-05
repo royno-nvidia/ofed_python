@@ -1,6 +1,9 @@
 import logging
 import datetime
 import json
+import os
+import subprocess
+
 from colorlog import ColoredFormatter
 
 # DEFINES
@@ -101,6 +104,14 @@ def open_json(json_name: str):
     except IOError as e:
         print(f"failed to read json - {path}:\n{e}")
 
+def run_ofed_scripts(src_path: str, script: str, logger):
+    cwd = os.getcwd()
+    os.chdir(src_path)
+    logger.debug(f'inside {os.getcwd()}')
+    ret = subprocess.check_output(f'./ofed_scripts/{script}', shell=True)
+    os.chdir(cwd)
+    logger.debug(f'returned {os.getcwd()}')
+    return ret
 
 def show_runtime(end_time, start_time, logger):
     """

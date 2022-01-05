@@ -2,7 +2,7 @@
 import argparse
 import time
 from analyzer.Analyzer import Analyzer
-from repo_processor.Processor import Processor, run_ofed_scripts
+from repo_processor.Processor import Processor
 from utils.setting_utils import show_runtime
 from verifier.verifer_arg import *
 
@@ -52,10 +52,10 @@ def main():
 
     # # Get OFED function in version end
     ext_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, False)
-    # run_ofed_scripts(args.osrc, 'ofed_patch.sh')
+    # run_ofed_scripts(args.osrc, 'ofed_patch.sh', logger)
     # # Get OFED function in version end with backports
     back_loc = Processor.extract_ofed_functions(args.osrc, args.ofed_json, args.output, True)
-    # run_ofed_scripts(args.osrc, 'cleanup')
+    # run_ofed_scripts(args.osrc, 'cleanup', logger)
 
     # Excel data analyze
     main_res, commit_to_function = Analyzer.build_commit_dicts(
