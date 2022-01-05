@@ -1,9 +1,5 @@
 import json
-import logging
 import re
-from typing import Generator
-
-from colorlog import ColoredFormatter
 from pydriller import RepositoryMining as Repository, Commit
 from ofed_classes.Metadata import Metadata
 from ofed_classes.OfedCommit import OfedCommit
