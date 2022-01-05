@@ -1,5 +1,4 @@
 from difflib import Differ
-from pprint import pprint
 from utils.setting_utils import *
 import re
 
@@ -71,6 +70,7 @@ def is_prototype_changed(api_change):
     return True if api_change['args']['Removed'] or api_change['args']['Added'] \
             or api_change['ret']['changed'] != 'No' else False
 
+
 def process_api_diff(old_api, new_api, func_name):
     old_parts = split_function_parts(old_api, func_name)
     new_parts = split_function_parts(new_api, func_name)
@@ -83,13 +83,6 @@ def process_api_diff(old_api, new_api, func_name):
     ret['proto_changed'] = is_prototype_changed(ret)
     return ret
 
-    # try:
-    #     for line in diff:
-    #         if line.startswith('+') or line.startswith('-') or line.startswith('?'):
-    #             proto_changed = True
-    #     return proto_changed
-    # except Exception as e:
-    #     logger.critical(f'failed in line {line}, {e}')
 
 def process_ctx_diff(old_ctx, new_ctx):
     d = Differ()
@@ -323,5 +316,3 @@ def get_functions_diff_stats(func_a: str, func_b: str, func_name: str,
                        }
     logger.debug(diff_stats_dict)
     return diff_stats_dict
-
-
