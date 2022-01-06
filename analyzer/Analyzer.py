@@ -2,7 +2,6 @@ import re
 import shutil
 import numpy as np
 import pandas as pd
-import os
 from Comperator.Comperator import get_func_stats, get_diff_stats
 from utils.setting_utils import *
 
@@ -78,13 +77,13 @@ def colored_condition_row(workbook, worksheet, col: chr, col_len: int):
                                   'format': red_format})
 
 
-def write_and_link(name, diff, dir):
+def write_and_link(name, info, dir, title):
     filename = f'{dir}/{name}.diff'
     if not os.path.isfile(filename):
         with open(filename, 'w') as handle:
-            for line in diff:
+            for line in info:
                 handle.write(line+'\n')
-    hyperlink = f'=HYPERLINK("{os.path.basename(dir)}\{name}.diff","View")'
+    hyperlink = f'=HYPERLINK("{os.path.basename(dir)}\{name}.diff", "{title}")'
     return hyperlink
 
 
@@ -94,7 +93,7 @@ def create_diff_file_and_link(method_name: str, info_dict: str, directory: str):
     if info_dict[method_name]['View'] == 'NA':
         return 'NA'
     method_diff = info_dict[method_name]['View']
-    return write_and_link(method_name, method_diff, directory)
+    return write_and_link(method_name, method_diff, directory, 'view')
 
 
 def get_stat_or_none(method: str, info_dict: dict, stat: str):
@@ -104,6 +103,8 @@ def get_stat_or_none(method: str, info_dict: dict, stat: str):
         return ''
 
 
+
+
 def create_main_dict(kernel_dict, ofed_list, diff_dict, sources):
     main_res = []
     patch_number = 0
@@ -111,6 +112,10 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict, sources):
         patch_number += 1
         commit_risk = LOW
         upstream_aligned_functions = []
+        low_risk_functions = []
+        medium_risk_functions = []
+        high_risk_functions = []
+        severe_risk_functions = []
         # In case status is 'accepted' - risk always LOW
         if commit['Status'] != 'accepted':
             for func in commit['Functions']:
@@ -145,11 +150,12 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict, sources):
             "Hash": commit['Hash'][:12],
             "Subject": commit['Subject'],
             "Risk Level": commit_risk,
+            "Risk Mining": get_risk_mining(commit_risk),
             "Note": '',
             "Action": '',
             "Compilation status": '',
             "CI status": '',
-            "Aligned to upstream functions": '||'.join(upstream_aligned_functions),
+            "Aligned to upstream functions": '|'.join(upstream_aligned_functions),
             "Feature": commit['Feature'],
             "Status": commit['Status'],
             "Author": commit['Author'],
@@ -232,19 +238,22 @@ def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted,
             return ret
 
 
+def check_and_create_dir(loc):
+    if os.path.exists(loc):
+        shutil.rmtree(loc)
+        logger.critical(f'Directory {loc} exists, remove automatically')
+    os.mkdir(loc, 0o0755)
+
 
 def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted, backports, dir_name):
     root_path = f"{EXCEL_LOC + dir_name}"
-    if os.path.exists(root_path):
-        shutil.rmtree(root_path)
-        logger.critical(f'Directory {root_path} exists, remove automatically')
-    os.mkdir(root_path, 0o0755)
+    check_and_create_dir(root_path)
     dir_path = f"{root_path + '/' +dir_name}_diff"
-    os.mkdir(dir_path, 0o0755)
+    check_and_create_dir(dir_path)
     back_path = f"{root_path + '/' + dir_name}_back"
-    os.mkdir(back_path, 0o0755)
+    check_and_create_dir(back_path)
     ext_path = f"{root_path + '/' +dir_name}_ext"
-    os.mkdir(ext_path, 0o0755)
+    check_and_create_dir(ext_path)
     commit_to_function = []
     for commit in ofed_list:
         for func in commit['Functions'].keys():
@@ -258,7 +267,7 @@ def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted,
 
 def create_pie_chart(workbook, main_results):
     headings = ['Levels', 'Number of commits']
-    risks = ['Low', 'Medium', 'High', 'Severe', 'Redesign']
+    risks = [get_risk_mining(risk) for risk in range(5)]
     res = [f'=COUNTIF(Tree!C3:C{len(main_results) + 2},{risk})' for risk in range(5)]
     # res.append(f'=COUNTIF(Tree!C3:C{len(main_results) + 2}, {REDESIGN})')
     bold = workbook.add_format({'bold': 1})
@@ -422,33 +431,33 @@ def genarate_results_for_excel(stats_info, dir_name):
         data_frame_info.append({
             'Function': func,
             'Need Review Level': review,
-            'OFED2 Diff OFED1': write_and_link(func, info['Apply diff']['Diff'], apply_diff_path)
+            'OFED2 Diff OFED1': write_and_link(func, info['Apply diff']['Diff'], apply_diff_path, 'view')
             if info['Apply diff'] else '',
-            'Korg2 Diff Korg1': write_and_link(func, info['Bases diff']['Diff'], bases_diff_path)
+            'Korg2 Diff Korg1': write_and_link(func, info['Bases diff']['Diff'], bases_diff_path, 'view')
             if info['Bases diff'] else '',
-            'OFED1 Diff Korg1': write_and_link(func, info['Last modifications']['Diff'], mod_diff_path)
+            'OFED1 Diff Korg1': write_and_link(func, info['Last modifications']['Diff'], mod_diff_path, 'view')
             if info['Last modifications'] else '' ,
-            'OFED2 Diff Korg2': write_and_link(func, info['Rebase modifications']['Diff'], rebase_mod_path)
+            'OFED2 Diff Korg2': write_and_link(func, info['Rebase modifications']['Diff'], rebase_mod_path, 'view')
             if info['Rebase modifications'] else '',
-            'Rebase2 Diff Rebase1': write_and_link(func, info['Modifications diff']['Diff'], ofed_mod_path)
+            'Rebase2 Diff Rebase1': write_and_link(func, info['Modifications diff']['Diff'], ofed_mod_path, 'view')
             if info['Modifications diff'] else '',
             'Review notes': '',
             'Sign-off by': '',
-            'Src': write_and_link(func, info['Src']['Splited'], src_path)
+            'Src': write_and_link(func, info['Src']['Splited'], src_path, 'view')
             if info['Src'] else '',
-            'Dst': write_and_link(func, info['Dst']['Splited'], dst_path)
+            'Dst': write_and_link(func, info['Dst']['Splited'], dst_path, 'view')
             if info['Dst'] else '',
-            'Last': write_and_link(func, info['Last']['Splited'], last_path)
+            'Last': write_and_link(func, info['Last']['Splited'], last_path, 'view')
             if info['Last'] else '',
-            'Rebase': write_and_link(func, info['Rebase']['Splited'], rebase_path)
+            'Rebase': write_and_link(func, info['Rebase']['Splited'], rebase_path, 'view')
             if info['Rebase'] else '',
         })
     return data_frame_info
 
 
-def check_alert(dict):
-    if 'Aligned to upstream functions' in dict.keys():
-        return True if dict['Aligned to upstream functions'] != "" else False
+def check_alert(d):
+    if 'Aligned to upstream functions' in d.keys():
+        return True if d['Aligned to upstream functions'] != "" else False
 
 
 def write_data(workbook, worksheet, data, startline):
@@ -572,8 +581,8 @@ class Analyzer(object):
         commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, kernel_dict,
                                                             extracted, backports, output)
         main_res = create_main_dict(kernel_dict, commit_list, diff_dict, sources)
-        save_to_json(main_res, f'{output}_main_res')
-        save_to_json(commit_to_function, f'{output}_com_to_func')
+        save_to_json(main_res, f'{output}_main_res', output)
+        save_to_json(commit_to_function, f'{output}_com_to_func', output)
         return main_res, commit_to_function
 
     @staticmethod

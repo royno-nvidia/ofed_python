@@ -1,7 +1,7 @@
 
 import argparse
 import time
-from analyzer.Analyzer import Analyzer
+from analyzer.Analyzer import Analyzer, check_and_create_dir
 from repo_processor.Processor import Processor
 from utils.setting_utils import show_runtime
 from verifier.verifer_arg import *
@@ -48,6 +48,9 @@ def main():
         exit(1)
 
     # create methods diff stats
+    root_path = f"{JSON_LOC + args.output}"
+    check_and_create_dir(root_path)
+
     loc = Processor.get_kernels_methods_diffs(args)
 
     # # Get OFED function in version end

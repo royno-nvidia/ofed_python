@@ -32,6 +32,8 @@ def string_to_enum(risk: str):
         return HIGH
     if risk == 'Severe':
         return SEVERE
+    if risk == 'Redesign':
+        return REDESIGN
     if risk == 'NA':
         return NA
 
@@ -45,8 +47,24 @@ def risk_to_string(risk: int):
         return 'High'
     if risk == SEVERE:
         return 'Severe'
+    if risk == REDESIGN:
+        return 'Redesign'
     if risk == NA:
         return 'NA'
+
+
+def get_risk_mining(risk: int):
+    if risk == LOW:
+        return 'Low - Nothing changed in upstream functions (Patch should apply smoothly but ' \
+               'compilation not guarantied)'
+    if risk == MEDIUM:
+        return 'Medium - At list one of commit functions Body has new changes over upstream'
+    if risk == HIGH:
+        return 'High - At list one of commit functions API changed (Only in case of Argument removal) in upstream'
+    if risk == SEVERE:
+        return 'Severe - At list one of commit functions REMOVED/MOVED/FILE RENAMED in upstream'
+    if risk == REDESIGN:
+        return 'Redesign - Feature need developer redesign'
 
 
 def get_logger(module_name, file_name):
@@ -71,21 +89,18 @@ def get_logger(module_name, file_name):
     return logger
 
 
-def save_to_json(dict_for_saving, filename=None):
+def save_to_json(dict_for_saving, filename, directory):
     """
     Output process results into timestamp json file for future analyze
     :return:
     """
-    if filename is None:
-        time_stamp = datetime.timestamp(datetime.now())
-        filename = f'{str(time_stamp)}.json'
-    else:
-        if not filename.endswith('.json'):
-            filename = f"{filename}.json"
-    with open(JSON_LOC + filename, 'w') as handle:
+    if not filename.endswith('.json'):
+        filename = f"{filename}.json"
+    save_path = f'{directory}/{filename}'
+    with open(f'{JSON_LOC}{save_path}', 'w') as handle:
         json.dump(dict_for_saving, handle, indent=4)
-    print(f"Results saved in Json - '{JSON_LOC + filename}'")
-    return filename
+    print(f"Results saved in Json - '{JSON_LOC}{save_path}'")
+    return save_path
 
 
 def open_json(json_name: str):

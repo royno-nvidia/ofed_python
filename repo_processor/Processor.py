@@ -371,8 +371,8 @@ class Processor(object):
                                           readable_extracted[func]['ofed'], func)
                     readable_extracted[func]['Aligned'] = diff['Aligned'] if diff else None
                 loc = {
-                    'ext': save_to_json(readable_extracted, f'{output_file}_ext_sources'),
-                    'stats': save_to_json(ret_diff_stats, f'{output_file}_diff')
+                    'ext': save_to_json(readable_extracted, f'{output_file}_ext_sources', output_file),
+                    'stats': save_to_json(ret_diff_stats, f'{output_file}_diff', output_file)
                 }
                 logger.info(f"overall functions: {overall}")
                 logger.info(f"able to process functions: {actual_process}")
@@ -406,7 +406,7 @@ class Processor(object):
                 extracted_functions[func]['View'] = src_func
         try:
             postfix = '_back' if with_backports else '_ext'
-            loc = save_to_json(extracted_functions, f'{output}{postfix}')
+            loc = save_to_json(extracted_functions, f'{output}{postfix}', output)
             logger.info(f"Process rate: {actual}/{overall} = {(actual/overall)*100}%")
             return loc
         except IOError as e:
@@ -439,7 +439,7 @@ class Processor(object):
             }
 
         function_ext_dict['Missing info'] = error_list
-        location = save_to_json(function_ext_dict, 'check_post1')
+        location = save_to_json(function_ext_dict, args.output,f'{args.output}_ext_dict')
         overall = len(ofed_functions.keys())
         able = overall - len(error_list)
         logger.info(f'Success process rate: {(able/overall)*100:.2f}% [{able}/{overall}]')
