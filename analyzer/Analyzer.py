@@ -103,19 +103,27 @@ def get_stat_or_none(method: str, info_dict: dict, stat: str):
         return ''
 
 
+def create_risk_explanation(function_by_risk):
+    ret = []
+    rev_risks = reversed(range(REDESIGN))
+    for risk in rev_risks:
+        if len(function_by_risk[risk]) > 0:
+            ret.append(f'{get_risk_mining(risk)}')
+            [ret.append(f'{index}. {func}') for index, func in enumerate(function_by_risk[risk])]
+    return ret
 
 
-def create_main_dict(kernel_dict, ofed_list, diff_dict, sources):
+def create_main_dict(kernel_dict, ofed_list, diff_dict, sources, explain_dir):
     main_res = []
     patch_number = 0
+    commits_risks_cause = {}
+    full_path_explain = f'{EXCEL_LOC}{explain_dir}/{explain_dir}_explain'
+    check_and_create_dir(full_path_explain)
     for commit in ofed_list:
         patch_number += 1
-        commit_risk = LOW
+        max_risk = LOW
         upstream_aligned_functions = []
-        low_risk_functions = []
-        medium_risk_functions = []
-        high_risk_functions = []
-        severe_risk_functions = []
+        function_by_risk = [[] for _ in range(REDESIGN)]
         # In case status is 'accepted' - risk always LOW
         if commit['Status'] != 'accepted':
             for func in commit['Functions']:
@@ -129,7 +137,9 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict, sources):
                 # Able to process function - have info
                 if func in diff_dict.keys():
                     logger.debug(f"{func} - Have info - risk {diff_dict[func]['Stats']['Risk']}")
-                    commit_risk = max(commit_risk, string_to_enum(diff_dict[func]['Stats']['Risk']))
+                    cur_risk = string_to_enum(diff_dict[func]['Stats']['Risk'])
+                    max_risk = max(max_risk, cur_risk)
+                    function_by_risk[cur_risk].append(func)
                 # Fail to process
                 else:
                     # function changed between base codes
@@ -138,19 +148,24 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict, sources):
                         # function removed from kernel - High risk
                         if status == 'Delete':
                             logger.debug(f"{func} - Removed from kernel - risk Severe")
-                            commit_risk = SEVERE
-                        # function changed but not removed - Medium risk (worst case scenario) - missing change info
+                            max_risk = SEVERE
+                            function_by_risk[SEVERE].append(func)
+                        # function changed but not removed - High risk (worst case scenario) - missing change info
                         else:
                             logger.debug(f"{func} - Unable to process, missing info - risk High")
-                            commit_risk = HIGH
+                            max_risk = HIGH
+                            function_by_risk[HIGH].append(func)
                     # function didn't changed between base codes
                     else:
                         logger.debug(f"{func} - Not changed - No risk")
+                        function_by_risk[LOW].append(func)
+            explanation = create_risk_explanation(function_by_risk)
         main_res.append({
             "Hash": commit['Hash'][:12],
             "Subject": commit['Subject'],
-            "Risk Level": commit_risk,
-            "Risk Mining": get_risk_mining(commit_risk),
+            "Risk Level": max_risk,
+            "Risk explanation": write_and_link(commit['Hash'][:12], explanation, full_path_explain, "Info")
+            if explanation else '',
             "Note": '',
             "Action": '',
             "Compilation status": '',
@@ -243,6 +258,7 @@ def check_and_create_dir(loc):
         shutil.rmtree(loc)
         logger.critical(f'Directory {loc} exists, remove automatically')
     os.mkdir(loc, 0o0755)
+    logger.info(f'Directory {loc} created')
 
 
 def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted, backports, dir_name):
@@ -497,7 +513,7 @@ def add_headers(workbook, worksheet, keys, line):
         worksheet.write(line, col_num, value, header_format)
 
 
-def crate_main_sheet(workbook, main_results, src, dst, ofed):
+def create_main_sheet(workbook, main_results, src, dst, ofed):
     worksheet = workbook.add_worksheet('Tree')
     keys = main_results[0].keys()
     # title
@@ -542,12 +558,7 @@ class Analyzer(object):
     @staticmethod
     def function_modified_by_feature(ofed_json: str) -> dict:
         res_dict = {}
-        ofed_dict = {}
-        try:
-            with open(JSON_LOC+ofed_json) as o_file:
-                ofed_dict = json.load(o_file)
-        except IOError as e:
-            logger.critical(f"failed to read json:\n{e}")
+        ofed_dict = open_json(ofed_json)
         for feature in ofed_dict.keys():
             logger.debug(f'feature: {feature}')
             if feature == 'rebase':
@@ -580,7 +591,7 @@ class Analyzer(object):
         backports = open_json(backports_json)
         commit_to_function = create_commit_to_function_dict(commit_list, diff_dict, kernel_dict,
                                                             extracted, backports, output)
-        main_res = create_main_dict(kernel_dict, commit_list, diff_dict, sources)
+        main_res = create_main_dict(kernel_dict, commit_list, diff_dict, sources, output)
         save_to_json(main_res, f'{output}_main_res', output)
         save_to_json(commit_to_function, f'{output}_com_to_func', output)
         return main_res, commit_to_function
@@ -596,7 +607,7 @@ class Analyzer(object):
 
         writer = pd.ExcelWriter(f"{EXCEL_LOC}{filename}/{filename}.xlsx", engine='xlsxwriter')
         workbook = writer.book
-        crate_main_sheet(workbook, main_results, src, dst, ofed)
+        create_main_sheet(workbook, main_results, src, dst, ofed)
         dicts_list_from_modify = commit_to_function
         create_commit_to_function(workbook, dicts_list_from_modify)
         create_pie_chart(workbook, main_results)

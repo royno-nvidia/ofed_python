@@ -48,7 +48,7 @@ def main():
         exit(1)
 
     # create methods diff stats
-    root_path = f"{JSON_LOC + args.output}"
+    root_path = f"{JSON_LOC}/{args.output}"
     check_and_create_dir(root_path)
 
     loc = Processor.get_kernels_methods_diffs(args)

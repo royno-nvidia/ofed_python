@@ -332,53 +332,52 @@ class Processor(object):
 
         try:
             actual_ofed_functions_modified = get_actual_ofed_info(ofed_json_path)
-            with open(JSON_LOC+kernels_json_path) as handle:
-                kernels_modified_methods_dict = json.load(handle)
-                for func in actual_ofed_functions_modified:
-                    overall += 1
-                    if func not in kernels_modified_methods_dict.keys():
-                        # handle no risk (not changed)functions
-                        print(f'{func}- handle no risk')
-                        ret = get_functions_diff_stats(None, None, func, False, LOW)
-                        ret_diff_stats[func] = ret
-                        continue
-                    func_status = kernels_modified_methods_dict[func]['Status']
-                    file = kernels_modified_methods_dict[func]['Location']
-                    if func_status == 'Delete':
-                        # handle removed function - SEVERE risk
-                        ret_diff_stats[func] = get_functions_diff_stats(None, None,
-                                                                        func, True, SEVERE)
+            kernels_modified_methods_dict = open_json(kernels_json_path)
+            for func in actual_ofed_functions_modified:
+                overall += 1
+                if func not in kernels_modified_methods_dict.keys():
+                    # handle no risk (not changed)functions
+                    print(f'{func}- handle no risk')
+                    ret = get_functions_diff_stats(None, None, func, False, LOW)
+                    ret_diff_stats[func] = ret
+                    continue
+                func_status = kernels_modified_methods_dict[func]['Status']
+                file = kernels_modified_methods_dict[func]['Location']
+                if func_status == 'Delete':
+                    # handle removed function - SEVERE risk
+                    ret_diff_stats[func] = get_functions_diff_stats(None, None,
+                                                                    func, True, SEVERE)
 
-                    else:
-                        # handle all other risks
-                        if func in extracted_functions.keys():
-                            continue
-                        ext = extract_from_sources(args, func, file)
-                        extracted_functions[func] = ext
-                        if ext['src'] is None or ext['dst'] is None:
-                            continue
-                        ret_diff_stats[func] = get_functions_diff_stats(ext['src'], ext['dst'],
-                                                                        func, False, None)
-                        actual_process += 1
-                readable_extracted = {}
-                for func, value in extracted_functions.items():
-                    readable_extracted[func] = {
-                        'src': make_readable_function(value['src']),
-                        'dst': make_readable_function(value['dst']),
-                        'ofed': make_readable_function(value['ofed']),
-                    }
-                    diff = get_diff_stats(readable_extracted[func]['dst'],
-                                          readable_extracted[func]['ofed'], func)
-                    readable_extracted[func]['Aligned'] = diff['Aligned'] if diff else None
-                loc = {
-                    'ext': save_to_json(readable_extracted, f'{output_file}_ext_sources', output_file),
-                    'stats': save_to_json(ret_diff_stats, f'{output_file}_diff', output_file)
+                else:
+                    # handle all other risks
+                    if func in extracted_functions.keys():
+                        continue
+                    ext = extract_from_sources(args, func, file)
+                    extracted_functions[func] = ext
+                    if ext['src'] is None or ext['dst'] is None:
+                        continue
+                    ret_diff_stats[func] = get_functions_diff_stats(ext['src'], ext['dst'],
+                                                                    func, False, None)
+                    actual_process += 1
+            readable_extracted = {}
+            for func, value in extracted_functions.items():
+                readable_extracted[func] = {
+                    'src': make_readable_function(value['src']),
+                    'dst': make_readable_function(value['dst']),
+                    'ofed': make_readable_function(value['ofed']),
                 }
-                logger.info(f"overall functions: {overall}")
-                logger.info(f"able to process functions: {actual_process}")
-                if overall > 0:
-                    logger.info(f"success rate {actual_process/overall*100}% - [{actual_process}/{overall}]")
-                return loc
+                diff = get_diff_stats(readable_extracted[func]['dst'],
+                                      readable_extracted[func]['ofed'], func)
+                readable_extracted[func]['Aligned'] = diff['Aligned'] if diff else None
+            loc = {
+                'ext': save_to_json(readable_extracted, f'{output_file}_ext_sources', output_file),
+                'stats': save_to_json(ret_diff_stats, f'{output_file}_diff', output_file)
+            }
+            logger.info(f"overall functions: {overall}")
+            logger.info(f"able to process functions: {actual_process}")
+            if overall > 0:
+                logger.info(f"success rate {actual_process/overall*100}% - [{actual_process}/{overall}]")
+            return loc
         except IOError as e:
             logger.critical(f"failed to read json:\n{e}")
 

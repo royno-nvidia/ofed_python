@@ -10,7 +10,7 @@ WORK_DAYS = 12
 WIDTH = 0.5
 TWO = 2
 LOGGER_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/loggers/"
-JSON_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/jsons/"
+JSON_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/jsons"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 
@@ -58,11 +58,11 @@ def get_risk_mining(risk: int):
         return 'Low - Nothing changed in upstream functions (Patch should apply smoothly but ' \
                'compilation not guarantied)'
     if risk == MEDIUM:
-        return 'Medium - At list one of commit functions Body has new changes over upstream'
+        return 'Medium - Function\'s Body has new changes over upstream'
     if risk == HIGH:
-        return 'High - At list one of commit functions API changed (Only in case of Argument removal) in upstream'
+        return 'High - Function\'s API changed (Only in case of Argument removal) in upstream'
     if risk == SEVERE:
-        return 'Severe - At list one of commit functions REMOVED/MOVED/FILE RENAMED in upstream'
+        return 'Severe - Function REMOVED/MOVED/FILE RENAMED in upstream'
     if risk == REDESIGN:
         return 'Redesign - Feature need developer redesign'
 
@@ -89,7 +89,7 @@ def get_logger(module_name, file_name):
     return logger
 
 
-def save_to_json(dict_for_saving, filename, directory):
+def save_to_json(dict_for_saving, filename, directory=""):
     """
     Output process results into timestamp json file for future analyze
     :return:
@@ -97,20 +97,24 @@ def save_to_json(dict_for_saving, filename, directory):
     if not filename.endswith('.json'):
         filename = f"{filename}.json"
     save_path = f'{directory}/{filename}'
-    with open(f'{JSON_LOC}{save_path}', 'w') as handle:
+    with open(f'{JSON_LOC}/{save_path}', 'w') as handle:
         json.dump(dict_for_saving, handle, indent=4)
-    print(f"Results saved in Json - '{JSON_LOC}{save_path}'")
+    print(f"Results saved in Json - '{save_path}'")
     return save_path
 
 
-def open_json(json_name: str):
+def open_json(json_name: str, directory=""):
     try:
-        path = JSON_LOC + json_name
-        with open(JSON_LOC + json_name) as j_file:
+        open_path = f"{JSON_LOC}/{directory}/{json_name}"
+        if not os.path.isfile(open_path):
+            print(f"File {open_path} - Not exists!")
+            exit(1)
+        with open(open_path) as j_file:
             data = json.load(j_file)
             return data
     except IOError as e:
-        print(f"failed to read json - {path}:\n{e}")
+        print(f"failed to read json - {open_path}:\n{e}")
+
 
 def run_ofed_scripts(src_path: str, script: str, logger):
     cwd = os.getcwd()
