@@ -2,6 +2,7 @@ import logging
 import datetime
 import json
 import os
+import shutil
 import subprocess
 from colorlog import ColoredFormatter
 
@@ -125,6 +126,7 @@ def run_ofed_scripts(src_path: str, script: str, logger):
     logger.debug(f'returned {os.getcwd()}')
     return ret
 
+
 def show_runtime(end_time, start_time, logger):
     """
     display script runtime in logger
@@ -137,3 +139,11 @@ def show_runtime(end_time, start_time, logger):
     logger.info('-' * len(msg))
     logger.info(msg)
     logger.info('-' * len(msg))
+
+
+def check_and_create_dir(loc, logger, remove=True):
+    if os.path.exists(loc) and remove:
+        shutil.rmtree(loc)
+        logger.critical(f'Directory {loc} exists, remove automatically')
+    os.mkdir(loc, 0o0755)
+    logger.info(f'Directory {loc} created')

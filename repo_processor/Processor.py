@@ -337,7 +337,7 @@ class Processor(object):
                 overall += 1
                 if func not in kernels_modified_methods_dict.keys():
                     # handle no risk (not changed)functions
-                    print(f'{func}- handle no risk')
+                    logger.info(f'{func}- handle no risk')
                     ret = get_functions_diff_stats(None, None, func, False, LOW)
                     ret_diff_stats[func] = ret
                     continue
@@ -438,7 +438,7 @@ class Processor(object):
             }
 
         function_ext_dict['Missing info'] = error_list
-        location = save_to_json(function_ext_dict, args.output,f'{args.output}_ext_dict')
+        location = save_to_json(function_ext_dict, f'{args.output}_ext_dict', args.output)
         overall = len(ofed_functions.keys())
         able = overall - len(error_list)
         logger.info(f'Success process rate: {(able/overall)*100:.2f}% [{able}/{overall}]')

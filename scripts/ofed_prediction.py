@@ -1,9 +1,9 @@
 
 import argparse
 import time
-from analyzer.Analyzer import Analyzer, check_and_create_dir
+from analyzer.Analyzer import Analyzer
 from repo_processor.Processor import Processor
-from utils.setting_utils import show_runtime
+from utils.setting_utils import show_runtime, check_and_create_dir
 from verifier.verifer_arg import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -49,7 +49,7 @@ def main():
 
     # create methods diff stats
     root_path = f"{JSON_LOC}/{args.output}"
-    check_and_create_dir(root_path)
+    check_and_create_dir(root_path, logger)
 
     loc = Processor.get_kernels_methods_diffs(args)
 

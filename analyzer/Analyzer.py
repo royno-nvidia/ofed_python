@@ -1,5 +1,4 @@
 import re
-import shutil
 import numpy as np
 import pandas as pd
 from Comperator.Comperator import get_func_stats, get_diff_stats
@@ -118,7 +117,7 @@ def create_main_dict(kernel_dict, ofed_list, diff_dict, sources, explain_dir):
     patch_number = 0
     commits_risks_cause = {}
     full_path_explain = f'{EXCEL_LOC}{explain_dir}/{explain_dir}_explain'
-    check_and_create_dir(full_path_explain)
+    check_and_create_dir(full_path_explain, logger)
     for commit in ofed_list:
         patch_number += 1
         max_risk = LOW
@@ -253,23 +252,15 @@ def create_func_stats_line(func_name, chash, diff_dict, kernel_dict, extracted,
             return ret
 
 
-def check_and_create_dir(loc):
-    if os.path.exists(loc):
-        shutil.rmtree(loc)
-        logger.critical(f'Directory {loc} exists, remove automatically')
-    os.mkdir(loc, 0o0755)
-    logger.info(f'Directory {loc} created')
-
-
 def create_commit_to_function_dict(ofed_list, diff_dict, kernel_dict, extracted, backports, dir_name):
     root_path = f"{EXCEL_LOC + dir_name}"
-    check_and_create_dir(root_path)
+    check_and_create_dir(root_path, logger)
     dir_path = f"{root_path + '/' +dir_name}_diff"
-    check_and_create_dir(dir_path)
+    check_and_create_dir(dir_path, logger)
     back_path = f"{root_path + '/' + dir_name}_back"
-    check_and_create_dir(back_path)
+    check_and_create_dir(back_path, logger)
     ext_path = f"{root_path + '/' +dir_name}_ext"
-    check_and_create_dir(ext_path)
+    check_and_create_dir(ext_path, logger)
     commit_to_function = []
     for commit in ofed_list:
         for func in commit['Functions'].keys():
@@ -364,7 +355,7 @@ def get_modificatins_only(mod_list):
 def get_modifications_diff_stats(func, last_mod, new_mod):
     last_only_mod = get_modificatins_only(last_mod)
     new_only_mod = get_modificatins_only(new_mod)
-    return get_diff_stats(last_only_mod, new_only_mod, func)
+    return get_diff_stats(last_only_mod, new_only_mod, func, False)
 
 
 def get_review_urgency(bases_diff, apply_diff, mod_diff, ofed_only):
@@ -399,7 +390,7 @@ def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info)
         last_modifications = get_diff_stats(src_info['Splited'], last_info['Splited'], func)
         rebase_modifications = get_diff_stats(dst_info['Splited'], rebase_info['Splited'], func)
         modifications_diff = get_modifications_diff_stats(func, last_modifications['Diff newline'],
-                                                      rebase_modifications['Diff newline'])
+                                                          rebase_modifications['Diff newline'])
     else:
         ofed_only = True
     apply_diff = get_diff_stats(last_info['Splited'], rebase_info['Splited'], func)
@@ -419,53 +410,51 @@ def check_stat_and_create_dict(func, src_info, dst_info, last_info, rebase_info)
 
 def genarate_results_for_excel(stats_info, dir_name):
     root_path = f"{EXCEL_LOC + dir_name}"
-    os.mkdir(root_path, 0o0755)
-    last_path = f"{root_path + '/' +dir_name}_last"
-    os.mkdir(last_path, 0o0755)
-    rebase_path = f"{root_path + '/' + dir_name}_rebase"
-    os.mkdir(rebase_path, 0o0755)
-    src_path = f"{root_path + '/' +dir_name}_src"
-    os.mkdir(src_path, 0o0755)
-    dst_path = f"{root_path + '/' +dir_name}_dst"
-    os.mkdir(dst_path, 0o0755)
-    ofed_mod_path = f"{root_path + '/' +dir_name}_ofed_mod"
-    os.mkdir(ofed_mod_path, 0o0755)
-    rebase_mod_path = f"{root_path + '/' +dir_name}_rebase_mod"
-    os.mkdir(rebase_mod_path, 0o0755)
-    mod_diff_path = f"{root_path + '/' +dir_name}_mod_diff"
-    os.mkdir(mod_diff_path, 0o0755)
-    bases_diff_path = f"{root_path + '/' +dir_name}_bases_diff"
-    os.mkdir(bases_diff_path, 0o0755)
-    apply_diff_path = f"{root_path + '/' +dir_name}_apply_diff"
-    os.mkdir(apply_diff_path, 0o0755)
+    check_and_create_dir(root_path, logger)
+    last = f"{root_path}/last"
+    check_and_create_dir(last, logger)
+    rebase = f"{root_path}/rebase"
+    check_and_create_dir(rebase, logger)
+    src = f"{root_path}/src"
+    check_and_create_dir(src, logger)
+    dst = f"{root_path}/dst"
+    check_and_create_dir(dst, logger)
+    ofed_mod = f"{root_path}/ofed_mod"
+    check_and_create_dir(ofed_mod, logger)
+    rebase_mod = f"{root_path}/rebase_mod"
+    check_and_create_dir(rebase_mod, logger)
+    mod_diff = f"{root_path}/mod_diff"
+    check_and_create_dir(mod_diff, logger)
+    base_diff = f"{root_path}/bases_diff"
+    check_and_create_dir(base_diff, logger)
+    apply_diff = f"{root_path}/apply_diff"
+    check_and_create_dir(apply_diff, logger)
+
     data_frame_info = []
     for func, info in stats_info.items():
-        print(f'func: {func}')
-        if func == 'mlx5e_put_page':
-            print('abbb')
         review = info['Review Need Level']
         data_frame_info.append({
             'Function': func,
             'Need Review Level': review,
-            'OFED2 Diff OFED1': write_and_link(func, info['Apply diff']['Diff'], apply_diff_path, 'view')
+            'OFED2 Diff OFED1': write_and_link(f'{func}-ofed2_vs_ofed_1', info['Apply diff']['Diff'], apply_diff, 'view')
             if info['Apply diff'] else '',
-            'Korg2 Diff Korg1': write_and_link(func, info['Bases diff']['Diff'], bases_diff_path, 'view')
+            'Korg2 Diff Korg1': write_and_link(f'{func}-korg2_vs_korg1', info['Bases diff']['Diff'], base_diff, 'view')
             if info['Bases diff'] else '',
-            'OFED1 Diff Korg1': write_and_link(func, info['Last modifications']['Diff'], mod_diff_path, 'view')
+            'OFED1 Diff Korg1': write_and_link(f'{func}-ofed1_vs_korg1', info['Last modifications']['Diff'], mod_diff, 'view')
             if info['Last modifications'] else '' ,
-            'OFED2 Diff Korg2': write_and_link(func, info['Rebase modifications']['Diff'], rebase_mod_path, 'view')
+            'OFED2 Diff Korg2': write_and_link(f'{func}-ofed2_vs_korg2', info['Rebase modifications']['Diff'], rebase_mod, 'view')
             if info['Rebase modifications'] else '',
-            'Rebase2 Diff Rebase1': write_and_link(func, info['Modifications diff']['Diff'], ofed_mod_path, 'view')
+            'Rebase2 Diff Rebase1': write_and_link(f'{func}-rebase2_vs_rebase1', info['Modifications diff']['Diff'], ofed_mod, 'view')
             if info['Modifications diff'] else '',
             'Review notes': '',
             'Sign-off by': '',
-            'Src': write_and_link(func, info['Src']['Splited'], src_path, 'view')
+            'Src': write_and_link(f'{func}-Ksrc', info['Src']['Splited'], src, 'view')
             if info['Src'] else '',
-            'Dst': write_and_link(func, info['Dst']['Splited'], dst_path, 'view')
+            'Dst': write_and_link(f'{func}-Kdst', info['Dst']['Splited'], dst, 'view')
             if info['Dst'] else '',
-            'Last': write_and_link(func, info['Last']['Splited'], last_path, 'view')
+            'Last': write_and_link(f'{func}-last', info['Last']['Splited'], last, 'view')
             if info['Last'] else '',
-            'Rebase': write_and_link(func, info['Rebase']['Splited'], rebase_path, 'view')
+            'Rebase': write_and_link(f'{func}-rebase', info['Rebase']['Splited'], rebase, 'view')
             if info['Rebase'] else '',
         })
     return data_frame_info
@@ -618,7 +607,7 @@ class Analyzer(object):
         logger.info(f"Excel {filename} was created in {os.path.abspath(filename)}")
 
     @staticmethod
-    def create_diffs_from_extracted(ext_loc: str):
+    def create_diffs_from_extracted(ext_loc: str, directory: str):
         stats_dict = {}
         missing_func_list = []
         ext_info = open_json(ext_loc)
@@ -652,7 +641,7 @@ class Analyzer(object):
                 'Rebase modifications': '',
                 'Modifications diff': '',
             }
-        return save_to_json(stats_dict, 'stats_dict_post1')
+        return save_to_json(stats_dict, f'{directory}_stats_dict_post', directory)
 
     @staticmethod
     def create_rebase_reviews_excel(info_json, output):

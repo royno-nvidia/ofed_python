@@ -2,8 +2,10 @@ import argparse
 import datetime
 import time
 
+from Comperator.Comperator import split_api_and_body
 from analyzer.Analyzer import Analyzer
 from repo_processor.Processor import Processor
+from utils.setting_utils import check_and_create_dir
 from verifier.verifer_arg import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -64,8 +66,10 @@ def main():
     #     logger.critical('Argument verify failed, exiting')
     #     exit(1)
 
+    root_dir = f'{JSON_LOC}/{args.output}'
+    check_and_create_dir(root_dir, logger)
     ext_loc = Processor.get_extraction_for_all_ofed_functions(args)
-    location = Analyzer.create_diffs_from_extracted(ext_loc)
+    location = Analyzer.create_diffs_from_extracted(ext_loc, args.output)
     Analyzer.create_rebase_reviews_excel(location, args.output)
     end_time = time.time()
     show_runtime(end_time, start_time)

@@ -5,27 +5,34 @@ import re
 logger = get_logger('Comperator', 'Comperator.log')
 
 
-def split_api_and_content(diff):
+def split_api_and_body(diff):
     api_lines = []
     ctx_lines = []
     first_curly_found = False
     try:
-        for line in diff:
-            if '{' in line:
-                first_curly_found = True
-            api_lines.append(line) if not first_curly_found else ctx_lines.append(line)
+        if len(diff) == 1:  # one liner function
+            reg = re.search('(\{.*\})', diff[0])
+            if reg:
+                ctx_lines = reg.group(1).strip()
+                api_lines = diff[0].replace(ctx_lines, "").strip()
+        else:
+            for line in diff:
+                if '{' in line:
+                    first_curly_found = True
+                api_lines.append(line) if not first_curly_found else ctx_lines.append(line)
     except Exception as e:
         logger.critical(f'failed in line {line}, {e}')
     return {
         'API': api_lines,
-        'Content': ctx_lines
+        'CTX': ctx_lines
     }
 
 
-def split_function_parts(api: list, func_name: str):
+def split_api_parts(api: list, func_name: str):
     api = ' '.join(api)
     ret_type = re.split('\(|\)', api)[0].replace(func_name, "").strip()
     arguments = [elem.strip() for elem in re.split(',',re.split('\(|\)', api)[1])]
+
     return {
         'ret_type': ret_type,
         'arguments': arguments
@@ -72,8 +79,8 @@ def is_prototype_changed(api_change):
 
 
 def process_api_diff(old_api, new_api, func_name):
-    old_parts = split_function_parts(old_api, func_name)
-    new_parts = split_function_parts(new_api, func_name)
+    old_parts = split_api_parts(old_api, func_name)
+    new_parts = split_api_parts(new_api, func_name)
     ret_type_changed = compare_ret_type(old_parts['ret_type'], new_parts['ret_type'])
     arguments_changed = compare_arguments(old_parts['arguments'], new_parts['arguments'])
     ret = {
@@ -99,10 +106,10 @@ def process_ctx_diff(old_ctx, new_ctx):
 
 def what_was_changed(old_func, new_func, func_name: str) -> dict:
     """Check if function prototype and context has changed"""
-    splited_old = split_api_and_content(old_func)
-    splited_new = split_api_and_content(new_func)
+    splited_old = split_api_and_body(old_func)
+    splited_new = split_api_and_body(new_func)
     api_ret = process_api_diff(splited_old['API'], splited_new['API'], func_name)
-    ctx_ret = process_ctx_diff(splited_old['Content'], splited_new['Content'])
+    ctx_ret = process_ctx_diff(splited_old['CTX'], splited_new['CTX'])
 
     return {
         'API': api_ret,
@@ -230,21 +237,21 @@ def get_func_stats(func):
     }
 
 
-def get_diff_stats(old_func, new_func, func_name):
+def get_diff_stats(old_func, new_func, func_name, with_api=True):
     if not old_func or not new_func:
         return None
     d = Differ()
     diff = list(d.compare(old_func, new_func))
-
-    changes = what_was_changed(old_func, new_func, func_name)
+    if with_api:
+        changes = what_was_changed(old_func, new_func, func_name)
     counter = count_changes(diff)
     diff_strip = [line.replace('\n', '') for line in diff if not line.startswith('?')]
     return {
-        'Aligned': changes['Same'],
+        'Aligned': changes['Same'] if with_api else '',
         'Diff newline': diff,
         'Diff': diff_strip,
-        'API': changes['API'],
-        'Ctx': changes['CTX'],
+        'API': changes['API'] if with_api else '',
+        'CTX': changes['CTX'] if with_api else '',
         '+': counter['+'],
         '-': counter['-'],
         'X': counter['X']
