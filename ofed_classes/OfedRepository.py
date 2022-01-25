@@ -1,6 +1,6 @@
 import json
 import re
-from pydriller import RepositoryMining as Repository, Commit
+from pydriller import Repository as Repository, Commit
 from ofed_classes.Metadata import Metadata
 from ofed_classes.OfedCommit import OfedCommit
 from utils.setting_utils import get_logger

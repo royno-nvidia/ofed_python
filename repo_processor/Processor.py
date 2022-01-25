@@ -1,6 +1,7 @@
 import subprocess
 import os
-from pydriller import RepositoryMining as Repository
+from pydriller import Repository as Repository
+from pydriller import Repository as Repository
 from Comperator.Comperator import extract_method_from_file, make_readable_function, get_functions_diff_stats, \
     get_diff_stats
 from ofed_classes.OfedRepository import OfedRepository
@@ -189,7 +190,7 @@ class Processor(object):
                 logger.debug(f'Processing commit {commit.hash}:')
                 # iterate all commit in repo
                 self.up()
-                for mod in commit.modifications:
+                for mod in commit.modified_files:
                     mod_file_path = mod.new_path
                     before_methods = set([meth.name for meth in mod.methods_before])
                     after_methods = set([meth.name for meth in mod.methods])
@@ -281,7 +282,7 @@ class Processor(object):
                 #     # skip accepted
                 #     logger.debug(f"skipped {chash} due to accepted status")
                 #     continue
-                for mod in ofed_commit.commit.modifications:
+                for mod in ofed_commit.commit.modified_files:
                     mod_file_path = mod.new_path
                     # iterate all modifications in commit
                     if len(mod.changed_methods) > 0:

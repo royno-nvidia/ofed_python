@@ -100,7 +100,7 @@ def save_to_json(dict_for_saving, filename, directory=""):
     save_path = f'{directory}/{filename}'
     with open(f'{JSON_LOC}/{save_path}', 'w') as handle:
         json.dump(dict_for_saving, handle, indent=4)
-    print(f"Results saved in Json - '{save_path}'")
+    print(f"Results saved in Json - f'{JSON_LOC}/{save_path}'")
     return save_path
 
 

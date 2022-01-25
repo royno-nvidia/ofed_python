@@ -307,10 +307,10 @@ def get_functions_diff_stats(func_a: str, func_b: str, func_name: str,
     diff_stats = get_diff_stats(old_func['Splited'], new_func['Splited'], func_name)
     diff_stats_dict = {'View': diff_stats['Diff'],
                        'Stats': {
-                           'Risk': risk_to_string(get_function_risk(is_removed, diff_stats['API'], diff_stats['Ctx'])),
+                           'Risk': risk_to_string(get_function_risk(is_removed, diff_stats['API'], diff_stats['CTX'])),
                            'Removed': is_removed,
                            'Prototype changed': diff_stats['API']['proto_changed'],
-                           'Content changed': diff_stats['Ctx'],
+                           'Content changed': diff_stats['CTX'],
                            'Old function size': old_func['Lines'],
                            'New function size': new_func['Lines'],
                            'Old function unique lines': diff_stats['-'],
