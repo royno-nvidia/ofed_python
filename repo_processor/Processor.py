@@ -367,9 +367,10 @@ class Processor(object):
                     'dst': make_readable_function(value['dst']),
                     'ofed': make_readable_function(value['ofed']),
                 }
-                diff = get_diff_stats(readable_extracted[func]['dst'],
+                if ext['dst'] and ext['ofed']:
+                    diff = get_diff_stats(readable_extracted[func]['dst'],
                                       readable_extracted[func]['ofed'], func)
-                readable_extracted[func]['Aligned'] = diff['Aligned'] if diff else None
+                    readable_extracted[func]['Aligned'] = diff['Aligned'] if diff else None
             loc = {
                 'ext': save_to_json(readable_extracted, f'{output_file}_ext_sources', output_file),
                 'stats': save_to_json(ret_diff_stats, f'{output_file}_diff', output_file)

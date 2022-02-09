@@ -109,12 +109,12 @@ def what_was_changed(old_func, new_func, func_name: str) -> dict:
     splited_old = split_api_and_body(old_func)
     splited_new = split_api_and_body(new_func)
     api_ret = process_api_diff(splited_old['API'], splited_new['API'], func_name)
-    ctx_ret = process_ctx_diff(splited_old['CTX'], splited_new['CTX'])
+    ctx_changed = process_ctx_diff(splited_old['CTX'], splited_new['CTX'])
 
     return {
         'API': api_ret,
-        'CTX': ctx_ret,
-        'Same': api_ret['proto_changed'] and ctx_ret
+        'CTX': ctx_changed,
+        'Same': not api_ret['proto_changed'] and not ctx_changed
     }
 
 
@@ -184,8 +184,7 @@ def extract_method_from_file(filepath: str, func_name: str) -> str:
                     inside_note = False
                 if inside_note:
                     continue
-                if found or any(s_type in line for s_type in start_line_types) or any(type in line for type in middle_line_types):
-                # if f' {func_name}(' in line or found or line.startswith(f'{func_name}('):
+                if found or any(line.startswith(s_type) for s_type in start_line_types) or any(type in line for type in middle_line_types):
                     if line.startswith(f'{func_name}('):
                         function_string += last_line
                     found = True
