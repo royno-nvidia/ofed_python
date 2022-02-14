@@ -4,6 +4,8 @@
     <list default="true" id="3d4ad855-7f94-4963-9d83-e566622cc23e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repo_processor/Processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo_processor/Processor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/ofed_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/ofed_prediction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/setting_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/setting_utils.py" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/venv/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -32,8 +34,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/ofed_prediction.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="726">
-              <caret line="48" lean-forward="true" selection-start-line="48" selection-end-line="48" />
+            <state relative-caret-position="390">
+              <caret line="50" column="10" selection-start-line="50" selection-start-column="10" selection-end-line="50" selection-end-column="10" />
               <folding>
                 <element signature="e#1#16#0" expanded="true" />
               </folding>
@@ -56,7 +58,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scripts/process_kernel_repo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="227">
+            <state relative-caret-position="264">
               <caret line="33" column="11" lean-forward="true" selection-start-line="33" selection-start-column="11" selection-end-line="33" selection-end-column="11" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
@@ -66,15 +68,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scripts/__init__.py">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="359">
-              <caret line="229" column="48" selection-start-line="229" selection-start-column="48" selection-end-line="229" selection-end-column="48" />
+            <state relative-caret-position="152">
+              <caret line="206" column="35" selection-start-line="206" selection-start-column="29" selection-end-line="206" selection-end-column="35" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
               </folding>
@@ -100,11 +97,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret line="101" column="52" selection-start-line="101" selection-start-column="8" selection-end-line="101" selection-end-column="52" />
+            <state relative-caret-position="359">
+              <caret line="119" column="42" lean-forward="true" selection-start-line="119" selection-start-column="42" selection-end-line="119" selection-end-column="42" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -123,7 +120,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>shutil</find>
       <find>NA</find>
       <find>max_risk</find>
       <find>JSON_LOC</find>
@@ -153,6 +149,7 @@
       <find>stream</find>
       <find>Aligned</find>
       <find>HERE</find>
+      <find>Status</find>
     </findStrings>
     <replaceStrings>
       <replace>logger</replace>
@@ -212,10 +209,8 @@
         <option value="$PROJECT_DIR$/scripts/process_ofed_by_commit.py" />
         <option value="$PROJECT_DIR$/scripts/process_kernel_repo.py" />
         <option value="$PROJECT_DIR$/verifier/verifer_arg.py" />
-        <option value="$PROJECT_DIR$/scripts/ofed_prediction.py" />
         <option value="$PROJECT_DIR$/scripts/rebase_reviewer.py" />
         <option value="$PROJECT_DIR$/analyzer/Analyzer.py" />
-        <option value="$PROJECT_DIR$/utils/setting_utils.py" />
         <option value="$PROJECT_DIR$/scripts/verify_history_automatiuon.py" />
         <option value="$PROJECT_DIR$/../../../OFED/my_scripts/verify_history_automatiuon.py" />
         <option value="$PROJECT_DIR$/ofed_classes/OfedRepository.py" />
@@ -225,6 +220,8 @@
         <option value="$PROJECT_DIR$/../../../OFED_WORK_AREA/devops/linux_devops/jenkins-scripts/is_top_commit.py" />
         <option value="$PROJECT_DIR$/Comperator/Comperator.py" />
         <option value="$PROJECT_DIR$/repo_processor/Processor.py" />
+        <option value="$PROJECT_DIR$/scripts/ofed_prediction.py" />
+        <option value="$PROJECT_DIR$/utils/setting_utils.py" />
       </list>
     </option>
   </component>
@@ -312,7 +309,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.process_kernel_repo">
+  <component name="RunManager" selected="Python.ofed_prediction">
     <configuration name="Common" type="PythonConfigurationType" factoryName="Python">
       <module name="OfedProject" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -368,7 +365,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/ofed_prediction.py" />
-      <option name="PARAMETERS" value="-kernel_json kernel_updates_v5_13-rc4_To_v5_17-rc1.json -ofed_json ofed-5.6-0.1.3_25_1_22.json -osrc $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_6/mlnx-ofa_kernel-4.0 -ksrc  /var/tmp/src/linux_linus -kdst $PROJECT_DIR$/../../../OFED_WORK_AREA/linux_linus -ofed_tag ofed-5.6-0.1.3 -kernel_start_tag 5.13-rc4 -kernel_end_tag 5.17-rc1 -output test9_2_22" />
+      <option name="PARAMETERS" value="-kernel_json kernel_updates_v5_17-rc1_To_v5_17-rc4.json kernel_updates_v5_13-rc4_To_v5_17-rc1.json -ofed_json ofed-5.6-0.1.3_25_1_22.json -osrc $PROJECT_DIR$/../../../OFED_WORK_AREA/ofed_5_6/mlnx-ofa_kernel-4.0 -ksrc  /var/tmp/src/linux_linus -kdst $PROJECT_DIR$/../../../OFED_WORK_AREA/linux_linus -ofed_tag ofed-5.6-0.1.3 -kernel_start_tag 5.13-rc4 -kernel_end_tag 5.17-rc1 -output test9_2_22" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -753,29 +750,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="101" column="52" selection-start-line="101" selection-start-column="8" selection-end-line="101" selection-end-column="52" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/ofed_prediction.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="726">
-          <caret line="48" lean-forward="true" selection-start-line="48" selection-end-line="48" />
-          <folding>
-            <element signature="e#1#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Comperator/Comperator.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="161">
@@ -786,9 +760,12 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/process_kernel_repo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="227">
+        <state relative-caret-position="264">
           <caret line="33" column="11" lean-forward="true" selection-start-line="33" selection-start-column="11" selection-end-line="33" selection-end-column="11" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
@@ -798,10 +775,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/repo_processor/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="359">
-          <caret line="229" column="48" selection-start-line="229" selection-start-column="48" selection-end-line="229" selection-end-column="48" />
+        <state relative-caret-position="152">
+          <caret line="206" column="35" selection-start-line="206" selection-start-column="29" selection-end-line="206" selection-end-column="35" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/ofed_prediction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="50" column="10" selection-start-line="50" selection-start-column="10" selection-end-line="50" selection-end-column="10" />
+          <folding>
+            <element signature="e#1#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils/setting_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="359">
+          <caret line="119" column="42" lean-forward="true" selection-start-line="119" selection-start-column="42" selection-end-line="119" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
           </folding>
         </state>
       </provider>

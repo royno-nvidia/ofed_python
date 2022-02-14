@@ -3,7 +3,7 @@ import argparse
 import time
 from analyzer.Analyzer import Analyzer
 from repo_processor.Processor import Processor
-from utils.setting_utils import show_runtime, check_and_create_dir
+from utils.setting_utils import show_runtime, check_and_create_dir, combine_dicts
 from verifier.verifer_arg import *
 
 logger = get_logger('Analyzer', 'Analyzer.log')
@@ -11,7 +11,7 @@ logger = get_logger('Analyzer', 'Analyzer.log')
 
 def parse_args():
     parser = argparse.ArgumentParser(description="OFED pre-rebase prediction scrip\n")
-    parser.add_argument("-kernel_json", type=str, default=None, required=True,
+    parser.add_argument("-kernel_json", type=str, nargs='+', default=None, required=True,
                         help="Path for KERNEL Json with pre-rebase process results")
     parser.add_argument("-ofed_json", type=str, default=None, required=True,
                         help="Path for OFED Json with pre-rebase process results")
@@ -41,11 +41,14 @@ def main():
     file_list_verify = []
     file_list_verify.extend(args.kernel_json)
     file_list_verify.append(args.ofed_json)
-    # file_list_verify.append(args.diff)
-    # file_list_verify.append(args.ofed_extracted_functions)
     if not checks_for_analyzer(file_list_verify, args.output):
         logger.critical('Argument verify failed, exiting')
         exit(1)
+
+    # Use only for concat dicts
+    if len(args.kernel_json) > 1:
+        combine_dicts(args.kernel_json, 'combine_v5_13-rc4_To_v5_17-rc4')
+        exit(0)
 
     # create methods diff stats
     root_path = f"{JSON_LOC}/{args.output}"

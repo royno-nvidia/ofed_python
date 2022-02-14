@@ -104,6 +104,22 @@ def save_to_json(dict_for_saving, filename, directory=""):
     return save_path
 
 
+def combine_dicts(dict_list, filename):
+    results = {}
+    uniqe_keys = set()
+    for js in dict_list:
+        temp = open_json(js)
+        uniqe_keys |= set(temp.keys())
+        for key, value in temp.items():
+            if key in results.keys() and value['Status'] == 'Modify':
+                continue
+            if key in results.keys() and results[key]['Status'] == 'Delete':
+                continue
+            results[key] = value
+    print(f'Uniq keys = {len(uniqe_keys)}')
+    return save_to_json(results, filename)
+
+
 def open_json(json_name: str, directory=""):
     try:
         open_path = f"{JSON_LOC}/{directory}/{json_name}"
