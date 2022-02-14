@@ -225,6 +225,10 @@ class Processor(object):
                 self._results[rem]['Status'] = 'Delete'
             for add in all_added_methods_set:
                 # Verify all Added methods status is 'New'
+                if add in self._results.keys():
+                    if self._results[add]['Status'] == 'Delete':
+                        # Do no run over Deleted functions
+                        continue
                 self._results[add]['Status'] = 'New'
         except Exception as e:
             logger.critical(f"Fail to process commit : '{commit.hash}',\n{e}")
