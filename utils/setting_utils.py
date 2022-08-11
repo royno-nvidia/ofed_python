@@ -14,6 +14,7 @@ LOGGER_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/loggers/"
 JSON_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/jsons"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
 EXCEL_LOC = "/swgwork/royno/Full/Python_work_place/OfedProject/Excels/"
+TAB_SIZE = 4
 
 # RISK LEVELS
 NA = 5
