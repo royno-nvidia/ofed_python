@@ -3,15 +3,15 @@
 '''
 import re
 import argparse
-
+from difflib import Differ
 
 # Create the parser
 from utils.setting_utils import TAB_SIZE
 
 
-def debug_print(tabs, group):
-    print(f"{' ' * tabs}{group}")
-
+def debug_print(tabs, group, debug):
+    if debug:
+        print(f"{' ' * tabs}{group}")
 
 def write_into_file(option, number, tabs, data, output_files):
     number_info = f"line {number}:"
@@ -29,19 +29,22 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Automatic full file '
                                         'review for defines and functions order')  
     # Add Arguments
-    parser.add_argument('--review', type=str, default=False,
+    parser.add_argument('--review', type=str, default="",
                         help='Set a file path to review')
-    parser.add_argument('--reference', type=str, default=False,
+    parser.add_argument('--reference', type=str, default="",
                         help='Set a file path to use as reference')
     parser.add_argument('-l', '--with_line_number', action='store_true',
                         help='Get output with line number')
+    parser.add_argument('--debug', action='store_true',
+                        help='Add debug prints')
 
     # Parse the argument
     options = parser.parse_args()
     return options
 
 
-def file_parser(args):
+def file_parser(args, work_on_file):
+    print(f'start processing {work_on_file}')
     # My variable
     if_statements = "#if"
     else_statements = ["#else", "#elif"]
@@ -52,14 +55,14 @@ def file_parser(args):
     tab = 0
     backports_tree = []
     with open('output.csv', 'w') as output_file:
-        with open(args.review, 'r') as review_file:
+        with open(work_on_file, 'r') as review_file:
             # reading loop from a programing file
             force_take_line = False
             for i, line in enumerate(review_file.readlines()):
                 info = ""
                 end_with_backslash = line.endswith('\\\n')
                 if force_take_line:
-                    debug_print(tab, line)
+                    debug_print(tab, line, args.debug)
                     info = write_into_file(args.with_line_number, i, tab, line, output_file)
                     force_take_line = False
 
@@ -71,46 +74,56 @@ def file_parser(args):
                 # check if we have any regular expression in the reading line
 
                 if if_pattern:  # have if_statements
-                    debug_print(tab, if_pattern.group())
+                    debug_print(tab, if_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, if_pattern.group(), output_file)
                     tab += TAB_SIZE
                     force_take_line = end_with_backslash
 
                 elif else_pattern:  # have else_statements
                     tab -= TAB_SIZE
-                    debug_print(tab, else_pattern.group())
+                    debug_print(tab, else_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, else_pattern.group(), output_file)
                     tab += TAB_SIZE
                     force_take_line = end_with_backslash
 
                 elif endif_pattern:  # have endif_statements
                     tab -= TAB_SIZE
-                    debug_print(tab, endif_pattern.group())
+                    debug_print(tab, endif_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, endif_pattern.group(), output_file)
                     if tab == 0:
-                        debug_print(tab, ' ')
+                        debug_print(tab, ' ', args.debug)
                         info = write_into_file(args.with_line_number, i, tab, ' ', output_file)
 
                 elif include_pattern and tab > 0:  # have include_statements
-                    debug_print(tab, include_pattern.group())
+                    debug_print(tab, include_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, include_pattern.group(), output_file)
 
                 else:  # have function_statements
                     for statement in func_statements:
                         func_pattern = re.search(fr"(\s*{statement}) (\w+)(\()", line)
                         if func_pattern and tab > 0:
-                            debug_print(tab, func_pattern.group(2))
+                            debug_print(tab, func_pattern.group(2), args.debug)
                             info = write_into_file(args.with_line_number, i, tab, func_pattern.group(2), output_file)
                 if info:
                     backports_tree.append(info)
+    return backports_tree
 
-
-
+def create_review_diffs(review, reference):
+    d = Differ()
+    print(f'reveiw {review}')
+    print(f'reference {reference}')
+    diff = list(d.compare(reference, review))
+    diff_strip = [line for line in diff if not line.startswith('?')]
+    with open('reviewer.csv', 'w') as output_file:
+        for line in diff_strip:
+            print(line)
+            output_file.write(line)
 
 def main():
     args = parse_args()
-    file_parser(args)
-
+    review_tree_list = file_parser(args, args.review)
+    reference_tree_list = file_parser(args, args.reference)
+    create_review_diffs(review_tree_list, reference_tree_list)
 
 if __name__ == '__main__':
     main()
