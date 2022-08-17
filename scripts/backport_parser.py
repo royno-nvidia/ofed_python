@@ -28,12 +28,10 @@ def parse_args():
 def file_parser(args):
     # My variable
     if_statements = "#if"
-    else_statements = "#else"
-    elif_statements = "#elif"
+    else_statements = ["#else", "#elif"]
     endif_statements = "#endif"
     include_statements = '#include'
-    struct_statements = '^struct'
-    func_statements = ['void', 'int', 'bool', 'string']
+    func_statements = ['void', 'int', 'bool', 'string', '^struct']
 
     tab = 0
 
@@ -49,12 +47,10 @@ def file_parser(args):
                     force_take_line = False
 
                 # searching for the regular expression that we need
-                if_pattern = re.search(f"\s*{if_statements}.*", line)
-                elif_pattern = re.search(f"\s*{elif_statements}.*", line)
-                else_pattern = re.search(f"\s*{else_statements}.*", line)
-                endif_pattern = re.search(f"\s*{endif_statements}.*", line)
-                include_pattern = re.search(f"\s*{include_statements}.*", line)
-                struct_pattern = re.search(f"(\s*{struct_statements}.*) (\s?)(\w+)(\()", line)
+                if_pattern = re.search(f"^\s*{if_statements}.*", line)
+                else_pattern = re.search(f"^\s*{'|'.join(else_statements)}.*", line)
+                endif_pattern = re.search(f"^\s*{endif_statements}.*", line)
+                include_pattern = re.search(f"^\s*{include_statements}.*", line)
                 # check if we have any regular expression in the reading line
 
                 if if_pattern:  # have if_statements
@@ -70,13 +66,6 @@ def file_parser(args):
                     tab += TAB_SIZE
                     force_take_line = end_with_backslash
 
-                elif elif_pattern:  # have elif_statements
-                    tab -= TAB_SIZE
-                    debug_print(tab, elif_pattern.group())
-                    write_into_file(args.with_line_number, i, tab, elif_pattern.group(), output_file)
-                    tab += TAB_SIZE
-                    force_take_line = end_with_backslash
-
                 elif endif_pattern:  # have endif_statements
                     tab -= TAB_SIZE
                     debug_print(tab, endif_pattern.group())
@@ -88,10 +77,6 @@ def file_parser(args):
                 elif include_pattern and tab > 0:  # have include_statements
                     debug_print(tab, include_pattern.group())
                     write_into_file(args.with_line_number, i, tab, include_pattern.group(), output_file)
-
-                elif struct_pattern:
-                    debug_print(tab, struct_pattern.group(2))
-                    write_into_file(args.with_line_number, i, tab, struct_pattern.group(2), output_file)
 
                 else:  # have function_statements
                     for statement in func_statements:
