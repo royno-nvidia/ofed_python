@@ -9,6 +9,22 @@ import argparse
 from utils.setting_utils import TAB_SIZE
 
 
+def debug_print(tabs, group):
+    print(f"{' ' * tabs}{group}")
+
+
+def write_into_file(option, number, tabs, data, output_files):
+    number_info = f"line {number}:"
+    line_info = f"{' ' * tabs}{data}\n"
+    if option:
+        final_info = number_info + line_info
+    else:
+        final_info = line_info
+
+    output_files.write(final_info)
+    return final_info
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Automatic full file '
                                         'review for defines and functions order')  
@@ -34,16 +50,17 @@ def file_parser(args):
     func_statements = ['void', 'int', 'bool', 'string', '^struct']
 
     tab = 0
-
+    backports_tree = []
     with open('output.csv', 'w') as output_file:
-        with open(args.review, 'r') as Read_file:
+        with open(args.review, 'r') as review_file:
             # reading loop from a programing file
             force_take_line = False
-            for i, line in enumerate(Read_file.readlines()):
+            for i, line in enumerate(review_file.readlines()):
+                info = ""
                 end_with_backslash = line.endswith('\\\n')
                 if force_take_line:
                     debug_print(tab, line)
-                    write_into_file(args.with_line_number, i, tab, line, output_file)
+                    info = write_into_file(args.with_line_number, i, tab, line, output_file)
                     force_take_line = False
 
                 # searching for the regular expression that we need
@@ -55,47 +72,39 @@ def file_parser(args):
 
                 if if_pattern:  # have if_statements
                     debug_print(tab, if_pattern.group())
-                    write_into_file(args.with_line_number, i, tab, if_pattern.group(), output_file)
+                    info = write_into_file(args.with_line_number, i, tab, if_pattern.group(), output_file)
                     tab += TAB_SIZE
                     force_take_line = end_with_backslash
 
                 elif else_pattern:  # have else_statements
                     tab -= TAB_SIZE
                     debug_print(tab, else_pattern.group())
-                    write_into_file(args.with_line_number, i, tab, else_pattern.group(), output_file)
+                    info = write_into_file(args.with_line_number, i, tab, else_pattern.group(), output_file)
                     tab += TAB_SIZE
                     force_take_line = end_with_backslash
 
                 elif endif_pattern:  # have endif_statements
                     tab -= TAB_SIZE
                     debug_print(tab, endif_pattern.group())
-                    write_into_file(args.with_line_number, i, tab, endif_pattern.group(), output_file)
+                    info = write_into_file(args.with_line_number, i, tab, endif_pattern.group(), output_file)
                     if tab == 0:
                         debug_print(tab, ' ')
-                        write_into_file(args.with_line_number, i, tab, ' ', output_file)
+                        info = write_into_file(args.with_line_number, i, tab, ' ', output_file)
 
                 elif include_pattern and tab > 0:  # have include_statements
                     debug_print(tab, include_pattern.group())
-                    write_into_file(args.with_line_number, i, tab, include_pattern.group(), output_file)
+                    info = write_into_file(args.with_line_number, i, tab, include_pattern.group(), output_file)
 
                 else:  # have function_statements
                     for statement in func_statements:
                         func_pattern = re.search(fr"(\s*{statement}) (\w+)(\()", line)
                         if func_pattern and tab > 0:
                             debug_print(tab, func_pattern.group(2))
-                            write_into_file(args.with_line_number, i, tab, func_pattern.group(2), output_file)
+                            info = write_into_file(args.with_line_number, i, tab, func_pattern.group(2), output_file)
+                if info:
+                    backports_tree.append(info)
 
 
-def debug_print(tabs, group):
-    print(f"{' ' * tabs}{group}")
-
-
-def write_into_file(option, number, tabs, data, output_files):
-
-    if option:
-        output_files.write(f"line {number}:  {' ' * tabs}{data}\n")
-    else:
-        output_files.write(f"{' ' * tabs}{data}\n")
 
 
 def main():
