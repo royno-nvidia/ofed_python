@@ -30,7 +30,7 @@ def handle_info(args, number, tabs, data):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Automatic full file '
-                                        'review for defines and functions order')  
+                                     'review for defines and functions order')
     # Add Arguments
     parser.add_argument('--review', type=str, default="",
                         help='Set a file path to review')
@@ -51,12 +51,23 @@ def parse_args():
 def inc_tab(tab):
     return tab + TAB_SIZE
 
+
 def dec_tab(tab):
     if tab - TAB_SIZE < 0:
-        print("Tab tried to go under 0")
+        print("-Error- Tab tried to go under 0")
         return 0
     else:
         return tab - TAB_SIZE
+
+
+def create_review_diffs(review, reference):
+    d = Differ()
+    diff = list(d.compare(reference, review))
+    diff_strip = [line for line in diff if not line.startswith('?')]
+    with open('reviewer.csv', 'w') as output_file:
+        for line in diff_strip:
+            print(line)
+            output_file.write(line)
 
 
 def file_parser(args, work_on_file):
@@ -72,6 +83,8 @@ def file_parser(args, work_on_file):
     backports_tree = []
     force_take_line = False
     inside_function = False
+    hold_info = ""
+    hold_write = False
 
     with open(work_on_file, 'r') as review_file:
         # reading loop from a programing file
@@ -92,6 +105,14 @@ def file_parser(args, work_on_file):
             # check if we have any regular expression in the reading line
 
             if if_pattern:  # have if_statements
+                if hold_write:
+                    info = handle_info(args, i, tab, hold_info)
+                    tab = inc_tab(tab)
+                    inside_function = True
+                    backports_tree.append(info)
+                    info = ""
+                    hold_write = False
+
                 info = handle_info(args, i, tab, if_pattern.group())
                 tab = inc_tab(tab)
                 force_take_line = end_with_backslash
@@ -110,12 +131,25 @@ def file_parser(args, work_on_file):
                 info = handle_info(args, i, tab, include_pattern.group())
 
             elif func_start_pattern and not inside_function:
-                info = handle_info(args, i, tab, func_start_pattern.group(1))
-                tab = inc_tab(tab)
                 inside_function = True
+                # wait with writing function name till backports found
+                if tab == 0:
+                    hold_write = True
+                    hold_info = func_start_pattern.group(1)
+                # write function name inside #ifdef
+                else:
+                    info = handle_info(args, i, tab, func_start_pattern.group(1))
+                    tab = inc_tab(tab)
 
             elif func_end_pattern and inside_function:
-                tab = dec_tab(tab)
+                # Function doesn't contains backports
+                if hold_write:
+                    hold_write = False
+                    hold_info = ""
+                # Function was handled
+                else:
+                    tab = dec_tab(tab)
+                # Function ended
                 inside_function = False
 
             if info:
@@ -123,15 +157,6 @@ def file_parser(args, work_on_file):
 
     return backports_tree
 
-
-def create_review_diffs(review, reference):
-    d = Differ()
-    diff = list(d.compare(reference, review))
-    diff_strip = [line for line in diff if not line.startswith('?')]
-    with open('reviewer.csv', 'w') as output_file:
-        for line in diff_strip:
-            print(line)
-            output_file.write(line)
 
 def main():
     args = parse_args()
@@ -141,6 +166,7 @@ def main():
         reference_tree_list = file_parser(args, args.reference)
     if args.review and args.reference:
         create_review_diffs(review_tree_list, reference_tree_list)
+
 
 if __name__ == '__main__':
     main()
