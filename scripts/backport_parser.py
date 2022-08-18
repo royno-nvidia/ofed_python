@@ -90,9 +90,6 @@ def file_parser(args, work_on_file):
                     tab -= TAB_SIZE
                     debug_print(tab, endif_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, endif_pattern.group(), output_file)
-                    if tab == 0:
-                        debug_print(tab, ' ', args.debug)
-                        info = write_into_file(args.with_line_number, i, tab, ' ', output_file)
 
                 elif include_pattern and tab > 0:  # have include_statements
                     debug_print(tab, include_pattern.group(), args.debug)
