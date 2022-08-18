@@ -43,6 +43,17 @@ def parse_args():
     return options
 
 
+def inc_tab(tab):
+    return tab + TAB_SIZE
+
+def dec_tab(tab):
+    if tab - TAB_SIZE < 0:
+        print("Tab tried to go under 0")
+        return 0
+    else:
+        return tab - TAB_SIZE
+
+
 def file_parser(args, work_on_file):
     print(f'start processing {work_on_file}')
     # My variable
@@ -50,14 +61,19 @@ def file_parser(args, work_on_file):
     else_statements = ["#else", "#elif"]
     endif_statements = "#endif"
     include_statements = '#include'
-    func_statements = ['void', 'int', 'bool', 'string', '^struct']
+    func_start = ['void', 'int', 'bool', 'string', '^struct']
+    func_end = "}"
 
     tab = 0
     backports_tree = []
+    force_take_line = False
+    inside_function = False
+
     with open('output.csv', 'w') as output_file:
         with open(work_on_file, 'r') as review_file:
             # reading loop from a programing file
-            force_take_line = False
+
+
             for i, line in enumerate(review_file.readlines()):
                 info = ""
                 end_with_backslash = line.endswith('\\\n')
@@ -71,23 +87,25 @@ def file_parser(args, work_on_file):
                 else_pattern = re.search(f"^\s*{'|'.join(else_statements)}.*", line)
                 endif_pattern = re.search(f"^\s*{endif_statements}.*", line)
                 include_pattern = re.search(f"^\s*{include_statements}.*", line)
+                func_start_pattern = re.search(fr"(\s*{'|'.join(func_start)}) (\w+)(\()", line)
+                func_end_pattern = re.search(f"^{func_end}", line)
                 # check if we have any regular expression in the reading line
 
                 if if_pattern:  # have if_statements
                     debug_print(tab, if_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, if_pattern.group(), output_file)
-                    tab += TAB_SIZE
+                    tab = inc_tab(tab)
                     force_take_line = end_with_backslash
 
                 elif else_pattern:  # have else_statements
-                    tab -= TAB_SIZE
+                    tab = dec_tab(tab)
                     debug_print(tab, else_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, else_pattern.group(), output_file)
-                    tab += TAB_SIZE
+                    tab = inc_tab(tab)
                     force_take_line = end_with_backslash
 
                 elif endif_pattern:  # have endif_statements
-                    tab -= TAB_SIZE
+                    tab = dec_tab(tab)
                     debug_print(tab, endif_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, endif_pattern.group(), output_file)
 
@@ -95,12 +113,16 @@ def file_parser(args, work_on_file):
                     debug_print(tab, include_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, include_pattern.group(), output_file)
 
-                else:  # have function_statements
-                    for statement in func_statements:
-                        func_pattern = re.search(fr"(\s*{statement}) (\w+)(\()", line)
-                        if func_pattern and tab > 0:
-                            debug_print(tab, func_pattern.group(2), args.debug)
-                            info = write_into_file(args.with_line_number, i, tab, func_pattern.group(2), output_file)
+                elif func_start_pattern:
+                    debug_print(tab, func_start_pattern.group(2), args.debug)
+                    info = write_into_file(args.with_line_number, i, tab, func_start_pattern.group(2), output_file)
+                    tab = inc_tab(tab)
+                    inside_function = True
+
+                elif func_end_pattern and inside_function:
+                    tab = dec_tab(tab)
+                    inside_function = False
+
                 if info:
                     backports_tree.append(info)
     return backports_tree
@@ -118,9 +140,12 @@ def create_review_diffs(review, reference):
 
 def main():
     args = parse_args()
-    review_tree_list = file_parser(args, args.review)
-    reference_tree_list = file_parser(args, args.reference)
-    create_review_diffs(review_tree_list, reference_tree_list)
+    if args.review:
+        review_tree_list = file_parser(args, args.review)
+    if args.reference:
+        reference_tree_list = file_parser(args, args.reference)
+    if args.review and args.reference:
+        create_review_diffs(review_tree_list, reference_tree_list)
 
 if __name__ == '__main__':
     main()
