@@ -61,7 +61,6 @@ def file_parser(args, work_on_file):
     else_statements = ["#else", "#elif"]
     endif_statements = "#endif"
     include_statements = '#include'
-    func_start = ['void', 'int', 'bool', 'string', '^struct']
     func_end = "}"
 
     tab = 0
@@ -72,8 +71,6 @@ def file_parser(args, work_on_file):
     with open('output.csv', 'w') as output_file:
         with open(work_on_file, 'r') as review_file:
             # reading loop from a programing file
-
-
             for i, line in enumerate(review_file.readlines()):
                 info = ""
                 end_with_backslash = line.endswith('\\\n')
@@ -87,7 +84,7 @@ def file_parser(args, work_on_file):
                 else_pattern = re.search(f"^\s*{'|'.join(else_statements)}.*", line)
                 endif_pattern = re.search(f"^\s*{endif_statements}.*", line)
                 include_pattern = re.search(f"^\s*{include_statements}.*", line)
-                func_start_pattern = re.search(fr"(\s*{'|'.join(func_start)}) (\w+)(\()", line)
+                func_start_pattern = re.search(fr"(\w+)(\()", line)
                 func_end_pattern = re.search(f"^{func_end}", line)
                 # check if we have any regular expression in the reading line
 
@@ -113,9 +110,9 @@ def file_parser(args, work_on_file):
                     debug_print(tab, include_pattern.group(), args.debug)
                     info = write_into_file(args.with_line_number, i, tab, include_pattern.group(), output_file)
 
-                elif func_start_pattern:
-                    debug_print(tab, func_start_pattern.group(2), args.debug)
-                    info = write_into_file(args.with_line_number, i, tab, func_start_pattern.group(2), output_file)
+                elif func_start_pattern and not inside_function:
+                    debug_print(tab, func_start_pattern.group(1), args.debug)
+                    info = write_into_file(args.with_line_number, i, tab, func_start_pattern.group(1), output_file)
                     tab = inc_tab(tab)
                     inside_function = True
 
@@ -125,6 +122,7 @@ def file_parser(args, work_on_file):
 
                 if info:
                     backports_tree.append(info)
+
     return backports_tree
 
 def create_review_diffs(review, reference):
