@@ -1,6 +1,7 @@
 '''
   python script that order any programing file
 '''
+import os
 import re
 import argparse
 from difflib import Differ
@@ -32,11 +33,11 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Automatic full file '
                                      'review for defines and functions order')
     # Add Arguments
-    parser.add_argument('--review', type=str, default="",
+    parser.add_argument('--review', type=str, default="", required=True,
                         help='Set a file path to review')
     parser.add_argument('--reference', type=str, default="",
                         help='Set a file path to use as reference')
-    parser.add_argument('--output', type=str, default="",
+    parser.add_argument('--output', type=str, default="", required=True,
                         help='File to flush reviewer output into')
     parser.add_argument('-l', '--with-line-number', dest='include_numbers', action='store_true',
                         help='Get output with line number')
@@ -160,6 +161,10 @@ def file_parser(args, work_on_file):
 
 def main():
     args = parse_args()
+    if os.path.exists(args.output):
+        print(f'-W- File {args.output} will be override')
+        clean_file = open(args.output, 'w')
+        clean_file.close()
     if args.review:
         review_tree_list = file_parser(args, args.review)
     if args.reference:
